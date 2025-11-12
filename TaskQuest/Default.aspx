@@ -121,6 +121,68 @@
     <!-- ========================= hero-section-wrapper-6 end ========================= -->
 		
 
+            <!-- ========================= feature style-5 start ========================= -->
+    <section id="feature" class="feature-section feature-style-5">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-xxl-5 col-xl-5 col-lg-7 col-md-8">
+            <div class="section-title text-center mb-60">
+              <h3 class="mb-15 wow fadeInUp" data-wow-delay=".2s">Powerful Features to Keep You on Track</h3>
+              <p class="wow fadeInUp" data-wow-delay=".4s">Everything you need to organize your day, stay focused, and reach your goals — all in one simple app.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          
+          <div class="col-lg-4 col-md-6">
+            <div class="single-feature wow fadeInUp" data-wow-delay=".4s">
+              <div class="icon">
+                <i class="lni lni-pallet"></i>
+                <svg width="110" height="72" viewBox="0 0 110 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M110 54.7589C110 85.0014 85.3757 66.2583 55 66.2583C24.6243 66.2583 0 85.0014 0 54.7589C0 24.5164 24.6243 0 55 0C85.3757 0 110 24.5164 110 54.7589Z" fill="#EBF4FF"/>
+                  </svg> 
+              </div>
+              <div class="content">
+                <h5>Minimal & Clean Design</h5>
+                <p>Focus on your goals without distractions — a simple interface that makes productivity feel good.</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-4 col-md-6">
+            <div class="single-feature wow fadeInUp" data-wow-delay=".6s">
+              <div class="icon">
+                <i class="lni lni-stats-up"></i>
+                <svg width="110" height="72" viewBox="0 0 110 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M110 54.7589C110 85.0014 85.3757 66.2583 55 66.2583C24.6243 66.2583 0 85.0014 0 54.7589C0 24.5164 24.6243 0 55 0C85.3757 0 110 24.5164 110 54.7589Z" fill="#EBF4FF"/>
+                  </svg> 
+              </div>
+              <div class="content">
+                <h5>Progress Tracking</h5>
+                <p>See how much you’ve accomplished and stay motivated with simple progress visuals.</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-4 col-md-6">
+            <div class="single-feature wow fadeInUp" data-wow-delay=".2s">
+              <div class="icon">
+                <i class="lni lni-code-alt"></i>
+                <svg width="110" height="72" viewBox="0 0 110 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M110 54.7589C110 85.0014 85.3757 66.2583 55 66.2583C24.6243 66.2583 0 85.0014 0 54.7589C0 24.5164 24.6243 0 55 0C85.3757 0 110 24.5164 110 54.7589Z" fill="#EBF4FF"/>
+                  </svg> 
+              </div>
+              <div class="content">
+                <h5>Cross-Device Sync</h5>
+                <p>Access your tasks anytime, anywhere — your lists stay updated on all your devices.</p>
+              </div>
+            </div>
+          </div>
+          
+        </div>
+
+      </div>
+    </section>
+    <!-- ========================= feature style-5 end ========================= -->
 
        <!-- ========================= about style-4 start ========================= -->
     <section id="about" class="about-section about-style-4">
