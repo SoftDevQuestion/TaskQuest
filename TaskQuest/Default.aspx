@@ -102,9 +102,9 @@
           <div class="row">
             <div class="col-lg-6">
               <div class="hero-content-wrapper">
-                <h2 class="mb-30 wow fadeInUp" data-wow-delay=".2s">Stay Organized. Get Things Done.</h2>
-                <p class="mb-30 wow fadeInUp" data-wow-delay=".4s">TaskQuest helps you manage your tasks clarity and focus.Plan smarter , track pregress , and achieve more - effortlessly .</p>
-                <a href="#0" class="button button-lg radius-50 wow fadeInUp" data-wow-delay=".6s">Get Started Now <i class="lni lni-chevron-right"></i> </a>
+                <h2 class="mb-30 wow fadeInUp" data-wow-delay=".2s">Stay Organized .</br> Get Things Done.</h2>
+                <p class="mb-30 wow fadeInUp" data-wow-delay=".4s">TaskQuest helps you manage your tasks clarity and focus . Plan smarter , track pregress , and achieve more - effortlessly .</p>
+                <a href="Login.aspx" class="button button-lg radius-50 wow fadeInUp" data-wow-delay=".6s">Get Started Now <i class="lni lni-chevron-right"></i> </a>
               </div>
             </div>
             <div class="col-lg-6 align-self-end">
@@ -120,6 +120,114 @@
     </section>
     <!-- ========================= hero-section-wrapper-6 end ========================= -->
 		
+
+
+       <!-- ========================= about style-4 start ========================= -->
+    <section id="about" class="about-section about-style-4">
+      <div class="container">
+        <div class="row align-items-center">
+          <div class="col-xl-5 col-lg-6">
+            <div class="about-content-wrapper">
+              <div class="section-title mb-30">
+                <h3 class="mb-25 wow fadeInUp" data-wow-delay=".2s">Who We Are & Why We Built Task Quest ?</h3>
+                <p class="wow fadeInUp" data-wow-delay=".3s">
+                    We are the team behind Task Quest, a group of software enthusiasts passionate about creating smart and simple tools to make everyday life more organized.
+
+With a background in software development, we aim to turn productivity into something enjoyable and easy to achieve.
+
+
+
+We built Task Quest because:
+                </div>
+              <ul>
+                <li class="wow fadeInUp" data-wow-delay=".35s">
+                  <i class="lni lni-checkmark-circle"></i>
+                  We believe staying organized shouldn’t feel complicated — it should feel empowering.
+                </li>
+                <li class="wow fadeInUp" data-wow-delay=".4s">
+                  <i class="lni lni-checkmark-circle"></i>
+                  We wanted to help people stay focused and motivated on their daily goals.
+                </li>
+                <li class="wow fadeInUp" data-wow-delay=".45s">
+                  <i class="lni lni-checkmark-circle"></i>
+                  We love building tools that bring structure, clarity, and a bit of fun to everyday tasks.
+                </li>
+              </ul>
+              <a  href="Login.aspx" class="button button-lg radius-10 wow fadeInUp" data-wow-delay=".5s">Learn More</a>
+            </div>
+          </div>
+          <div class="col-xl-7 col-lg-6">
+            <div class="about-image text-lg-right wow fadeInUp" data-wow-delay=".5s">
+              <img src="assets/img/about/about-4/about-img.svg" alt="">
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- ========================= about style-4 end ========================= -->
+        
+    <!-- ========================= contact-style-3 start ========================= -->
+    <section id="contact" class="contact-section contact-style-3">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-xxl-5 col-xl-5 col-lg-7 col-md-10">
+            <div class="section-title text-center mb-50">
+              <h3 class="mb-15">Get in touch</h3>
+              <p>Have a question, suggestion, or just want to say hello?
+We’re here to help and always open to hearing from you.
+
+Contact us through the form below or via email — we’ll get back to you as soon as possible.</p>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          
+
+          <div class="left-wrapper">
+              <div class="row">
+                <div class="col-lg-12 col-md-6">
+                  <div class="single-item">
+                    <div class="icon">
+                      <i class="lni lni-phone"></i>
+                    </div>
+                    <div class="text">
+                      <p>+982155003335</p>
+                      <p>+989106996586</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-lg-12 col-md-6">
+                  <div class="single-item">
+                    <div class="icon">
+                      <i class="lni lni-envelope"></i>
+                    </div>
+                    <div class="text">
+                      <p>https://www.shariaty.ac.ir/</p>
+                      <p>Elahemahmoodi81@gmail.com</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-lg-12 col-md-6">
+                  <div class="single-item">
+                    <div class="icon">
+                      <i class="lni lni-map-marker"></i>
+                    </div>
+                    <div class="text">
+                      <p>Tehran Province, Tehran, District 19، Tondgooyan Expy, st,61st St، Misagh, Daneshgah St , Shariaty Technical and Vocational College</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+            </div>
+        </div>
+      </div>
+    </section>
+    <!-- ========================= contact-style-3 end ========================= -->
+
+    
+
+
 
         <!-- ========================= footer style-4 start ========================= -->
     <footer class="footer footer-style-4">

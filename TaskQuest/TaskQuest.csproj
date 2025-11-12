@@ -70,13 +70,12 @@
     <Content Include="assets\css\animate.css" />
     <Content Include="assets\css\bootstrap-5.0.0-beta1.min.css" />
     <Content Include="assets\css\glightbox.min.css" />
-    <Content Include="assets\css\landing.css" />
     <Content Include="assets\css\lindy-uikit.css" />
     <Content Include="assets\css\LineIcons.2.0.css" />
     <Content Include="assets\css\login.css" />
     <Content Include="assets\css\tiny-slider.css" />
     <Content Include="assets\fonts\LineIcons.svg" />
-    <Content Include="assets\img\about\about-4\about-img.svg" />
+    <Content Include="assets\img\about\about-4\about-img.png" />
     <Content Include="assets\img\clients\brands.svg" />
     <Content Include="assets\img\favicon.svg" />
     <Content Include="assets\img\hero\hero-5\hero-bg.svg" />
