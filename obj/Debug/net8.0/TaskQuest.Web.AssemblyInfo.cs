@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TaskQuest.Web")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2a134554bad3079beeab28269025f9d212bb7210")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ec373e4d2cbe416c58f6211b27bf3e8388bb8d88")]
 [assembly: System.Reflection.AssemblyProductAttribute("TaskQuest.Web")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TaskQuest.Web")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
