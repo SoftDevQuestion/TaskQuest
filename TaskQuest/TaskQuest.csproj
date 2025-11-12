@@ -67,6 +67,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="assets\css\landing.css" />
     <Content Include="assets\css\login.css" />
     <Content Include="assets\js\form-utils.js" />
     <Content Include="assets\js\login.js" />
