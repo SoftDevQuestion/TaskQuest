@@ -270,14 +270,61 @@ class MaterialLoginForm {
         button.style.opacity = '0.7';
         
         try {
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            console.log(`Redirecting to ${provider} authentication...`);
-            // window.location.href = `/auth/${provider.toLowerCase()}`;
+            if (provider === 'Google') {
+                // Use Google Identity Services API
+                if (window.google && window.google.accounts) {
+                    // Show Google sign-in popup
+                    window.google.accounts.id.initialize({
+                        client_id: 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com',
+                        callback: this.handleGoogleCallback.bind(this),
+                        auto_select: false,
+                        cancel_on_tap_outside: true
+                    });
+                    
+                    // Show the Google sign-in prompt
+                    window.google.accounts.id.prompt();
+                } else {
+                    console.error('Google Identity Services not loaded');
+                    alert('Google login service is not available. Please try again later.');
+                }
+            }
         } catch (error) {
             console.error(`${provider} authentication failed: ${error.message}`);
+            alert('Login with Google failed. Please try again.');
         } finally {
             button.style.pointerEvents = 'auto';
             button.style.opacity = '1';
+        }
+    }
+    
+    handleGoogleCallback(response) {
+        console.log('Google login callback received');
+        
+        if (response.credential) {
+            // Create a hidden form to submit the Google credential to the server
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = 'Login.aspx';
+            
+            // Add credential field
+            const credentialInput = document.createElement('input');
+            credentialInput.type = 'hidden';
+            credentialInput.name = 'credential';
+            credentialInput.value = response.credential;
+            form.appendChild(credentialInput);
+            
+            // Add submit button to trigger postback
+            const submitButton = document.createElement('input');
+            submitButton.type = 'hidden';
+            submitButton.name = '__EVENTTARGET';
+            submitButton.value = '';
+            form.appendChild(submitButton);
+            
+            document.body.appendChild(form);
+            form.submit();
+        } else {
+            console.error('No credential received from Google');
+            alert('Google login failed. Please try again.');
         }
     }
     

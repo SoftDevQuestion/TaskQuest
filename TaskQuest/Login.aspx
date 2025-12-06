@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Login.aspx.cs" Inherits="TaskQuest.Login" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Login.aspx.cs" Inherits="TaskQuest.Login" %>
 
 <!DOCTYPE html>
 
@@ -8,6 +8,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TaskQuest Login</title>
     <link rel="stylesheet" href="assets/css/login.css">
+    <meta name="google-signin-client_id" content="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
         <div class="login-container">
@@ -81,7 +83,21 @@
             </div>
 
             <div class="social-login">
-                <button type="button" class="social-btn google-material">
+                <div id="g_id_onload"
+                     data-client_id="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"
+                     data-login_uri="Login.aspx"
+                     data-auto_prompt="false">
+                </div>
+                <div class="g_id_signin"
+                     data-type="standard"
+                     data-size="large"
+                     data-theme="outline"
+                     data-text="sign_in_with"
+                     data-shape="rectangular"
+                     data-logo_alignment="left">
+                </div>
+                
+                <button type="button" class="social-btn google-material" id="googleSignInBtn" style="display:none;">
                     <div class="social-ripple"></div>
                     <div class="social-icon google-icon">
                         <svg viewBox="0 0 24 24">
@@ -93,7 +109,6 @@
                     </div>
                     <span>Continue with Google</span>
                 </button>
-                
                 
             </div>
 

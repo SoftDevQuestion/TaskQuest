@@ -1,4 +1,4 @@
-﻿
+
 * {
     margin: 0;
     padding: 0;
@@ -510,6 +510,24 @@ body {
     flex-direction: column;
     gap: 12px;
     margin-bottom: 24px;
+}
+
+/* Google Sign-In Button Styling */
+.g_id_signin {
+    width: 100% !important;
+    height: 46px !important;
+    border-radius: 4px !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12) !important;
+    transition: all 0.2s ease !important;
+}
+
+.g_id_signin:hover {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.16) !important;
+}
+
+.g_id_signin iframe {
+    width: 100% !important;
+    height: 46px !important;
 }
 
 .social-btn {
