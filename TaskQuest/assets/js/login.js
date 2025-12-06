@@ -275,7 +275,7 @@ class MaterialLoginForm {
                 if (window.google && window.google.accounts) {
                     // Show Google sign-in popup
                     window.google.accounts.id.initialize({
-                        client_id: 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com',
+                        client_id: '724036367114-euktku7v3ss4uqag49toivapuh1vqgke.apps.googleusercontent.com',
                         callback: this.handleGoogleCallback.bind(this),
                         auto_select: false,
                         cancel_on_tap_outside: true

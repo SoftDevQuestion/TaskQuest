@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TaskQuest Login</title>
     <link rel="stylesheet" href="assets/css/login.css">
-    <meta name="google-signin-client_id" content="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com">
+    <meta name="google-signin-client_id" content="724036367114-euktku7v3ss4uqag49toivapuh1vqgke.apps.googleusercontent.com">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
@@ -84,7 +84,7 @@
 
             <div class="social-login">
                 <div id="g_id_onload"
-                     data-client_id="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"
+                     data-client_id="724036367114-euktku7v3ss4uqag49toivapuh1vqgke.apps.googleusercontent.com"
                      data-login_uri="Login.aspx"
                      data-auto_prompt="false">
                 </div>
