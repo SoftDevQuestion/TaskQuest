@@ -17,11 +17,11 @@
 ```xml
 <connectionStrings>
     <add name="TodoAppDB" 
-         connectionString="Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=P:\Dbs\ToDo.mdf;Integrated Security=True;Connect Timeout=30" 
+         connectionString="Data Source=.\MSRDINANI;Initial Catalog=ToDo;Integrated Security=True;Connect Timeout=30" 
          providerName="System.Data.SqlClient" />
 </connectionStrings>
 ```
-این تنظیم به برنامه اجازه می‌دهد تا با استفاده از LocalDB به فایل دیتابیس متصل شود.
+این تنظیم به برنامه اجازه می‌دهد تا با استفاده از نمونه SQL Server `MSRDINANI` به دیتابیس متصل شود.
 
 ### 2. صفحه ثبت‌نام (Sign Up)
 
@@ -31,7 +31,7 @@
 - **تکرار رمز عبور (Confirm Password):** برای اطمینان از صحت رمز عبور وارد شده.
 
 #### اصلاح جاوااسکریپت
-فایل `login.js` که مسئولیت اعتبارسنجی کلاینت‌ساید را بر عهده داشت، به‌گونه‌ای اصلاح شد که پس از اعتبارسنجی موفق، اجازه ارسال فرم به سرور (PostBack) را بدهد. پیش از این، کد جاوااسکریپت جلوی ارسال فرم را می‌گرفت و صرفاً یک انیمیشن نمایش می‌داد.
+فایل `login.js` که مسئولیت اعتبارسنجی کلاینت‌ساید را بر عهده دارد، به‌گونه‌ای اصلاح شد که پس از اعتبارسنجی موفق، اجازه ارسال فرم به سرور (PostBack) را بدهد. این کد برای هر دو فرم ورود و ثبت‌نام کار می‌کند و فیلدهای مربوطه را بررسی می‌کند.
 
 #### منطق کد (Backend)
 در فایل `SignUp.aspx.cs`، متد `RegisterUser` با منطق زیر پیاده‌سازی شده است:
@@ -49,7 +49,10 @@ private void RegisterUser(string username, string email, string password)
 
             // 1. Check if Email exists
             string checkEmailQuery = "SELECT COUNT(*) FROM Users WHERE Email = @Email";
-            // ... (اجرای کوئری)
+            SqlCommand checkEmailCmd = new SqlCommand(checkEmailQuery, conn);
+            checkEmailCmd.Parameters.AddWithValue("@Email", email);
+            int emailCount = (int)checkEmailCmd.ExecuteScalar();
+
             if (emailCount > 0)
             {
                 ShowError("email", "This Email is already registered!");
@@ -58,7 +61,10 @@ private void RegisterUser(string username, string email, string password)
 
             // 2. Check if Username exists
             string checkUserQuery = "SELECT COUNT(*) FROM Users WHERE Username = @Username";
-            // ... (اجرای کوئری)
+            SqlCommand checkUserCmd = new SqlCommand(checkUserQuery, conn);
+            checkUserCmd.Parameters.AddWithValue("@Username", username);
+            int userCount = (int)checkUserCmd.ExecuteScalar();
+
             if (userCount > 0)
             {
                 ShowError("username", "This Username is already taken!");
@@ -68,11 +74,17 @@ private void RegisterUser(string username, string email, string password)
             // 3. Hash password (SHA256)
             string passwordHash = HashPassword(password);
 
-            // 4. Insert User
-            string insertQuery = "INSERT INTO Users (Username, Email, PasswordHash, CreatedAt) VALUES (@Username, @Email, @PasswordHash, @CreatedAt)";
-            // ... (اجرای کوئری درج)
+            // 4. Insert User (including FullName to handle database constraint)
+            string insertQuery = "INSERT INTO Users (FullName, Username, Email, PasswordHash, CreatedAt) VALUES (@FullName, @Username, @Email, @PasswordHash, @CreatedAt)";
+            SqlCommand insertCmd = new SqlCommand(insertQuery, conn);
+            insertCmd.Parameters.AddWithValue("@FullName", username); // Use username as FullName for now
+            insertCmd.Parameters.AddWithValue("@Username", username);
+            insertCmd.Parameters.AddWithValue("@Email", email);
+            insertCmd.Parameters.AddWithValue("@PasswordHash", passwordHash);
+            insertCmd.Parameters.AddWithValue("@CreatedAt", DateTime.Now);
 
             insertCmd.ExecuteNonQuery();
+
             Response.Redirect("Login.aspx");
         }
         catch (Exception ex)
@@ -95,9 +107,30 @@ private void ShowError(string field, string message)
                 formGroup.classList.add('error');
                 errorElement.textContent = '{message}';
                 errorElement.classList.add('show');
+                
+                // Add shake animation
+                const input = document.getElementById('{field}');
+                if(input) {{
+                    input.style.animation = 'materialShake 0.4s ease-in-out';
+                    setTimeout(() => {{ input.style.animation = ''; }}, 400);
+                }}
             }}
         }});";
     ClientScript.RegisterStartupScript(this.GetType(), "ServerError_" + field, script, true);
+}
+
+private string HashPassword(string password)
+{
+    using (SHA256 sha256 = SHA256.Create())
+    {
+        byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < bytes.Length; i++)
+        {
+            builder.Append(bytes[i].ToString("x2"));
+        }
+        return builder.ToString();
+    }
 }
 ```
 
@@ -105,6 +138,7 @@ private void ShowError(string field, string message)
 1.  **اعتبارسنجی مجزا:** ابتدا ایمیل و سپس نام کاربری بررسی می‌شوند تا خطای دقیق به کاربر نمایش داده شود.
 2.  **نمایش خطا:** از متد `ShowError` برای تزریق کد جاوااسکریپت استفاده می‌شود تا خطاها دقیقاً در مکان مناسب (زیر فیلد مربوطه) و با استایل قالب نمایش داده شوند.
 3.  **امنیت:** رمز عبور قبل از ذخیره شدن با استفاده از الگوریتم SHA256 هش می‌شود.
+4.  **مقابله با محدودیت دیتابیس:** چون ستون `FullName` در جدول Users اجباری است، مقدار `Username` به عنوان `FullName` نیز ذخیره می‌شود.
 
 ### 3. صفحه ورود (Login)
 
@@ -114,37 +148,61 @@ private void ShowError(string field, string message)
 ```csharp
 private void LoginUser(string email, string password)
 {
-    // ... (اتصال به دیتابیس)
-    // 1. Get user by email
-    // ...
-    if (reader.Read())
+    string connectionString = WebConfigurationManager.ConnectionStrings["TodoAppDB"].ConnectionString;
+
+    using (SqlConnection conn = new SqlConnection(connectionString))
     {
-        // 2. Check password
-        if (HashPassword(password) == dbPasswordHash)
+        try
         {
-            // Login successful
-            Session["User"] = username;
-            FormsAuthentication.SetAuthCookie(username, false);
-            Response.Redirect("Default.aspx");
+            conn.Open();
+
+            // Get user by email
+            string query = "SELECT Username, PasswordHash FROM Users WHERE Email = @Email";
+            SqlCommand cmd = new SqlCommand(query, conn);
+            cmd.Parameters.AddWithValue("@Email", email);
+
+            SqlDataReader reader = cmd.ExecuteReader();
+
+            if (reader.Read())
+            {
+                string dbPasswordHash = reader["PasswordHash"].ToString();
+                string username = reader["Username"].ToString();
+
+                // Check password
+                if (HashPassword(password) == dbPasswordHash)
+                {
+                    // Login successful
+                    Session["User"] = username;
+                    FormsAuthentication.SetAuthCookie(username, false);
+                    Response.Redirect("Default.aspx");
+                }
+                else
+                {
+                    ShowError("password", "Invalid Password!");
+                }
+            }
+            else
+            {
+                ShowError("email", "User not found!");
+            }
         }
-        else
+        catch (Exception ex)
         {
-            ShowError("password", "Invalid Password!");
+            string msg = ex.Message.Replace("'", "\\'");
+            ShowError("email", "System Error: " + msg);
         }
-    }
-    else
-    {
-        ShowError("email", "User not found!");
     }
 }
 ```
 
-## ساختار فرضی دیتابیس
-کدها بر اساس این فرض نوشته شده‌اند که جدول `Users` در دیتابیس دارای ستون‌های زیر است:
-- `Username` (از نوع متنی)
-- `Email` (از نوع متنی)
-- `PasswordHash` (از نوع متنی - برای ذخیره رمز عبور)
-- `CreatedAt` (از نوع تاریخ)
+## ساختار واقعی دیتابیس
+کدها بر اساس ساختار واقعی جدول `Users` در دیتابیس نوشته شده‌اند که دارای ستون‌های زیر است:
+- `UserID` (کلید اصلی)
+- `FullName` (اجباری)
+- `Username` (اجباری)
+- `Email` (اجباری)
+- `PasswordHash` (اجباری)
+- `CreatedAt` (اجباری)
 
 ## نحوه استفاده
 برای اجرای پروژه، کافی است برنامه را اجرا کرده و وارد صفحه `SignUp.aspx` شوید. پس از ساخت حساب کاربری، به صفحه `Login.aspx` هدایت می‌شوید تا با اطلاعات خود وارد سیستم شوید.

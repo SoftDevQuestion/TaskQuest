@@ -4,6 +4,8 @@ class MaterialLoginForm {
         this.form = document.getElementById('loginForm');
         this.emailInput = document.getElementById('email');
         this.passwordInput = document.getElementById('password');
+        this.usernameInput = document.getElementById('username');
+        this.confirmPasswordInput = document.getElementById('confirmPassword');
         this.passwordToggle = document.getElementById('passwordToggle');
         this.submitButton = this.form.querySelector('.material-btn');
         this.successMessage = document.getElementById('successMessage');
@@ -21,16 +23,34 @@ class MaterialLoginForm {
     
     bindEvents() {
         this.form.addEventListener('submit', (e) => this.handleSubmit(e));
-        this.emailInput.addEventListener('blur', () => this.validateEmail());
-        this.passwordInput.addEventListener('blur', () => this.validatePassword());
-        this.emailInput.addEventListener('input', () => this.clearError('email'));
-        this.passwordInput.addEventListener('input', () => this.clearError('password'));
         
-        // Add Material Design input interactions
-        [this.emailInput, this.passwordInput].forEach(input => {
-            input.addEventListener('focus', (e) => this.handleInputFocus(e));
-            input.addEventListener('blur', (e) => this.handleInputBlur(e));
-        });
+        if (this.emailInput) {
+            this.emailInput.addEventListener('blur', () => this.validateEmail());
+            this.emailInput.addEventListener('input', () => this.clearError('email'));
+            this.emailInput.addEventListener('focus', (e) => this.handleInputFocus(e));
+            this.emailInput.addEventListener('blur', (e) => this.handleInputBlur(e));
+        }
+
+        if (this.passwordInput) {
+            this.passwordInput.addEventListener('blur', () => this.validatePassword());
+            this.passwordInput.addEventListener('input', () => this.clearError('password'));
+            this.passwordInput.addEventListener('focus', (e) => this.handleInputFocus(e));
+            this.passwordInput.addEventListener('blur', (e) => this.handleInputBlur(e));
+        }
+
+        if (this.usernameInput) {
+            this.usernameInput.addEventListener('blur', () => this.validateUsername());
+            this.usernameInput.addEventListener('input', () => this.clearError('username'));
+            this.usernameInput.addEventListener('focus', (e) => this.handleInputFocus(e));
+            this.usernameInput.addEventListener('blur', (e) => this.handleInputBlur(e));
+        }
+
+        if (this.confirmPasswordInput) {
+            this.confirmPasswordInput.addEventListener('blur', () => this.validateConfirmPassword());
+            this.confirmPasswordInput.addEventListener('input', () => this.clearError('confirmPassword'));
+            this.confirmPasswordInput.addEventListener('focus', (e) => this.handleInputFocus(e));
+            this.confirmPasswordInput.addEventListener('blur', (e) => this.handleInputBlur(e));
+        }
     }
     
     setupPasswordToggle() {
@@ -57,24 +77,34 @@ class MaterialLoginForm {
     
     setupRippleEffects() {
         // Setup ripples for inputs
-        [this.emailInput, this.passwordInput].forEach(input => {
-            input.addEventListener('focus', (e) => {
-                const rippleContainer = input.parentNode.querySelector('.ripple-container');
-                this.createRipple(e, rippleContainer);
-            });
+        const inputs = [this.emailInput, this.passwordInput, this.usernameInput, this.confirmPasswordInput];
+        inputs.forEach(input => {
+            if (input) {
+                input.addEventListener('focus', (e) => {
+                    const rippleContainer = input.parentNode.querySelector('.ripple-container');
+                    if (rippleContainer) {
+                        this.createRipple(e, rippleContainer);
+                    }
+                });
+            }
         });
         
         // Setup ripple for main button
-        this.submitButton.addEventListener('click', (e) => {
-            this.createRipple(e, this.submitButton.querySelector('.btn-ripple'));
-        });
+        if (this.submitButton) {
+            this.submitButton.addEventListener('click', (e) => {
+                const ripple = this.submitButton.querySelector('.btn-ripple');
+                if (ripple) this.createRipple(e, ripple);
+            });
+        }
         
         // Setup checkbox ripple
         const checkbox = document.querySelector('.checkbox-wrapper');
-        checkbox.addEventListener('click', (e) => {
-            const rippleContainer = checkbox.querySelector('.checkbox-ripple');
-            this.createRipple(e, rippleContainer);
-        });
+        if (checkbox) {
+            checkbox.addEventListener('click', (e) => {
+                const rippleContainer = checkbox.querySelector('.checkbox-ripple');
+                if (rippleContainer) this.createRipple(e, rippleContainer);
+            });
+        }
     }
     
     createRipple(event, container) {
@@ -107,6 +137,44 @@ class MaterialLoginForm {
         inputWrapper.classList.remove('focused');
     }
     
+    validateUsername() {
+        if (!this.usernameInput) return true;
+
+        const username = this.usernameInput.value.trim();
+        if (!username) {
+            this.showError('username', 'Username is required');
+            return false;
+        }
+        
+        if (username.length < 3) {
+            this.showError('username', 'Username must be at least 3 characters');
+            return false;
+        }
+
+        this.clearError('username');
+        return true;
+    }
+
+    validateConfirmPassword() {
+        if (!this.confirmPasswordInput) return true;
+
+        const confirmPassword = this.confirmPasswordInput.value;
+        const password = this.passwordInput.value;
+
+        if (!confirmPassword) {
+            this.showError('confirmPassword', 'Please confirm your password');
+            return false;
+        }
+
+        if (confirmPassword !== password) {
+            this.showError('confirmPassword', 'Passwords do not match');
+            return false;
+        }
+
+        this.clearError('confirmPassword');
+        return true;
+    }
+
     validateEmail() {
         const email = this.emailInput.value.trim();
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -171,16 +239,22 @@ class MaterialLoginForm {
     
     async handleSubmit(e) {
         
-        const isEmailValid = this.validateEmail();
-        const isPasswordValid = this.validatePassword();
+        let isValid = true;
+
+        if (this.emailInput && !this.validateEmail()) isValid = false;
+        if (this.passwordInput && !this.validatePassword()) isValid = false;
+        if (this.usernameInput && !this.validateUsername()) isValid = false;
+        if (this.confirmPasswordInput && !this.validateConfirmPassword()) isValid = false;
         
-        if (!isEmailValid || !isPasswordValid) {
+        if (!isValid) {
             e.preventDefault();
             // Add material feedback for invalid form
-            this.submitButton.style.animation = 'materialPulse 0.3s ease';
-            setTimeout(() => {
-                this.submitButton.style.animation = '';
-            }, 300);
+            if (this.submitButton) {
+                this.submitButton.style.animation = 'materialPulse 0.3s ease';
+                setTimeout(() => {
+                    this.submitButton.style.animation = '';
+                }, 300);
+            }
             return;
         }
         

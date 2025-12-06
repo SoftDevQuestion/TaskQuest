@@ -24,12 +24,14 @@ namespace TaskQuest
         private void LoginUser(string email, string password)
         {
             string connectionString = WebConfigurationManager.ConnectionStrings["TodoAppDB"].ConnectionString;
+            Log($"Attempting login for {email}. Connection string: {connectionString}");
 
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
                 try
                 {
                     conn.Open();
+                    Log("Connection opened successfully.");
 
                     // Get user by email
                     string query = "SELECT Username, PasswordHash FROM Users WHERE Email = @Email";
@@ -66,8 +68,20 @@ namespace TaskQuest
                 {
                     string msg = ex.Message.Replace("'", "\\'");
                     ShowError("email", "System Error: " + msg);
+                    Log("Error in LoginUser: " + ex.Message + "\nStack Trace: " + ex.StackTrace);
                 }
             }
+        }
+
+        private void Log(string message)
+        {
+            try
+            {
+                string path = Server.MapPath("~/App_Data/auth_debug.log");
+                string logMessage = $"{DateTime.Now}: {message}{Environment.NewLine}";
+                System.IO.File.AppendAllText(path, logMessage);
+            }
+            catch { }
         }
 
         private void ShowError(string field, string message)

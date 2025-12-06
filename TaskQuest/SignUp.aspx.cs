@@ -31,12 +31,14 @@ namespace TaskQuest
         private void RegisterUser(string username, string email, string password)
         {
             string connectionString = WebConfigurationManager.ConnectionStrings["TodoAppDB"].ConnectionString;
+            Log($"Attempting registration for {username} ({email}). Connection string: {connectionString}");
 
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
                 try
                 {
                     conn.Open();
+                    Log("Connection opened successfully.");
 
                     // Check if Email exists
                     string checkEmailQuery = "SELECT COUNT(*) FROM Users WHERE Email = @Email";
@@ -66,8 +68,9 @@ namespace TaskQuest
                     string passwordHash = HashPassword(password);
 
                     // Insert User
-                    string insertQuery = "INSERT INTO Users (Username, Email, PasswordHash, CreatedAt) VALUES (@Username, @Email, @PasswordHash, @CreatedAt)";
+                    string insertQuery = "INSERT INTO Users (FullName, Username, Email, PasswordHash, CreatedAt) VALUES (@FullName, @Username, @Email, @PasswordHash, @CreatedAt)";
                     SqlCommand insertCmd = new SqlCommand(insertQuery, conn);
+                    insertCmd.Parameters.AddWithValue("@FullName", username); // Use username as FullName for now
                     insertCmd.Parameters.AddWithValue("@Username", username);
                     insertCmd.Parameters.AddWithValue("@Email", email);
                     insertCmd.Parameters.AddWithValue("@PasswordHash", passwordHash);
@@ -83,8 +86,20 @@ namespace TaskQuest
                     // Trying to parse common SQL errors
                     string msg = ex.Message.Replace("'", "\\'");
                     ShowError("username", "System Error: " + msg);
+                    Log("Error in RegisterUser: " + ex.Message + "\nStack Trace: " + ex.StackTrace);
                 }
             }
+        }
+
+        private void Log(string message)
+        {
+            try
+            {
+                string path = Server.MapPath("~/App_Data/auth_debug.log");
+                string logMessage = $"{DateTime.Now}: {message}{Environment.NewLine}";
+                System.IO.File.AppendAllText(path, logMessage);
+            }
+            catch { }
         }
 
         private void ShowError(string field, string message)
