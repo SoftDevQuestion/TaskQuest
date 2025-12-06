@@ -170,12 +170,12 @@ class MaterialLoginForm {
     }
     
     async handleSubmit(e) {
-        e.preventDefault();
         
         const isEmailValid = this.validateEmail();
         const isPasswordValid = this.validatePassword();
         
         if (!isEmailValid || !isPasswordValid) {
+            e.preventDefault();
             // Add material feedback for invalid form
             this.submitButton.style.animation = 'materialPulse 0.3s ease';
             setTimeout(() => {
@@ -184,19 +184,8 @@ class MaterialLoginForm {
             return;
         }
         
+        // Form is valid, allow default submission (PostBack)
         this.setLoading(true);
-        
-        try {
-            // Simulate Material Design authentication flow
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            
-            // Show Material success state
-            this.showMaterialSuccess();
-        } catch (error) {
-            this.showError('password', 'Sign in failed. Please try again.');
-        } finally {
-            this.setLoading(false);
-        }
     }
     
     async handleSocialLogin(provider, button) {

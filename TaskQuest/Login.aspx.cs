@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Data;
 using System.Data.SqlClient;
 using System.Web.Configuration;
@@ -54,19 +54,42 @@ namespace TaskQuest
                         }
                         else
                         {
-                            Response.Write("<script>alert('Invalid Password!');</script>");
+                            ShowError("password", "Invalid Password!");
                         }
                     }
                     else
                     {
-                        Response.Write("<script>alert('User not found!');</script>");
+                        ShowError("email", "User not found!");
                     }
                 }
                 catch (Exception ex)
                 {
-                    Response.Write("<script>alert('Error: " + ex.Message.Replace("'", "\\'") + "');</script>");
+                    string msg = ex.Message.Replace("'", "\\'");
+                    ShowError("email", "System Error: " + msg);
                 }
             }
+        }
+
+        private void ShowError(string field, string message)
+        {
+            string script = $@"
+                document.addEventListener('DOMContentLoaded', function() {{
+                    const formGroup = document.getElementById('{field}').closest('.form-group');
+                    const errorElement = document.getElementById('{field}Error');
+                    if(formGroup && errorElement) {{
+                        formGroup.classList.add('error');
+                        errorElement.textContent = '{message}';
+                        errorElement.classList.add('show');
+                        
+                        // Add shake animation
+                        const input = document.getElementById('{field}');
+                        if(input) {{
+                            input.style.animation = 'materialShake 0.4s ease-in-out';
+                            setTimeout(() => {{ input.style.animation = ''; }}, 400);
+                        }}
+                    }}
+                }});";
+            ClientScript.RegisterStartupScript(this.GetType(), "ServerError_" + field, script, true);
         }
 
         private string HashPassword(string password)

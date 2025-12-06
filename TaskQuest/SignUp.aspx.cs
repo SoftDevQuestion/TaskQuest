@@ -20,7 +20,7 @@ namespace TaskQuest
 
                 if (password != confirmPassword)
                 {
-                    Response.Write("<script>alert('Passwords do not match!');</script>");
+                    ShowError("confirmPassword", "Passwords do not match!");
                     return;
                 }
 
@@ -46,7 +46,7 @@ namespace TaskQuest
 
                     if (emailCount > 0)
                     {
-                        Response.Write("<script>alert('This Email is already registered!');</script>");
+                        ShowError("email", "This Email is already registered!");
                         return;
                     }
 
@@ -58,7 +58,7 @@ namespace TaskQuest
 
                     if (userCount > 0)
                     {
-                        Response.Write("<script>alert('This Username is already taken!');</script>");
+                        ShowError("username", "This Username is already taken!");
                         return;
                     }
 
@@ -79,9 +79,34 @@ namespace TaskQuest
                 }
                 catch (Exception ex)
                 {
-                    Response.Write("<script>alert('Error: " + ex.Message.Replace("'", "\\'") + "');</script>");
+                    // Generic error (shown on username field for simplicity or specific generic error container if existed)
+                    // Trying to parse common SQL errors
+                    string msg = ex.Message.Replace("'", "\\'");
+                    ShowError("username", "System Error: " + msg);
                 }
             }
+        }
+
+        private void ShowError(string field, string message)
+        {
+            string script = $@"
+                document.addEventListener('DOMContentLoaded', function() {{
+                    const formGroup = document.getElementById('{field}').closest('.form-group');
+                    const errorElement = document.getElementById('{field}Error');
+                    if(formGroup && errorElement) {{
+                        formGroup.classList.add('error');
+                        errorElement.textContent = '{message}';
+                        errorElement.classList.add('show');
+                        
+                        // Add shake animation
+                        const input = document.getElementById('{field}');
+                        if(input) {{
+                            input.style.animation = 'materialShake 0.4s ease-in-out';
+                            setTimeout(() => {{ input.style.animation = ''; }}, 400);
+                        }}
+                    }}
+                }});";
+            ClientScript.RegisterStartupScript(this.GetType(), "ServerError_" + field, script, true);
         }
 
         private string HashPassword(string password)

@@ -30,6 +30,9 @@
 - **نام کاربری (Username):** برای شناسایی کاربر در سیستم.
 - **تکرار رمز عبور (Confirm Password):** برای اطمینان از صحت رمز عبور وارد شده.
 
+#### اصلاح جاوااسکریپت
+فایل `login.js` که مسئولیت اعتبارسنجی کلاینت‌ساید را بر عهده داشت، به‌گونه‌ای اصلاح شد که پس از اعتبارسنجی موفق، اجازه ارسال فرم به سرور (PostBack) را بدهد. پیش از این، کد جاوااسکریپت جلوی ارسال فرم را می‌گرفت و صرفاً یک انیمیشن نمایش می‌داد.
+
 #### منطق کد (Backend)
 در فایل `SignUp.aspx.cs`، متد `RegisterUser` با منطق زیر پیاده‌سازی شده است:
 
@@ -46,25 +49,19 @@ private void RegisterUser(string username, string email, string password)
 
             // 1. Check if Email exists
             string checkEmailQuery = "SELECT COUNT(*) FROM Users WHERE Email = @Email";
-            SqlCommand checkEmailCmd = new SqlCommand(checkEmailQuery, conn);
-            checkEmailCmd.Parameters.AddWithValue("@Email", email);
-            int emailCount = (int)checkEmailCmd.ExecuteScalar();
-
+            // ... (اجرای کوئری)
             if (emailCount > 0)
             {
-                Response.Write("<script>alert('This Email is already registered!');</script>");
+                ShowError("email", "This Email is already registered!");
                 return;
             }
 
             // 2. Check if Username exists
             string checkUserQuery = "SELECT COUNT(*) FROM Users WHERE Username = @Username";
-            SqlCommand checkUserCmd = new SqlCommand(checkUserQuery, conn);
-            checkUserCmd.Parameters.AddWithValue("@Username", username);
-            int userCount = (int)checkUserCmd.ExecuteScalar();
-
+            // ... (اجرای کوئری)
             if (userCount > 0)
             {
-                Response.Write("<script>alert('This Username is already taken!');</script>");
+                ShowError("username", "This Username is already taken!");
                 return;
             }
 
@@ -73,88 +70,74 @@ private void RegisterUser(string username, string email, string password)
 
             // 4. Insert User
             string insertQuery = "INSERT INTO Users (Username, Email, PasswordHash, CreatedAt) VALUES (@Username, @Email, @PasswordHash, @CreatedAt)";
-            SqlCommand insertCmd = new SqlCommand(insertQuery, conn);
-            insertCmd.Parameters.AddWithValue("@Username", username);
-            insertCmd.Parameters.AddWithValue("@Email", email);
-            insertCmd.Parameters.AddWithValue("@PasswordHash", passwordHash);
-            insertCmd.Parameters.AddWithValue("@CreatedAt", DateTime.Now);
+            // ... (اجرای کوئری درج)
 
             insertCmd.ExecuteNonQuery();
-
             Response.Redirect("Login.aspx");
         }
         catch (Exception ex)
         {
-            Response.Write("<script>alert('Error: " + ex.Message.Replace("'", "\\'") + "');</script>");
+            // نمایش خطا به کاربر
+            string msg = ex.Message.Replace("'", "\\'");
+            ShowError("username", "System Error: " + msg);
         }
     }
+}
+
+// متد کمکی برای نمایش خطاهای سرور در قالب UI موجود
+private void ShowError(string field, string message)
+{
+    string script = $@"
+        document.addEventListener('DOMContentLoaded', function() {{
+            const formGroup = document.getElementById('{field}').closest('.form-group');
+            const errorElement = document.getElementById('{field}Error');
+            if(formGroup && errorElement) {{
+                formGroup.classList.add('error');
+                errorElement.textContent = '{message}';
+                errorElement.classList.add('show');
+            }}
+        }});";
+    ClientScript.RegisterStartupScript(this.GetType(), "ServerError_" + field, script, true);
 }
 ```
 
 **نکات کلیدی:**
 1.  **اعتبارسنجی مجزا:** ابتدا ایمیل و سپس نام کاربری بررسی می‌شوند تا خطای دقیق به کاربر نمایش داده شود.
-2.  **امنیت:** رمز عبور قبل از ذخیره شدن با استفاده از متد `HashPassword` و الگوریتم SHA256 هش می‌شود.
-3.  **جلوگیری از SQL Injection:** استفاده از پارامترها (`Parameters.AddWithValue`) امنیت کوئری‌ها را تضمین می‌کند.
+2.  **نمایش خطا:** از متد `ShowError` برای تزریق کد جاوااسکریپت استفاده می‌شود تا خطاها دقیقاً در مکان مناسب (زیر فیلد مربوطه) و با استایل قالب نمایش داده شوند.
+3.  **امنیت:** رمز عبور قبل از ذخیره شدن با استفاده از الگوریتم SHA256 هش می‌شود.
 
 ### 3. صفحه ورود (Login)
 
 #### منطق کد (Backend)
-در فایل `Login.aspx.cs`، متد `LoginUser` وظیفه احراز هویت را بر عهده دارد:
+در فایل `Login.aspx.cs`، متد `LoginUser` وظیفه احراز هویت را بر عهده دارد و از همان مکانیزم `ShowError` برای نمایش پیام‌های "User not found" یا "Invalid Password" استفاده می‌کند.
 
 ```csharp
 private void LoginUser(string email, string password)
 {
-    string connectionString = WebConfigurationManager.ConnectionStrings["TodoAppDB"].ConnectionString;
-
-    using (SqlConnection conn = new SqlConnection(connectionString))
+    // ... (اتصال به دیتابیس)
+    // 1. Get user by email
+    // ...
+    if (reader.Read())
     {
-        try
+        // 2. Check password
+        if (HashPassword(password) == dbPasswordHash)
         {
-            conn.Open();
-
-            // 1. Get user by email
-            string query = "SELECT Username, PasswordHash FROM Users WHERE Email = @Email";
-            SqlCommand cmd = new SqlCommand(query, conn);
-            cmd.Parameters.AddWithValue("@Email", email);
-
-            SqlDataReader reader = cmd.ExecuteReader();
-
-            if (reader.Read())
-            {
-                string dbPasswordHash = reader["PasswordHash"].ToString();
-                string username = reader["Username"].ToString();
-
-                // 2. Check password
-                if (HashPassword(password) == dbPasswordHash)
-                {
-                    // Login successful
-                    Session["User"] = username;
-                    FormsAuthentication.SetAuthCookie(username, false);
-                    Response.Redirect("Default.aspx");
-                }
-                else
-                {
-                    Response.Write("<script>alert('Invalid Password!');</script>");
-                }
-            }
-            else
-            {
-                Response.Write("<script>alert('User not found!');</script>");
-            }
+            // Login successful
+            Session["User"] = username;
+            FormsAuthentication.SetAuthCookie(username, false);
+            Response.Redirect("Default.aspx");
         }
-        catch (Exception ex)
+        else
         {
-            Response.Write("<script>alert('Error: " + ex.Message.Replace("'", "\\'") + "');</script>");
+            ShowError("password", "Invalid Password!");
         }
+    }
+    else
+    {
+        ShowError("email", "User not found!");
     }
 }
 ```
-
-**نکات کلیدی:**
-1.  **بازیابی اطلاعات:** ابتدا کاربر بر اساس ایمیل جستجو می‌شود.
-2.  **بررسی دقیق:** اگر کاربری با آن ایمیل یافت نشد، خطای "User not found" نمایش داده می‌شود.
-3.  **تطابق رمز عبور:** اگر کاربر پیدا شد، رمز وارد شده هش شده و با هش دیتابیس مقایسه می‌شود. در صورت عدم تطابق، خطای "Invalid Password" نمایش داده می‌شود.
-4.  **مدیریت نشست:** پس از ورود موفق، نام کاربری در `Session` و کوکی احراز هویت (`FormsAuthentication`) ذخیره می‌شود.
 
 ## ساختار فرضی دیتابیس
 کدها بر اساس این فرض نوشته شده‌اند که جدول `Users` در دیتابیس دارای ستون‌های زیر است:
