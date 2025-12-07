@@ -1,4 +1,4 @@
-﻿<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.4.1.0\build\net472\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.targets" Condition="Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.4.1.0\build\net472\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.targets')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -93,9 +93,18 @@
     <Content Include="Default.aspx" />
     <Content Include="Login.aspx" />
     <Content Include="SignUp.aspx" />
+    <Content Include="Dashboard.aspx" />
+    <Content Include="Tasks.aspx" />
+    <Content Include="Projects.aspx" />
+    <Content Include="Teams.aspx" />
+    <Content Include="ChooseAvatar.aspx" />
+    <Content Include="assets\css\choose-avatar.css" />
+    <Content Include="assets\js\choose-avatar.js" />
+    <Content Include="assets\images\default-avatar.svg" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BasePage.cs" />
     <Compile Include="Default.aspx.cs">
       <DependentUpon>Default.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -117,6 +126,41 @@
     </Compile>
     <Compile Include="SignUp.aspx.designer.cs">
       <DependentUpon>SignUp.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Dashboard.aspx.cs">
+      <DependentUpon>Dashboard.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Dashboard.aspx.designer.cs">
+      <DependentUpon>Dashboard.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Tasks.aspx.cs">
+      <DependentUpon>Tasks.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Tasks.aspx.designer.cs">
+      <DependentUpon>Tasks.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Projects.aspx.cs">
+      <DependentUpon>Projects.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Projects.aspx.designer.cs">
+      <DependentUpon>Projects.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Teams.aspx.cs">
+      <DependentUpon>Teams.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Teams.aspx.designer.cs">
+      <DependentUpon>Teams.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ChooseAvatar.aspx.cs">
+      <DependentUpon>ChooseAvatar.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ChooseAvatar.aspx.designer.cs">
+      <DependentUpon>ChooseAvatar.aspx</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
