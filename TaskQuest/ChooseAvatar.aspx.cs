@@ -64,37 +64,44 @@ namespace TaskQuest
                 avatarPath = "assets/images/default-avatar.svg";
             }
 
-            // Save avatar path to database
-            string connectionString = WebConfigurationManager.ConnectionStrings["TodoAppDB"].ConnectionString;
-
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            try
             {
-                conn.Open();
-                
-                // Check if user has avatar column, if not create it
-                string checkColumnQuery = @"
-                    IF NOT EXISTS (SELECT * FROM sys.columns 
-                    WHERE object_id = OBJECT_ID(N'Users') AND name = 'AvatarPath')
-                    BEGIN
-                        ALTER TABLE Users ADD AvatarPath NVARCHAR(255)
-                    END";
-                
-                SqlCommand checkCmd = new SqlCommand(checkColumnQuery, conn);
-                checkCmd.ExecuteNonQuery();
+                // Save avatar path to database
+                string connectionString = WebConfigurationManager.ConnectionStrings["TodoAppDB"].ConnectionString;
 
-                // Update user avatar
-                string updateQuery = "UPDATE Users SET AvatarPath = @AvatarPath WHERE Username = @Username";
-                SqlCommand updateCmd = new SqlCommand(updateQuery, conn);
-                updateCmd.Parameters.AddWithValue("@AvatarPath", avatarPath);
-                updateCmd.Parameters.AddWithValue("@Username", username);
-                
-                int rowsAffected = updateCmd.ExecuteNonQuery();
-                
-                if (rowsAffected > 0)
+                using (SqlConnection conn = new SqlConnection(connectionString))
                 {
-                    // Save avatar path in session for immediate use
-                    Session["UserAvatar"] = avatarPath;
+                    conn.Open();
+                    
+                    // Check if user has avatar column, if not create it
+                    string checkColumnQuery = @"
+                        IF NOT EXISTS (SELECT * FROM sys.columns 
+                        WHERE object_id = OBJECT_ID(N'Users') AND name = 'AvatarPath')
+                        BEGIN
+                            ALTER TABLE Users ADD AvatarPath NVARCHAR(MAX)
+                        END";
+                    
+                    SqlCommand checkCmd = new SqlCommand(checkColumnQuery, conn);
+                    checkCmd.ExecuteNonQuery();
+
+                    // Update user avatar
+                    string updateQuery = "UPDATE Users SET AvatarPath = @AvatarPath WHERE Username = @Username";
+                    SqlCommand updateCmd = new SqlCommand(updateQuery, conn);
+                    updateCmd.Parameters.AddWithValue("@AvatarPath", avatarPath);
+                    updateCmd.Parameters.AddWithValue("@Username", username);
+                    
+                    int rowsAffected = updateCmd.ExecuteNonQuery();
+                    
+                    if (rowsAffected > 0)
+                    {
+                        // Save avatar path in session for immediate use
+                        Session["UserAvatar"] = avatarPath;
+                    }
                 }
+            }
+            catch (Exception)
+            {
+                // Ignore errors to ensure redirection happens
             }
 
             // Redirect to dashboard
