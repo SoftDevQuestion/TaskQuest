@@ -1,0 +1,99 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="SideBar.master.cs" Inherits="TaskQuest.SideBar" %>
+
+<!DOCTYPE html>
+
+<html>
+<head runat="server">
+    <title>TaskQuest</title>
+    
+    <link rel="stylesheet" href="assets/css/sidebar.css"/>
+
+</head>
+<body>
+  <form id="form1" runat="server">
+    <div id="layout">
+      <div id="sidebar">
+          <!-- Sidebar HTML -->
+
+
+          <div class="sidebar">
+
+    <!-- Logo -->
+    <div class="logo">
+        <img src="assets/img/logo/logo.png" alt="logo">
+    </div>
+
+    <!-- Main Menu -->
+    <ul class="menu">
+
+        <li>
+            <img src="https://cdn.jsdelivr.net/npm/feather-icons/dist/icons/grid.svg" class="icon">
+            <a href="Dashboard.aspx"><span>Dashboard</span></a>
+        </li>
+
+        <li>
+            <img src="https://cdn.jsdelivr.net/npm/feather-icons/dist/icons/calendar.svg" class="icon">
+            <a href="Tasks.aspx"><span>Tasks</span></a>
+        </li>
+
+
+        <li>
+            <img src="https://cdn.jsdelivr.net/npm/feather-icons/dist/icons/users.svg" class="icon">
+            <a href="Teams.aspx"><span>Teams</span></a>
+        </li>
+
+        <!-- Active Item -->
+        <li class="active">
+            <img src="https://cdn.jsdelivr.net/npm/feather-icons/dist/icons/folder.svg" class="icon">
+            <a href="Projects.aspx"><span>Projects</span></a>
+        </li>
+
+    </ul>
+
+    <!-- PROJECT LIST -->
+    <div class="project-section">
+        <div class="project-header">
+            <span>PROJECTS</span>
+            <button class="add-btn">+</button>
+        </div>
+
+        <ul class="project-list">
+            <li>
+                <img src="assets/images/projectTestAvatar.jpg" class="project-img">
+                <span>Project A</span>
+                <span class="count">23</span>
+            </li>
+
+            <li>
+                <img src="assets/images/projectTestAvatar.jpg" class="project-img">
+                <span>Project B</span>
+                <span class="count">345</span>
+            </li>
+
+            <li>
+                <img src="assets/images/projectTestAvatar.jpg" class="project-img">
+                <span>Project C</span>
+                <span class="count">568</span>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Profile -->
+    <div class="profile">
+        <img src="assets/images/testAvatar.png" class="avatar">
+        <div class="profile-info">
+            <span class="name">Mr. Rashid Baghheri</span>
+            <span class="role">CEO</span>
+        </div>
+        <img src="https://cdn.jsdelivr.net/npm/feather-icons/dist/icons/settings.svg" class="settings-icon">
+    </div>
+
+</div>
+      </div>
+      <div id="main">
+          <asp:ContentPlaceHolder ID="MainContent" runat="server" />
+      </div>
+    </div>
+  </form>
+</body>
+</html>
