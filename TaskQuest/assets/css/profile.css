@@ -1,0 +1,106 @@
+﻿.profile-modal {
+    width: 400px;
+    padding: 20px;
+    border-radius: 10px;
+    background: white;
+    box-shadow: 0 0 12px rgba(0,0,0,.15);
+    font-family: Arial;
+}
+
+.form-container{
+    display:flex;
+    width:100%;
+    align-items:center;
+    justify-content:center;
+    height:100vh;
+}
+.profile-image {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+    .profile-image img {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        border: 2px solid #ddd;
+    }
+
+.upload-btn {
+    color: #007bff;
+    cursor: pointer;
+}
+
+    .upload-btn input {
+        display: none;
+    }
+
+.avatar-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+.avatar-large {
+    max-width: 100px;
+}
+.avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: 0.3s;
+}
+
+    .avatar:hover {
+        border-color: #007bff;
+    }
+
+    .avatar.selected {
+        border-color: #007bff;
+    }
+
+input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
+.btn-row {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.save-btn {
+    background: #007bff;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+    .save-btn:hover {
+        opacity: 0.8;
+    }
+
+.cancel-btn {
+    background: #ff3b30;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+    .cancel-btn:hover {
+        opacity: 0.8;
+    }
