@@ -4,6 +4,7 @@ using System.Data.SqlClient;
 using System.Web.Configuration;
 using System.Security.Cryptography;
 using System.Text;
+using System.Web.Security;
 
 namespace TaskQuest
 {
@@ -78,7 +79,12 @@ namespace TaskQuest
 
                     insertCmd.ExecuteNonQuery();
 
-                    Response.Redirect("Login.aspx");
+                    // Auto-login after successful signup
+                    Session["User"] = username;
+                    FormsAuthentication.SetAuthCookie(username, false);
+                    
+                    // Redirect to avatar selection
+                    Response.Redirect("ChooseAvatar.aspx");
                 }
                 catch (Exception ex)
                 {
