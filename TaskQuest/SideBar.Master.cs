@@ -13,5 +13,12 @@ namespace TaskQuest
         {
 
         }
+
+        protected void btnSearch_Click(object sender, EventArgs e)
+        {
+            string query = txtSearch.Text.Trim();
+            // اینجا می‌تونی سرچ رو هندل کنی، مثلاً ریدایرکت یا فیلتر دیتا
+            Response.Redirect("SearchResults.aspx?q=" + Server.UrlEncode(query));
+        }
     }
 }

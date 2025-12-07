@@ -6,6 +6,9 @@ body {
     background: #f5f6fa;
 }
 
+#layout{
+    display:flex;
+}
 .sidebar {
     width: 260px;
     height: 100vh;
@@ -62,10 +65,14 @@ a {
             background: #f0f4ff;
         }
 
-        .menu li.active {
-            background: #3d6aff;
-            color: #fff;
-        }
+.menu li.active {
+    background: #5577FF;
+    color: #fff;
+}
+.menu li.active span {
+    
+    color: #fff;
+}
 
 .icon {
     width: 20px;
@@ -162,4 +169,45 @@ a {
     width: 20px;
     opacity: 0.8;
     cursor: pointer;
+}
+
+/* ---------------------  سرچ بار */
+.search-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #f5f6fa;
+    border: 1px solid #e6e8ef;
+    width: 200px;
+    margin: 10px;
+    padding: 10px 25px;
+    border-radius: 25px;
+    background-color: #fff;
+    display: flex;
+}
+
+.search-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: 14px;
+    color: #2c3e50;
+}
+
+    .search-input::placeholder {
+        color: #aaa;
+    }
+
+.search-btn {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    padding: 0;
+}
+
+.search-icon {
+    width: 18px;
+    height: 18px;
+    color: #7f8c8d;
 }

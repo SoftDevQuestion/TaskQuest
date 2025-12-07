@@ -91,6 +91,14 @@
 </div>
       </div>
       <div id="main">
+          <!-- Search Bar in ASP.NET WebForms -->
+<div class="search-bar">
+    <asp:TextBox ID="txtSearch" runat="server" CssClass="search-input" placeholder="Search"></asp:TextBox>
+    <asp:LinkButton ID="btnSearch" runat="server" CssClass="search-btn" OnClick="btnSearch_Click">
+        <img src="https://cdn.jsdelivr.net/npm/feather-icons/dist/icons/search.svg" class="search-icon" alt="Search" />
+    </asp:LinkButton>
+</div>
+
           <asp:ContentPlaceHolder ID="MainContent" runat="server" />
       </div>
     </div>
