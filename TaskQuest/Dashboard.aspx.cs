@@ -8,23 +8,23 @@ namespace TaskQuest
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            // Check if user is logged in
-            //if (Session["User"] == null)
-            //{
-            //    Response.Redirect("Login.aspx");
-            //    return;
-            //}
+            //Check if user is logged in
+            if (Session["User"] == null)
+            {
+                Response.Redirect("Login.aspx");
+                return;
+            }
 
-            //if (!IsPostBack)
-            //{
-            //    LoadUserInfo();
-            //}
+            if (!IsPostBack)
+            {
+                LoadUserInfo();
+            }
         }
 
-        //private void LoadUserInfo()
-        //{
-        //    // Set welcome message with proper encoding
-        //    SetControlText(lblWelcome, "کاربر گرامی خوش آمدید");
-        //}
+        private void LoadUserInfo()
+        {
+            // Set welcome message with proper encoding
+            SetControlText(lblWelcome, "کاربر گرامی خوش آمدید");
+        }
     }
 }
