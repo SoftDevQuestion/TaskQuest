@@ -164,8 +164,17 @@ namespace TaskQuest
                     // Reload data to reflect changes
                     LoadUserData();
                     
-                    // Show success message or redirect
-                    // For now, reload the page content is enough as requested
+                    // Show success message and redirect/close modal
+                    string script = @"
+                        alert('تغییرات با موفقیت ذخیره شد !');
+                        if(window.parent && window.parent.closeProfileModal) {
+                            window.parent.closeProfileModal();
+                            window.parent.location.reload(); // Reload parent to update avatar in sidebar
+                        } else {
+                            window.location.href = 'Dashboard.aspx';
+                        }
+                    ";
+                    ClientScript.RegisterStartupScript(this.GetType(), "SaveSuccess", script, true);
                 }
                 catch (Exception ex)
                 {
@@ -177,8 +186,15 @@ namespace TaskQuest
 
         protected void btnCancel_Click(object sender, EventArgs e)
         {
-            Response.Redirect("Dashboard.aspx", false);
-            Context.ApplicationInstance.CompleteRequest();
+            // Close modal if in modal, else redirect
+            string script = @"
+                if(window.parent && window.parent.closeProfileModal) {
+                    window.parent.closeProfileModal();
+                } else {
+                    window.location.href = 'Dashboard.aspx';
+                }
+            ";
+            ClientScript.RegisterStartupScript(this.GetType(), "CancelAction", script, true);
         }
 
         private string HashPassword(string password)
