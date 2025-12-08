@@ -14,10 +14,35 @@
             margin: 0;
             font-family: 'Vazirmatn', Arial, sans-serif;
         }
+        /* Success Popup Style */
+        .success-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #28a745; /* Green color */
+            color: white;
+            padding: 20px 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 2000;
+            text-align: center;
+            font-size: 18px;
+            animation: fadeIn 0.3s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translate(-50%, -60%); }
+            to { opacity: 1; transform: translate(-50%, -50%); }
+        }
     </style>
 </head>
 <body>
     <form id="form1" runat="server" enctype="multipart/form-data">
+        <div id="successPopup" class="success-popup">
+            تغییرات با موفقیت ذخیره شد !
+        </div>
+
         <div class="form-container">
             <div class="profile-modal">
                 <h2>My Profile</h2>

@@ -166,12 +166,17 @@ namespace TaskQuest
                     
                     // Show success message and redirect/close modal
                     string script = @"
-                        alert('تغییرات با موفقیت ذخیره شد !');
-                        if(window.parent && window.parent.closeProfileModal) {
-                            window.parent.closeProfileModal();
-                            window.parent.location.reload(); // Reload parent to update avatar in sidebar
-                        } else {
-                            window.location.href = 'Dashboard.aspx';
+                        var popup = document.getElementById('successPopup');
+                        if(popup) {
+                            popup.style.display = 'block';
+                            setTimeout(function() {
+                                if(window.parent && window.parent.closeProfileModal) {
+                                    window.parent.closeProfileModal();
+                                    window.parent.location.reload(); // Reload parent to update avatar in sidebar
+                                } else {
+                                    window.location.href = 'Dashboard.aspx';
+                                }
+                            }, 2000); // Wait 2 seconds before closing
                         }
                     ";
                     ClientScript.RegisterStartupScript(this.GetType(), "SaveSuccess", script, true);

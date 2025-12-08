@@ -85,10 +85,10 @@
     <!-- Profile -->
     <a href="#" onclick="openProfileModal(); return false;" style="text-decoration: none; color: inherit;">
         <div class="profile">
-            <img src="assets/images/testAvatar.png" class="avatar">
+            <asp:Image ID="imgProfileAvatar" runat="server" CssClass="avatar" ImageUrl="assets/images/default-avatar.png" />
             <div class="profile-info">
-                <span class="name">Mr. Rashid Baghheri</span>
-                <span class="role">CEO</span>
+                <asp:Label ID="lblProfileName" runat="server" CssClass="name" Text="Guest User"></asp:Label>
+                <span class="role">User</span>
             </div>
             <img src="https://cdn.jsdelivr.net/npm/feather-icons/dist/icons/settings.svg" class="settings-icon">
         </div>

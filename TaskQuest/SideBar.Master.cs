@@ -11,7 +11,31 @@ namespace TaskQuest
     {
         protected void Page_Load(object sender, EventArgs e)
         {
+            if (!IsPostBack)
+            {
+                UpdateProfileInfo();
+            }
+        }
 
+        public void UpdateProfileInfo()
+        {
+            if (Session["User"] != null)
+            {
+                lblProfileName.Text = Session["User"].ToString();
+                
+                if (Session["UserAvatar"] != null)
+                {
+                    imgProfileAvatar.ImageUrl = Session["UserAvatar"].ToString();
+                }
+                else
+                {
+                    // Fallback to check DB or use default
+                    // For now, let's assume if session is empty, we might need to load it (or just use default)
+                    // In a real scenario, you might want to fetch from DB if Session["UserAvatar"] is null but User is logged in
+                    // But for performance, relying on Session set during Login/ProfileUpdate is better.
+                    imgProfileAvatar.ImageUrl = "assets/images/default-avatar.png";
+                }
+            }
         }
 
         protected void btnSearch_Click(object sender, EventArgs e)
