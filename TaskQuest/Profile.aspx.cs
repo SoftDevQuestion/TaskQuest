@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -7,7 +7,7 @@ using System.Web.UI.WebControls;
 
 namespace TaskQuest
 {
-    public partial class Profile : System.Web.UI.Page
+    public partial class Profile : BasePage
     {
         
         protected void Page_Load(object sender, EventArgs e)
@@ -31,6 +31,12 @@ namespace TaskQuest
             string selectedAvatar = hdSelectedAvatar.Value;
 
             // TODO ذخیره در دیتابیس
+        }
+
+        protected void btnCancel_Click(object sender, EventArgs e)
+        {
+            Response.Redirect("Dashboard.aspx", false);
+            Context.ApplicationInstance.CompleteRequest();
         }
     }
 }

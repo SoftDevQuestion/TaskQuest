@@ -13,7 +13,8 @@ namespace TaskQuest
             // Check if user is logged in
             if (Session["User"] == null)
             {
-                Response.Redirect("Login.aspx");
+                Response.Redirect("Login.aspx", false);
+                Context.ApplicationInstance.CompleteRequest();
                 return;
             }
 

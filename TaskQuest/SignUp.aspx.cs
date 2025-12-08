@@ -84,7 +84,8 @@ namespace TaskQuest
                     FormsAuthentication.SetAuthCookie(username, false);
                     
                     // Redirect to avatar selection
-                    Response.Redirect("ChooseAvatar.aspx");
+                    Response.Redirect("ChooseAvatar.aspx", false);
+                    Context.ApplicationInstance.CompleteRequest();
                 }
                 catch (Exception ex)
                 {

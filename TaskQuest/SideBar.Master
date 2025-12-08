@@ -6,6 +6,7 @@
 <head runat="server">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="assets/css/fonts.css" />
     
               <asp:ContentPlaceHolder ID="HeaderContent" runat="server" />
 
@@ -82,14 +83,16 @@
     </div>
 
     <!-- Profile -->
-    <div class="profile">
-        <img src="assets/images/testAvatar.png" class="avatar">
-        <div class="profile-info">
-            <span class="name">Mr. Rashid Baghheri</span>
-            <span class="role">CEO</span>
+    <a href="Profile.aspx" style="text-decoration: none; color: inherit;">
+        <div class="profile">
+            <img src="assets/images/testAvatar.png" class="avatar">
+            <div class="profile-info">
+                <span class="name">Mr. Rashid Baghheri</span>
+                <span class="role">CEO</span>
+            </div>
+            <img src="https://cdn.jsdelivr.net/npm/feather-icons/dist/icons/settings.svg" class="settings-icon">
         </div>
-        <img src="https://cdn.jsdelivr.net/npm/feather-icons/dist/icons/settings.svg" class="settings-icon">
-    </div>
+    </a>
 
 </div>
       </div>

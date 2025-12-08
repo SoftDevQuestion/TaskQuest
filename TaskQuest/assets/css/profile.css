@@ -1,10 +1,10 @@
-﻿.profile-modal {
+.profile-modal {
     width: 400px;
     padding: 20px;
     border-radius: 10px;
     background: white;
     box-shadow: 0 0 12px rgba(0,0,0,.15);
-    font-family: Arial;
+    font-family: 'Vazirmatn', Arial, sans-serif;
 }
 
 .form-container{

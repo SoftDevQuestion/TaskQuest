@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -18,7 +18,8 @@ namespace TaskQuest
         {
             string query = txtSearch.Text.Trim();
             // اینجا می‌تونی سرچ رو هندل کنی، مثلاً ریدایرکت یا فیلتر دیتا
-            Response.Redirect("SearchResults.aspx?q=" + Server.UrlEncode(query));
+            Response.Redirect("SearchResults.aspx?q=" + Server.UrlEncode(query), false);
+            Context.ApplicationInstance.CompleteRequest();
         }
     }
 }
