@@ -17,7 +17,7 @@
     </style>
 </head>
 <body>
-    <form id="form1" runat="server">
+    <form id="form1" runat="server" enctype="multipart/form-data">
         <div class="form-container">
             <div class="profile-modal">
                 <h2>My Profile</h2>
