@@ -5,7 +5,9 @@ body {
     font-family: 'Inter', sans-serif;
     background: #f5f6fa;
 }
-
+#main{
+    flex:1;
+}
 #layout{
     display:flex;
 }

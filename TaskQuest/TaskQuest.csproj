@@ -74,6 +74,7 @@
     <Content Include="assets\css\LineIcons.2.0.css" />
     <Content Include="assets\css\login.css" />
     <Content Include="assets\css\profile.css" />
+    <Content Include="assets\css\projects.css" />
     <Content Include="assets\css\sidebar.css" />
     <Content Include="assets\css\tiny-slider.css" />
     <Content Include="assets\fonts\LineIcons.svg" />
@@ -86,6 +87,8 @@
     <Content Include="assets\images\avatar7.png" />
     <Content Include="assets\images\avatar8.png" />
     <Content Include="assets\images\avatar9.png" />
+    <Content Include="assets\images\project1.jpeg" />
+    <Content Include="assets\images\project2.jpeg" />
     <Content Include="assets\images\projectTestAvatar.jpg" />
     <Content Include="assets\images\testAvatar.png" />
     <Content Include="assets\img\about\about-4\about-img.svg" />

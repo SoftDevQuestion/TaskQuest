@@ -11,5 +11,23 @@
 
 
 <asp:Content ID="ProjectContent" ContentPlaceHolderID="MainContent" runat="server">
-    project
+    <h2 style="padding:5px 20px;">Projects</h2>
+    <div class="projects-container">
+    <div class="projects-grid">
+        <asp:Repeater ID="rptProjects" runat="server">
+            <ItemTemplate>
+                <div class="project-card">
+                    <div class="project-image">
+                        <img src='<%# Eval("ImageUrl") %>' />
+                    </div>
+
+                    <div class="project-content">
+                        <h3 class="project-title"><%# Eval("Title") %></h3>
+                        <p class="project-description"><%# Eval("Description") %></p>
+                    </div>
+                </div>
+            </ItemTemplate>
+        </asp:Repeater>
+    </div>
+</div>
 </asp:Content>
