@@ -76,6 +76,7 @@
     <Content Include="assets\css\profile.css" />
     <Content Include="assets\css\projects.css" />
     <Content Include="assets\css\sidebar.css" />
+    <Content Include="assets\css\teams.css" />
     <Content Include="assets\css\tiny-slider.css" />
     <Content Include="assets\fonts\LineIcons.svg" />
     <Content Include="assets\images\avatar1.png" />
