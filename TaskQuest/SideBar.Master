@@ -6,6 +6,7 @@
 <head runat="server">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="assets/css/fonts.css" />
     
               <asp:ContentPlaceHolder ID="HeaderContent" runat="server" />
 
@@ -82,14 +83,16 @@
     </div>
 
     <!-- Profile -->
-    <div class="profile">
-        <img src="assets/images/testAvatar.png" class="avatar">
-        <div class="profile-info">
-            <span class="name">Mr. Rashid Baghheri</span>
-            <span class="role">CEO</span>
+    <a href="#" onclick="openProfileModal(); return false;" style="text-decoration: none; color: inherit;">
+        <div class="profile">
+            <asp:Image ID="imgProfileAvatar" runat="server" CssClass="avatar" ImageUrl="assets/images/default-avatar.png" />
+            <div class="profile-info">
+                <asp:Label ID="lblProfileName" runat="server" CssClass="name" Text="Guest User"></asp:Label>
+                <span class="role">User</span>
+            </div>
+            <img src="https://cdn.jsdelivr.net/npm/feather-icons/dist/icons/settings.svg" class="settings-icon">
         </div>
-        <img src="https://cdn.jsdelivr.net/npm/feather-icons/dist/icons/settings.svg" class="settings-icon">
-    </div>
+    </a>
 
 </div>
       </div>
@@ -105,6 +108,34 @@
           <asp:ContentPlaceHolder ID="MainContent" runat="server" />
       </div>
     </div>
+
+    <!-- Profile Modal -->
+    <div id="profileModal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeProfileModal()">&times;</span>
+            <iframe id="profileFrame" class="modal-iframe"></iframe>
+        </div>
+    </div>
+
+    <script>
+        function openProfileModal() {
+            var modal = document.getElementById('profileModal');
+            var iframe = document.getElementById('profileFrame');
+            iframe.src = 'Profile.aspx';
+            modal.style.display = 'flex';
+        }
+
+        function closeProfileModal() {
+            var modal = document.getElementById('profileModal');
+            var iframe = document.getElementById('profileFrame');
+            modal.style.display = 'none';
+            iframe.src = '';
+            
+            // Reload the parent page to reflect any changes (like avatar)
+            // Optional: You might want to do this only if changes were saved
+            // window.location.reload(); 
+        }
+    </script>
   </form>
 </body>
 </html>

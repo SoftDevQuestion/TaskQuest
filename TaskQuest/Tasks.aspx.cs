@@ -11,11 +11,12 @@ namespace TaskQuest
         protected void Page_Load(object sender, EventArgs e)
         {
             // Check if user is logged in
-            //if (Session["User"] == null)
-            //{
-            //    Response.Redirect("Login.aspx");
-            //    return;
-            //}
+            if (Session["User"] == null)
+            {
+                Response.Redirect("Login.aspx", false);
+                Context.ApplicationInstance.CompleteRequest();
+                return;
+            }
 
             
         }

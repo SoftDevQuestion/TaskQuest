@@ -62,7 +62,8 @@ namespace TaskQuest
                             // Set cookie or session
                             Session["User"] = username;
                             FormsAuthentication.SetAuthCookie(username, false);
-                            Response.Redirect("Dashboard.aspx");
+                            Response.Redirect("Dashboard.aspx", false);
+                            Context.ApplicationInstance.CompleteRequest();
                         }
                         else
                         {
@@ -225,7 +226,8 @@ namespace TaskQuest
                         FormsAuthentication.SetAuthCookie(username, false);
                         
                         // Redirect to avatar selection page
-                        Response.Redirect("ChooseAvatar.aspx");
+                        Response.Redirect("ChooseAvatar.aspx", false);
+                        Context.ApplicationInstance.CompleteRequest();
                     }
                 }
                 else

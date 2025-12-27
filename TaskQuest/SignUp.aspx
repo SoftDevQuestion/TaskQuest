@@ -7,7 +7,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TaskQuest Sign Up</title>
+    <link rel="stylesheet" href="assets/css/fonts.css">
     <link rel="stylesheet" href="assets/css/login.css">
+    <style>
+        body {
+            font-family: 'Vazirmatn', Arial, sans-serif;
+        }
+    </style>
 </head>
 <body>
         <div class="login-container">

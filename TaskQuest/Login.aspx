@@ -7,7 +7,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TaskQuest Login</title>
+    <link rel="stylesheet" href="assets/css/fonts.css">
     <link rel="stylesheet" href="assets/css/login.css">
+    <style>
+        body {
+            font-family: 'Vazirmatn', Arial, sans-serif;
+        }
+    </style>
     <meta name="google-signin-client_id" content="724036367114-euktku7v3ss4uqag49toivapuh1vqgke.apps.googleusercontent.com">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>

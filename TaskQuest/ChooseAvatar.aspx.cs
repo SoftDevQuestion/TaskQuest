@@ -50,62 +50,57 @@ namespace TaskQuest
         protected void SkipButton_Click(object sender, EventArgs e)
         {
             // Skip avatar selection and go to dashboard
-            Response.Redirect("Dashboard.aspx");
+            Response.Redirect("Dashboard.aspx", false);
+            Context.ApplicationInstance.CompleteRequest();
         }
 
         protected void CompleteButton_Click(object sender, EventArgs e)
         {
-            string username = Session["User"].ToString();
-            string avatarPath = selectedAvatarPath.Value;
-
-            if (string.IsNullOrEmpty(avatarPath))
+            try 
             {
-                // If no avatar selected, use default
-                avatarPath = "assets/images/default-avatar.svg";
-            }
-
-            try
-            {
-                // Save avatar path to database
-                string connectionString = WebConfigurationManager.ConnectionStrings["TodoAppDB"].ConnectionString;
-
-                using (SqlConnection conn = new SqlConnection(connectionString))
+                if (Session["User"] != null)
                 {
-                    conn.Open();
-                    
-                    // Check if user has avatar column, if not create it
-                    string checkColumnQuery = @"
-                        IF NOT EXISTS (SELECT * FROM sys.columns 
-                        WHERE object_id = OBJECT_ID(N'Users') AND name = 'AvatarPath')
-                        BEGIN
-                            ALTER TABLE Users ADD AvatarPath NVARCHAR(MAX)
-                        END";
-                    
-                    SqlCommand checkCmd = new SqlCommand(checkColumnQuery, conn);
-                    checkCmd.ExecuteNonQuery();
+                    string username = Session["User"].ToString();
+                    string avatarPath = selectedAvatarPath.Value;
 
-                    // Update user avatar
-                    string updateQuery = "UPDATE Users SET AvatarPath = @AvatarPath WHERE Username = @Username";
-                    SqlCommand updateCmd = new SqlCommand(updateQuery, conn);
-                    updateCmd.Parameters.AddWithValue("@AvatarPath", avatarPath);
-                    updateCmd.Parameters.AddWithValue("@Username", username);
-                    
-                    int rowsAffected = updateCmd.ExecuteNonQuery();
-                    
-                    if (rowsAffected > 0)
+                    if (string.IsNullOrEmpty(avatarPath))
                     {
-                        // Save avatar path in session for immediate use
-                        Session["UserAvatar"] = avatarPath;
+                        // If no avatar selected, use default
+                        avatarPath = "assets/images/default-avatar.svg";
+                    }
+
+                    // Save avatar path to database
+                    string connectionString = WebConfigurationManager.ConnectionStrings["TodoAppDB"].ConnectionString;
+
+                    using (SqlConnection conn = new SqlConnection(connectionString))
+                    {
+                        conn.Open();
+                        
+                        // Update user avatar
+                        string updateQuery = "UPDATE Users SET AvatarPath = @AvatarPath WHERE Username = @Username";
+                        SqlCommand updateCmd = new SqlCommand(updateQuery, conn);
+                        updateCmd.Parameters.AddWithValue("@AvatarPath", avatarPath);
+                        updateCmd.Parameters.AddWithValue("@Username", username);
+                        
+                        int rowsAffected = updateCmd.ExecuteNonQuery();
+                        
+                        if (rowsAffected > 0)
+                        {
+                            // Save avatar path in session for immediate use
+                            Session["UserAvatar"] = avatarPath;
+                        }
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // Ignore errors to ensure redirection happens
+                // Log error but continue to redirect
+                System.Diagnostics.Debug.WriteLine("Error in ChooseAvatar: " + ex.Message);
             }
 
             // Redirect to dashboard
-            Response.Redirect("Dashboard.aspx");
+            Response.Redirect("Dashboard.aspx", false);
+            Context.ApplicationInstance.CompleteRequest();
         }
     }
 }
