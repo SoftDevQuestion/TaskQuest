@@ -49,7 +49,7 @@ namespace TaskQuest
 
                     if (emailCount > 0)
                     {
-                        ShowError("email", "این ایمیل قبلا ثبت شده !");
+                        ShowError("email", "This email is already registered!");
                         return;
                     }
 
@@ -61,7 +61,7 @@ namespace TaskQuest
 
                     if (userCount > 0)
                     {
-                        ShowError("username", "این نام کاربری قبلا ثبت شده");
+                        ShowError("username", "This username is already taken");
                         return;
                     }
 
