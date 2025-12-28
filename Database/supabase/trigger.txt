@@ -1,0 +1,4 @@
+create trigger trg_sync_project_counts
+after insert or update or delete on tasks
+for each row
+execute function sync_project_task_counts();

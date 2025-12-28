@@ -1,0 +1,18 @@
+create or replace function sync_project_task_counts()
+returns trigger as $$
+declare
+  pid int;
+begin
+  pid := coalesce(new.project_id, old.project_id);
+
+  update projects p
+  set
+    todo_count = (select count(*) from tasks where project_id = pid and status = 'todo'),
+    in_progress_count = (select count(*) from tasks where project_id = pid and status = 'in_progress'),
+    done_count = (select count(*) from tasks where project_id = pid and status = 'done'),
+    undefined_count = (select count(*) from tasks where project_id = pid and status = 'undefined')
+  where p.id = pid;
+
+  return null;
+end;
+$$ language plpgsql;

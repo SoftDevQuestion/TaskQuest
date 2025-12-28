@@ -1,0 +1,10 @@
+insert into projects (name, team_access_id)
+values ('Todo System', 1);
+
+insert into tasks (project_id, title, status)
+values
+(1, 'Design UI', 'todo'),
+(1, 'Build API', 'in_progress'),
+(1, 'Deploy', 'done');
+
+select * from projects where id = 1;

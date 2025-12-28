@@ -1,0 +1,3 @@
+alter table user_profiles enable row level security;
+alter table projects enable row level security;
+alter table tasks enable row level security;
