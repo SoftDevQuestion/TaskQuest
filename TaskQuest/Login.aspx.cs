@@ -23,18 +23,18 @@ namespace TaskQuest
                 }
                 else
                 {
-                    string email = Request.Form["email"];
+                    string input = Request.Form["email"];
                     string password = Request.Form["password"];
 
-                    LoginUser(email, password);
+                    LoginUser(input, password);
                 }
             }
         }
 
-        private void LoginUser(string email, string password)
+        private void LoginUser(string input, string password)
         {
             string connectionString = WebConfigurationManager.ConnectionStrings["TodoAppDB"].ConnectionString;
-            Log($"Attempting login for {email}. Connection string: {connectionString}");
+            Log($"Attempting login for {input}. Connection string: {connectionString}");
 
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
@@ -43,10 +43,10 @@ namespace TaskQuest
                     conn.Open();
                     Log("Connection opened successfully.");
 
-                    // Get user by email
-                    string query = "SELECT Username, PasswordHash FROM Users WHERE Email = @Email";
+                    // Get user by email or username
+                    string query = "SELECT Username, PasswordHash FROM Users WHERE Email = @Input OR Username = @Input";
                     SqlCommand cmd = new SqlCommand(query, conn);
-                    cmd.Parameters.AddWithValue("@Email", email);
+                    cmd.Parameters.AddWithValue("@Input", input);
 
                     SqlDataReader reader = cmd.ExecuteReader();
 
@@ -67,12 +67,12 @@ namespace TaskQuest
                         }
                         else
                         {
-                            ShowError("password", "رمز عبورت اشتباهه دوست عزیز!");
+                            ShowError("password", "Password incorrect");
                         }
                     }
                     else
                     {
-                        ShowError("email", "شما هنوز کاربر ما نیستی دوست عزیز :)");
+                        ShowError("email", "You are not our user yet");
                     }
                 }
                 catch (Exception ex)

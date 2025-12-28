@@ -35,8 +35,8 @@
             <form class="login-form" id="loginForm" runat="server" novalidate>
                 <div class="form-group">
                     <div class="input-wrapper">
-                        <input type="email" id="email" name="email" required autocomplete="email">
-                        <label for="email">Email</label>
+                        <input type="text" id="email" name="email" required autocomplete="username">
+                        <label for="email">Email or Username</label>
                         <div class="input-line"></div>
                         <div class="ripple-container"></div>
                     </div>
@@ -70,7 +70,7 @@
                             Keep me signed in
                         </label>
                     </div>
-                    <a href="#" class="forgot-password">Forgot password?</a>
+                    <a href="ForgotPassword.aspx" class="forgot-password">Forgot password?</a>
                 </div>
 
                 <button type="submit" class="login-btn material-btn">
