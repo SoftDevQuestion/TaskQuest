@@ -1,0 +1,26 @@
+08/10/1404 05:06:51 ق.ظ: btnCreateProject_Click started.
+08/10/1404 05:06:51 ق.ظ: User: test1, Project: test
+08/10/1404 05:06:51 ق.ظ: UserID: 21
+08/10/1404 05:06:51 ق.ظ: Uploading logo...
+08/10/1404 05:06:51 ق.ظ: Uploading cover...
+08/10/1404 05:06:51 ق.ظ: Saving to DB. Logo: assets/uploads/projects/project_logo_639025816113746201.png, Cover: assets/uploads/projects/project_cover_639025816113811696.jpg
+08/10/1404 05:06:51 ق.ظ: Save successful. Redirecting.
+08/10/1404 05:33:32 ق.ظ: btnCreateProject_Click started.
+08/10/1404 05:33:50 ق.ظ: btnCreateProject_Click started.
+08/10/1404 05:34:09 ق.ظ: btnCreateProject_Click started.
+08/10/1404 05:34:28 ق.ظ: btnCreateProject_Click started.
+08/10/1404 05:35:35 ق.ظ: btnCreateProject_Click started.
+08/10/1404 05:46:26 ق.ظ: btnCreateProject_Click started.
+08/10/1404 05:46:43 ق.ظ: btnCreateProject_Click started.
+08/10/1404 05:46:51 ق.ظ: btnCreateProject_Click started.
+08/10/1404 05:46:54 ق.ظ: btnCreateProject_Click started.
+08/10/1404 05:47:28 ق.ظ: btnCreateProject_Click started.
+08/10/1404 05:48:01 ق.ظ: btnCreateProject_Click started.
+08/10/1404 09:01:31 ق.ظ: btnCreateProject_Click started.
+08/10/1404 09:05:26 ق.ظ: btnCreateProject_Click started.
+08/10/1404 09:17:56 ق.ظ: btnCreateProject_Click started.
+08/10/1404 09:18:03 ق.ظ: btnCreateProject_Click started.
+08/10/1404 09:18:11 ق.ظ: btnCreateProject_Click started.
+08/10/1404 09:18:27 ق.ظ: btnCreateProject_Click started.
+08/10/1404 09:18:52 ق.ظ: btnCreateProject_Click started.
+08/10/1404 09:19:07 ق.ظ: btnCreateProject_Click started.

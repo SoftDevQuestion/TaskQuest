@@ -1,0 +1,151 @@
+<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="SideBar.master.cs" Inherits="TaskQuest.SideBar" %>
+
+<!DOCTYPE html>
+
+<html>
+<head runat="server">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="assets/css/fonts.css" />
+    
+              <asp:ContentPlaceHolder ID="HeaderContent" runat="server" />
+
+    <link rel="stylesheet" href="assets/css/sidebar.css"/>
+
+</head>
+<body>
+  <form id="form1" runat="server">
+        <asp:ScriptManager ID="ScriptManager1" runat="server" />
+    <div id="layout">
+      <div id="sidebar">
+          <!-- Sidebar HTML -->
+
+
+          <div class="sidebar">
+
+    <!-- Logo -->
+    <div class="logo">
+        <img src="assets/img/logo/logo.png" alt="logo">
+    </div>
+
+    <!-- Main Menu -->
+    <ul class="menu">
+
+        <li id="liDashboard" runat="server">
+            <img src="https://cdn.jsdelivr.net/npm/feather-icons/dist/icons/grid.svg" class="icon">
+            <a href="Dashboard.aspx"><span>Dashboard</span></a>
+        </li>
+
+        <li id="liTasks" runat="server">
+            <img src="https://cdn.jsdelivr.net/npm/feather-icons/dist/icons/calendar.svg" class="icon">
+            <a href="Tasks.aspx"><span>Tasks</span></a>
+        </li>
+
+
+        <li id="liTeams" runat="server">
+            <img src="https://cdn.jsdelivr.net/npm/feather-icons/dist/icons/users.svg" class="icon">
+            <a href="Teams.aspx"><span>Teams</span></a>
+        </li>
+
+        <!-- Active Item -->
+        <li id="liProjects" runat="server">
+            <img src="https://cdn.jsdelivr.net/npm/feather-icons/dist/icons/folder.svg" class="icon">
+            <a href="Projects.aspx"><span>Projects</span></a>
+        </li>
+
+    </ul>
+
+    <!-- PROJECT LIST -->
+    <div class="project-section">
+        <div class="project-header">
+            <span>PROJECTS</span>
+            <button class="add-btn" onclick="handleCreateProject(); return false;">+</button>
+        </div>
+
+        <script>
+            function handleCreateProject() {
+                // Check if we are on Projects.aspx (ignoring query strings)
+                if (window.location.pathname.toLowerCase().indexOf('projects.aspx') !== -1) {
+                    if (typeof openProjectModal === 'function') {
+                        openProjectModal();
+                    }
+                } else {
+                    window.location.href = 'Projects.aspx?action=create';
+                }
+            }
+        </script>
+
+        <ul class="project-list">
+            <asp:UpdatePanel ID="upSideBarProjects" runat="server" UpdateMode="Conditional" ChildrenAsTriggers="false">
+                <ContentTemplate>
+                    <asp:Repeater ID="rptSideBarProjects" runat="server">
+                        <ItemTemplate>
+                            <li>
+                                <img src='<%# Eval("ProjectLogo") %>' class="project-img" onerror="this.src='assets/images/projectTestAvatar.jpg'">
+                                <span><%# Eval("ProjectName") %></span>
+                                <!-- <span class="count">0</span> --> 
+                            </li>
+                        </ItemTemplate>
+                    </asp:Repeater>
+                </ContentTemplate>
+            </asp:UpdatePanel>
+        </ul>
+    </div>
+
+    <!-- Profile -->
+    <a href="#" onclick="openProfileModal(); return false;" style="text-decoration: none; color: inherit;">
+        <div class="profile">
+            <asp:Image ID="imgProfileAvatar" runat="server" CssClass="avatar" ImageUrl="assets/images/default-avatar.png" />
+            <div class="profile-info">
+                <asp:Label ID="lblProfileName" runat="server" CssClass="name" Text="Guest User"></asp:Label>
+                <span class="role">User</span>
+            </div>
+            <img src="https://cdn.jsdelivr.net/npm/feather-icons/dist/icons/settings.svg" class="settings-icon">
+        </div>
+    </a>
+
+</div>
+      </div>
+      <div id="main">
+          <!-- Search Bar in ASP.NET WebForms -->
+<div class="search-bar">
+    <asp:TextBox ID="txtSearch" runat="server" CssClass="search-input" placeholder="Search"></asp:TextBox>
+    <asp:LinkButton ID="btnSearch" runat="server" CssClass="search-btn" OnClick="btnSearch_Click">
+        <img src="https://cdn.jsdelivr.net/npm/feather-icons/dist/icons/search.svg" class="search-icon" alt="Search" />
+    </asp:LinkButton>
+</div>
+
+          <asp:ContentPlaceHolder ID="MainContent" runat="server" />
+      </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div id="profileModal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeProfileModal()">&times;</span>
+            <iframe id="profileFrame" class="modal-iframe"></iframe>
+        </div>
+    </div>
+
+    <script>
+        function openProfileModal() {
+            var modal = document.getElementById('profileModal');
+            var iframe = document.getElementById('profileFrame');
+            iframe.src = 'Profile.aspx';
+            modal.style.display = 'flex';
+        }
+
+        function closeProfileModal() {
+            var modal = document.getElementById('profileModal');
+            var iframe = document.getElementById('profileFrame');
+            modal.style.display = 'none';
+            iframe.src = '';
+            
+            // Reload the parent page to reflect any changes (like avatar)
+            // Optional: You might want to do this only if changes were saved
+            // window.location.reload(); 
+        }
+    </script>
+  </form>
+</body>
+</html>

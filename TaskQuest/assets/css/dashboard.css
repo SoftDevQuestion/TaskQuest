@@ -1,0 +1,36 @@
+/* Dashboard Styles */
+
+.dashboard-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.welcome-message {
+    text-align: center;
+    color: white;
+}
+
+.welcome-message h1 {
+    font-size: 2.5rem;
+    font-weight: 300;
+    margin: 0;
+    padding: 20px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .welcome-message h1 {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .welcome-message h1 {
+        font-size: 1.5rem;
+    }
+}

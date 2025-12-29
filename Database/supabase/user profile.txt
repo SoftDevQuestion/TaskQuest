@@ -1,0 +1,9 @@
+create table user_profiles (
+  id uuid primary key references auth.users(id) on delete cascade,
+  username text not null unique,
+  team_id int references teams(id),
+  role user_role not null default 'member',
+  bio text,
+  avatar_url text,
+  created_at timestamptz default now()
+);
