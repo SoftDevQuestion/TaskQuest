@@ -8,7 +8,7 @@ namespace TaskQuest
         protected void Application_Start(object sender, EventArgs e)
         {
             // Set default encoding for the application
-            System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+            // System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
         }
 
         protected void Application_BeginRequest(object sender, EventArgs e)

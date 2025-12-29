@@ -4,6 +4,7 @@ using System.Data.SqlClient;
 using System.Web.Configuration;
 using System.Collections.Generic;
 using System.IO;
+using System.Web.UI;
 
 namespace TaskQuest
 {
@@ -361,7 +362,7 @@ namespace TaskQuest
 
         private void KeepModalOpen()
         {
-            System.Web.UI.ScriptManager.RegisterStartupScript(this, this.GetType(), "KeepModalOpen", "openProjectModal();", true);
+            ScriptManager.RegisterStartupScript(this, this.GetType(), "KeepModalOpen", "openProjectModal();", true);
         }
 
         private void LoadProjects()
