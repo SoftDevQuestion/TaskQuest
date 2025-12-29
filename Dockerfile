@@ -1,19 +1,24 @@
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+# استفاده از ایمیج SDK 8.0 برای بیلد
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
-COPY TaskQuest/*.csproj ./TaskQuest/
+
+# کپی کردن فایل پروژه و ریستور کردن پکیج‌ها
+COPY ["TaskQuest/TaskQuest.csproj", "TaskQuest/"]
 RUN dotnet restore "TaskQuest/TaskQuest.csproj"
 
+# کپی کردن بقیه فایل‌ها و بیلد
 COPY . .
 WORKDIR "/src/TaskQuest"
 RUN dotnet build "TaskQuest.csproj" -c Release -o /app/build
 
+# انتشار پروژه
 FROM build AS publish
-RUN dotnet publish "TaskQuest.csproj" -c Release -o /app/publish
+RUN dotnet publish "TaskQuest.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
-FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS final
+# مرحله نهایی برای اجرا
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
-ENV ASPNETCORE_URLS=http://+:8080
-ENV ASPNETCORE_ENVIRONMENT=Production
 EXPOSE 8080
+ENV ASPNETCORE_URLS=http://+:8080
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "TaskQuest.dll"]
