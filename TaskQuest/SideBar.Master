@@ -1,4 +1,4 @@
-﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="SideBar.master.cs" Inherits="TaskQuest.SideBar" %>
+<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="SideBar.master.cs" Inherits="TaskQuest.SideBar" %>
 
 <!DOCTYPE html>
 
@@ -30,24 +30,24 @@
     <!-- Main Menu -->
     <ul class="menu">
 
-        <li>
+        <li id="liDashboard" runat="server">
             <img src="https://cdn.jsdelivr.net/npm/feather-icons/dist/icons/grid.svg" class="icon">
             <a href="Dashboard.aspx"><span>Dashboard</span></a>
         </li>
 
-        <li>
+        <li id="liTasks" runat="server">
             <img src="https://cdn.jsdelivr.net/npm/feather-icons/dist/icons/calendar.svg" class="icon">
             <a href="Tasks.aspx"><span>Tasks</span></a>
         </li>
 
 
-        <li>
+        <li id="liTeams" runat="server">
             <img src="https://cdn.jsdelivr.net/npm/feather-icons/dist/icons/users.svg" class="icon">
             <a href="Teams.aspx"><span>Teams</span></a>
         </li>
 
         <!-- Active Item -->
-        <li class="active">
+        <li id="liProjects" runat="server">
             <img src="https://cdn.jsdelivr.net/npm/feather-icons/dist/icons/folder.svg" class="icon">
             <a href="Projects.aspx"><span>Projects</span></a>
         </li>

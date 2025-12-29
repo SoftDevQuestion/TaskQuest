@@ -51,6 +51,42 @@ namespace TaskQuest
         protected global::System.Web.UI.WebControls.LinkButton btnSearch;
 
         /// <summary>
+        /// liDashboard control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl liDashboard;
+
+        /// <summary>
+        /// liTasks control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl liTasks;
+
+        /// <summary>
+        /// liTeams control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl liTeams;
+
+        /// <summary>
+        /// liProjects control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl liProjects;
+
+        /// <summary>
         /// imgProfileAvatar control.
         /// </summary>
         /// <remarks>

@@ -15,6 +15,34 @@ namespace TaskQuest
             {
                 UpdateProfileInfo();
             }
+            SetActiveMenu();
+        }
+
+        private void SetActiveMenu()
+        {
+            string activePage = System.IO.Path.GetFileName(Request.Url.AbsolutePath).ToLower();
+
+            // Reset all classes
+            liDashboard.Attributes["class"] = "";
+            liTasks.Attributes["class"] = "";
+            liTeams.Attributes["class"] = "";
+            liProjects.Attributes["class"] = "";
+
+            switch (activePage)
+            {
+                case "dashboard.aspx":
+                    liDashboard.Attributes["class"] = "active";
+                    break;
+                case "tasks.aspx":
+                    liTasks.Attributes["class"] = "active";
+                    break;
+                case "teams.aspx":
+                    liTeams.Attributes["class"] = "active";
+                    break;
+                case "projects.aspx":
+                    liProjects.Attributes["class"] = "active";
+                    break;
+            }
         }
 
         public void UpdateProfileInfo()
