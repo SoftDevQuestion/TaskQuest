@@ -4,18 +4,60 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using System.Data;
+using System.Data.SqlClient;
+using System.Web.Configuration;
 
 namespace TaskQuest
 {
     public partial class SideBar : System.Web.UI.MasterPage
     {
+        string connectionString = WebConfigurationManager.ConnectionStrings["TodoAppDB"].ConnectionString;
+
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
             {
                 UpdateProfileInfo();
+                LoadRecentProjects();
             }
             SetActiveMenu();
+        }
+
+        private void LoadRecentProjects()
+        {
+            if (Session["User"] == null) return;
+
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    conn.Open();
+                    // Fetch top 3 recent projects
+                    // Note: If you want to filter by user, uncomment the parameter logic
+                    // Currently following Projects.aspx logic which fetches all
+                    string query = "SELECT TOP 3 ProjectName, ProjectLogo FROM Projects ORDER BY CreatedAt DESC";
+                    
+                    // If filtering by user is needed in future:
+                    // string query = "SELECT TOP 3 ProjectName, ProjectLogo FROM Projects WHERE CreatorUserId = @UserId ORDER BY CreatedAt DESC";
+                    
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    
+                    // int userId = GetUserId(Session["User"].ToString());
+                    // if (userId != -1) cmd.Parameters.AddWithValue("@UserId", userId);
+
+                    SqlDataAdapter da = new SqlDataAdapter(cmd);
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
+
+                    rptSideBarProjects.DataSource = dt;
+                    rptSideBarProjects.DataBind();
+                }
+                catch (Exception)
+                {
+                    // Fail silently for sidebar widgets to avoid breaking the whole page
+                }
+            }
         }
 
         private void SetActiveMenu()

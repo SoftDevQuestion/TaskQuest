@@ -58,27 +58,19 @@
     <div class="project-section">
         <div class="project-header">
             <span>PROJECTS</span>
-            <button class="add-btn">+</button>
+            <button class="add-btn" onclick="window.location.href='Projects.aspx'; return false;">+</button>
         </div>
 
         <ul class="project-list">
-            <li>
-                <img src="assets/images/projectTestAvatar.jpg" class="project-img">
-                <span>Project A</span>
-                <span class="count">23</span>
-            </li>
-
-            <li>
-                <img src="assets/images/projectTestAvatar.jpg" class="project-img">
-                <span>Project B</span>
-                <span class="count">345</span>
-            </li>
-
-            <li>
-                <img src="assets/images/projectTestAvatar.jpg" class="project-img">
-                <span>Project C</span>
-                <span class="count">568</span>
-            </li>
+            <asp:Repeater ID="rptSideBarProjects" runat="server">
+                <ItemTemplate>
+                    <li>
+                        <img src='<%# Eval("ProjectLogo") %>' class="project-img" onerror="this.src='assets/images/projectTestAvatar.jpg'">
+                        <span><%# Eval("ProjectName") %></span>
+                        <!-- <span class="count">0</span> --> 
+                    </li>
+                </ItemTemplate>
+            </asp:Repeater>
         </ul>
     </div>
 
