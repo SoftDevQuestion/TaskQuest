@@ -215,7 +215,7 @@ namespace TaskQuest
                 imgLogoPreview.ImageUrl = "assets/images/projectTestAvatar.jpg";
                 imgCoverPreview.ImageUrl = "assets/images/default_cover.jpg";
 
-                ClientScript.RegisterStartupScript(this.GetType(), "CloseModal", "closeProjectModal();", true);
+                System.Web.UI.ScriptManager.RegisterStartupScript(this, this.GetType(), "CloseModal", "closeProjectModal();", true);
             }
             catch (Exception ex)
             {
