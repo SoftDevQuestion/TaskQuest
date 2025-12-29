@@ -1,4 +1,4 @@
-<%@ Page Language="C#" MasterPageFile="~/SideBar.master"  AutoEventWireup="true" CodeBehind="Projects.aspx.cs" Inherits="TaskQuest.Projects" %>
+<%@ Page Language="C#" MasterPageFile="~/SideBar.master"  AutoEventWireup="true" CodeBehind="Projects.aspx.cs" Inherits="TaskQuest.Projects" ValidateRequest="false" %>
 
 
 
@@ -17,6 +17,7 @@
     </div>
 
     <div class="projects-container">
+        <asp:Label ID="lblNoProjects" runat="server" Text="No projects found. Create one!" Visible="false" CssClass="no-projects-msg"></asp:Label>
         <div class="projects-grid">
             <asp:Repeater ID="rptProjects" runat="server">
                 <ItemTemplate>
@@ -56,13 +57,13 @@
             <div class="visuals-container">
                 <!-- Cover Image Area -->
                 <div class="cover-upload" onclick="triggerFileUpload('fuProjectCover')">
-                    <img id="imgCoverPreview" src="assets/images/default-project-cover.png" alt="Cover" />
+                    <img id="imgCoverPreview" src="assets/images/default_cover.jpg" alt="Cover" />
                     <div class="upload-overlay"><span>Click to change cover</span></div>
                 </div>
 
                 <!-- Logo Image Area -->
                 <div class="logo-upload" onclick="triggerFileUpload('fuProjectLogo')">
-                    <img id="imgLogoPreview" src="assets/images/default-project-logo.png" alt="Logo" />
+                    <img id="imgLogoPreview" src="assets/images/projectTestAvatar.jpg" alt="Logo" />
                     <div class="logo-overlay"><span>Logo</span></div>
                 </div>
             </div>
@@ -98,10 +99,7 @@
 
     <style>
         /* General Styles */
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
+        
         .projects-header-row {
             display: flex;
             justify-content: space-between;
@@ -123,6 +121,14 @@
 
         .create-project-btn:hover {
             background-color: #3355DD;
+        }
+
+        .no-projects-msg {
+            display: block;
+            text-align: center;
+            color: #666;
+            font-size: 18px;
+            margin-top: 50px;
         }
 
         /* Card Menu Styles */

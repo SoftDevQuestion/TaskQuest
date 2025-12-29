@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="assets/css/login.css">
     <style>
         body {
-            font-family: 'Vazirmatn', Arial, sans-serif;
+            font-family: 'LineIcons', 'Vazirmatn', Arial, sans-serif;
         }
     </style>
 </head>

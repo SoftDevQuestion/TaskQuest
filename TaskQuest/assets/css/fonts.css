@@ -1,4 +1,18 @@
 @font-face {
+    font-family: 'LineIcons';
+    src: url('../fonts/LineIcons.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Running';
+    src: url('../fonts/Running.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
     font-family: 'Vazirmatn';
     src: url('../fonts/Vazirmatn-FD-Thin.ttf') format('truetype');
     font-weight: 100;

@@ -2,8 +2,12 @@
 
 body {
     margin: 0;
-    font-family: 'Vazirmatn', 'Inter', sans-serif;
+    font-family: 'LineIcons', 'Vazirmatn', 'Inter', sans-serif;
     background: #f5f6fa;
+}
+
+* {
+    font-family: 'LineIcons', 'Vazirmatn', 'Inter', sans-serif;
 }
 #main{
     flex:1;

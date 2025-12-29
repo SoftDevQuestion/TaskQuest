@@ -12,7 +12,6 @@
         body {
             background-color: #f4f4f4; /* Light grey background */
             margin: 0;
-            font-family: 'Vazirmatn', Arial, sans-serif;
         }
         /* Success Popup Style */
         .success-popup {

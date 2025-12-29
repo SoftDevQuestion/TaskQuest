@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="assets/css/login.css">
     <style>
         body {
-            font-family: 'Vazirmatn', Arial, sans-serif;
+            font-family: 'LineIcons', 'Vazirmatn', Arial, sans-serif;
         }
     </style>
     <meta name="google-signin-client_id" content="724036367114-euktku7v3ss4uqag49toivapuh1vqgke.apps.googleusercontent.com">
