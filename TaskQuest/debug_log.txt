@@ -5,3 +5,14 @@
 08/10/1404 05:06:51 ق.ظ: Uploading cover...
 08/10/1404 05:06:51 ق.ظ: Saving to DB. Logo: assets/uploads/projects/project_logo_639025816113746201.png, Cover: assets/uploads/projects/project_cover_639025816113811696.jpg
 08/10/1404 05:06:51 ق.ظ: Save successful. Redirecting.
+08/10/1404 05:33:32 ق.ظ: btnCreateProject_Click started.
+08/10/1404 05:33:50 ق.ظ: btnCreateProject_Click started.
+08/10/1404 05:34:09 ق.ظ: btnCreateProject_Click started.
+08/10/1404 05:34:28 ق.ظ: btnCreateProject_Click started.
+08/10/1404 05:35:35 ق.ظ: btnCreateProject_Click started.
+08/10/1404 05:46:26 ق.ظ: btnCreateProject_Click started.
+08/10/1404 05:46:43 ق.ظ: btnCreateProject_Click started.
+08/10/1404 05:46:51 ق.ظ: btnCreateProject_Click started.
+08/10/1404 05:46:54 ق.ظ: btnCreateProject_Click started.
+08/10/1404 05:47:28 ق.ظ: btnCreateProject_Click started.
+08/10/1404 05:48:01 ق.ظ: btnCreateProject_Click started.

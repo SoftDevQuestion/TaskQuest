@@ -60,6 +60,12 @@ namespace TaskQuest
             }
         }
 
+        public void UpdateProjectList()
+        {
+            LoadRecentProjects();
+            upSideBarProjects.Update();
+        }
+
         private void SetActiveMenu()
         {
             string activePage = System.IO.Path.GetFileName(Request.Url.AbsolutePath).ToLower();

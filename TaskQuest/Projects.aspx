@@ -11,6 +11,8 @@
 
 
 <asp:Content ID="ProjectContent" ContentPlaceHolderID="MainContent" runat="server">
+    <asp:UpdatePanel ID="upProjects" runat="server">
+        <ContentTemplate>
     <div class="projects-header-row">
         <h2 style="padding:5px 20px;">Projects</h2>
         <button class="create-project-btn" onclick="openProjectModal(); return false;">+ Create New Project</button>
@@ -117,6 +119,11 @@
             </div>
         </div>
     </div>
+        </ContentTemplate>
+        <Triggers>
+            <asp:PostBackTrigger ControlID="btnCreateProject" />
+        </Triggers>
+    </asp:UpdatePanel>
 
     <style>
         /* General Styles */
@@ -414,6 +421,16 @@
         function closeDeleteModal() {
             document.getElementById('deleteModal').style.display = 'none';
         }
+        
+        // Check for action=create in URL
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('action') === 'create') {
+                openProjectModal();
+                // Optional: Clean up URL
+                // window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        });
 
         function triggerFileUpload(id) {
             document.getElementById(id).click();

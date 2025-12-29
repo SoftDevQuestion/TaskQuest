@@ -44,7 +44,7 @@ namespace TaskQuest
                     Log("Connection opened successfully.");
 
                     // Get user by email or username
-                    string query = "SELECT Username, PasswordHash FROM Users WHERE Email = @Input OR Username = @Input";
+                    string query = "SELECT Username, PasswordHash, AvatarPath FROM Users WHERE Email = @Input OR Username = @Input";
                     SqlCommand cmd = new SqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@Input", input);
 
@@ -54,6 +54,7 @@ namespace TaskQuest
                     {
                         string dbPasswordHash = reader["PasswordHash"].ToString();
                         string username = reader["Username"].ToString();
+                        string avatarPath = reader["AvatarPath"] != DBNull.Value ? reader["AvatarPath"].ToString() : "";
 
                         // Check password
                         if (HashPassword(password) == dbPasswordHash)
@@ -61,6 +62,10 @@ namespace TaskQuest
                             // Login successful
                             // Set cookie or session
                             Session["User"] = username;
+                            if (!string.IsNullOrEmpty(avatarPath))
+                            {
+                                Session["UserAvatar"] = avatarPath;
+                            }
                             FormsAuthentication.SetAuthCookie(username, false);
                             Response.Redirect("Dashboard.aspx", false);
                             Context.ApplicationInstance.CompleteRequest();

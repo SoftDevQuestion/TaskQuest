@@ -15,6 +15,7 @@
 </head>
 <body>
   <form id="form1" runat="server">
+        <asp:ScriptManager ID="ScriptManager1" runat="server" />
     <div id="layout">
       <div id="sidebar">
           <!-- Sidebar HTML -->
@@ -58,19 +59,36 @@
     <div class="project-section">
         <div class="project-header">
             <span>PROJECTS</span>
-            <button class="add-btn" onclick="window.location.href='Projects.aspx'; return false;">+</button>
+            <button class="add-btn" onclick="handleCreateProject(); return false;">+</button>
         </div>
 
+        <script>
+            function handleCreateProject() {
+                // Check if we are on Projects.aspx (ignoring query strings)
+                if (window.location.pathname.toLowerCase().indexOf('projects.aspx') !== -1) {
+                    if (typeof openProjectModal === 'function') {
+                        openProjectModal();
+                    }
+                } else {
+                    window.location.href = 'Projects.aspx?action=create';
+                }
+            }
+        </script>
+
         <ul class="project-list">
-            <asp:Repeater ID="rptSideBarProjects" runat="server">
-                <ItemTemplate>
-                    <li>
-                        <img src='<%# Eval("ProjectLogo") %>' class="project-img" onerror="this.src='assets/images/projectTestAvatar.jpg'">
-                        <span><%# Eval("ProjectName") %></span>
-                        <!-- <span class="count">0</span> --> 
-                    </li>
-                </ItemTemplate>
-            </asp:Repeater>
+            <asp:UpdatePanel ID="upSideBarProjects" runat="server" UpdateMode="Conditional" ChildrenAsTriggers="false">
+                <ContentTemplate>
+                    <asp:Repeater ID="rptSideBarProjects" runat="server">
+                        <ItemTemplate>
+                            <li>
+                                <img src='<%# Eval("ProjectLogo") %>' class="project-img" onerror="this.src='assets/images/projectTestAvatar.jpg'">
+                                <span><%# Eval("ProjectName") %></span>
+                                <!-- <span class="count">0</span> --> 
+                            </li>
+                        </ItemTemplate>
+                    </asp:Repeater>
+                </ContentTemplate>
+            </asp:UpdatePanel>
         </ul>
     </div>
 
