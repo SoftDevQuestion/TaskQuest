@@ -1,0 +1,20 @@
+{
+  "version": 2,
+  "public": true,
+  "builds": [
+    {
+      "src": "TaskQuest/TaskQuest.csproj",
+      "use": "@vercel/remote-docker"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/"
+    }
+  ],
+  "env": {
+    "ASPNETCORE_URLS": "http://+:8080",
+    "PORT": "8080"
+  }
+}
