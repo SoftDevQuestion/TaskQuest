@@ -104,7 +104,7 @@ namespace TaskQuest
                  // Update Sidebar
                  if (Master is SideBar sideBar)
                  {
-                     sideBar.LoadRecentProjects();
+                     sideBar.UpdateProjectList();
                  }
 
                  ClientScript.RegisterStartupScript(this.GetType(), "CloseDeleteModal", "closeDeleteModal();", true);
@@ -206,6 +206,12 @@ namespace TaskQuest
                 
                 LoadProjects();
                 
+                // Update Sidebar
+                if (Master is SideBar sideBar)
+                {
+                    sideBar.UpdateProjectList();
+                }
+
                 // Reset Form
                 txtProjectName.Text = string.Empty;
                 txtDescription.Text = string.Empty;
