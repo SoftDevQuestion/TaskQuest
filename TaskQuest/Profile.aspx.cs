@@ -43,7 +43,7 @@ namespace TaskQuest
 
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                string query = "SELECT Username, Email, AvatarPath FROM Users WHERE Username = @Username";
+                string query = "SELECT FullName, Username, Email, AvatarPath FROM Users WHERE Username = @Username";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@Username", username);
 
@@ -53,6 +53,7 @@ namespace TaskQuest
                     SqlDataReader reader = cmd.ExecuteReader();
                     if (reader.Read())
                     {
+                        txtFullName.Text = reader["FullName"] != DBNull.Value ? reader["FullName"].ToString() : "";
                         txtUser.Text = reader["Username"].ToString();
                         txtEmail.Text = reader["Email"].ToString();
                         string avatar = reader["AvatarPath"] != DBNull.Value ? reader["AvatarPath"].ToString() : "";
@@ -82,6 +83,7 @@ namespace TaskQuest
             if (Session["User"] == null) return;
 
             string currentUsername = Session["User"].ToString();
+            string newFullName = txtFullName.Text.Trim();
             string newUsername = txtUser.Text.Trim();
             string email = txtEmail.Text.Trim();
             string password = txtPass.Text;
@@ -108,8 +110,8 @@ namespace TaskQuest
                 }
                 catch (Exception ex)
                 {
-                    // Handle upload error
-                    System.Diagnostics.Debug.WriteLine("Upload Error: " + ex.Message);
+                    lblError.Text = "Upload Error: " + ex.Message;
+                    return;
                 }
             }
 
@@ -119,10 +121,36 @@ namespace TaskQuest
                 {
                     conn.Open();
 
-                    // Build Update Query
-                    string query = "UPDATE Users SET Email = @Email, AvatarPath = @AvatarPath";
+                    // Check Username uniqueness if changed
+                    if (!string.Equals(currentUsername, newUsername, StringComparison.OrdinalIgnoreCase))
+                    {
+                        string checkUser = "SELECT COUNT(*) FROM Users WHERE Username = @NewUsername";
+                        SqlCommand cmdCheck = new SqlCommand(checkUser, conn);
+                        cmdCheck.Parameters.AddWithValue("@NewUsername", newUsername);
+                        int count = (int)cmdCheck.ExecuteScalar();
+                        if (count > 0)
+                        {
+                            lblError.Text = "Username already exists";
+                            return;
+                        }
+                    }
 
-                    if (!string.IsNullOrEmpty(newUsername) && newUsername != currentUsername)
+                    // Check Email uniqueness
+                    string checkEmail = "SELECT COUNT(*) FROM Users WHERE Email = @Email AND Username != @CurrentUsername";
+                    SqlCommand cmdCheckEmail = new SqlCommand(checkEmail, conn);
+                    cmdCheckEmail.Parameters.AddWithValue("@Email", email);
+                    cmdCheckEmail.Parameters.AddWithValue("@CurrentUsername", currentUsername);
+                    int emailCount = (int)cmdCheckEmail.ExecuteScalar();
+                    if (emailCount > 0)
+                    {
+                        lblError.Text = "Email already exists";
+                        return;
+                    }
+
+                    // Build Update Query
+                    string query = "UPDATE Users SET FullName = @FullName, Email = @Email, AvatarPath = @AvatarPath";
+
+                    if (!string.Equals(currentUsername, newUsername, StringComparison.OrdinalIgnoreCase))
                     {
                         query += ", Username = @NewUsername";
                     }
@@ -135,11 +163,12 @@ namespace TaskQuest
                     query += " WHERE Username = @CurrentUsername";
 
                     SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@FullName", newFullName);
                     cmd.Parameters.AddWithValue("@Email", email);
                     cmd.Parameters.AddWithValue("@AvatarPath", avatarPath);
                     cmd.Parameters.AddWithValue("@CurrentUsername", currentUsername);
 
-                    if (!string.IsNullOrEmpty(newUsername) && newUsername != currentUsername)
+                    if (!string.Equals(currentUsername, newUsername, StringComparison.OrdinalIgnoreCase))
                     {
                         cmd.Parameters.AddWithValue("@NewUsername", newUsername);
                     }
@@ -152,7 +181,7 @@ namespace TaskQuest
                     cmd.ExecuteNonQuery();
 
                     // Update Session if username changed
-                    if (!string.IsNullOrEmpty(newUsername) && newUsername != currentUsername)
+                    if (!string.Equals(currentUsername, newUsername, StringComparison.OrdinalIgnoreCase))
                     {
                         Session["User"] = newUsername;
                         System.Web.Security.FormsAuthentication.SetAuthCookie(newUsername, false);
@@ -160,6 +189,9 @@ namespace TaskQuest
                     
                     // Update Avatar in Session
                     Session["UserAvatar"] = avatarPath;
+
+                    // Clear error
+                    lblError.Text = "";
 
                     // Reload data to reflect changes
                     LoadUserData();
@@ -183,8 +215,7 @@ namespace TaskQuest
                 }
                 catch (Exception ex)
                 {
-                    // Handle DB error
-                    System.Diagnostics.Debug.WriteLine("DB Error: " + ex.Message);
+                    lblError.Text = "DB Error: " + ex.Message;
                 }
             }
         }

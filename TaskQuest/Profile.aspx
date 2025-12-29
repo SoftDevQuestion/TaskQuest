@@ -31,6 +31,14 @@
             font-size: 18px;
             animation: fadeIn 0.3s ease-out;
         }
+        /* Error Message Style */
+        .error-message {
+            color: #dc3545;
+            display: block;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
         @keyframes fadeIn {
             from { opacity: 0; transform: translate(-50%, -60%); }
             to { opacity: 1; transform: translate(-50%, -50%); }
@@ -40,12 +48,12 @@
 <body>
     <form id="form1" runat="server" enctype="multipart/form-data">
         <div id="successPopup" class="success-popup">
-            تغییرات با موفقیت ذخیره شد !
+            Changes saved successfully!
         </div>
 
         <div class="form-container">
             <div class="profile-modal">
-                <h2>My Profile</h2>
+                <h2>Edit Profile</h2>
 
                 <asp:Image ID="imgAvatarPreview" runat="server" CssClass="avatar-large" ImageUrl="~/assets/images/avatar1.png" />
 
@@ -54,7 +62,7 @@
                     <asp:FileUpload ID="fuAvatar" runat="server" CssClass="hidden-file" />
                 </label>
 
-                <h4>Choose avatar</h4>
+                <h4>Choose Avatar</h4>
                 <div class="avatar-list">
                     <asp:Repeater ID="rptAvatars" runat="server">
                         <ItemTemplate>
@@ -62,6 +70,9 @@
                         </ItemTemplate>
                     </asp:Repeater>
                 </div>
+
+                <label>Full Name</label>
+                <asp:TextBox ID="txtFullName" runat="server" />
 
                 <label>Username</label>
                 <asp:TextBox ID="txtUser" runat="server" />
@@ -72,9 +83,11 @@
                 <label>Email</label>
                 <asp:TextBox ID="txtEmail" runat="server" />
 
+                <asp:Label ID="lblError" runat="server" CssClass="error-message" EnableViewState="false"></asp:Label>
+
                 <div class="btn-row">
                     <asp:Button ID="btnCancel" runat="server" Text="Cancel" CssClass="cancel-btn" OnClick="btnCancel_Click" />
-                    <asp:Button ID="btnSave" runat="server" Text="Save" CssClass="save-btn" OnClick="btnSave_Click" />
+                    <asp:Button ID="btnSave" runat="server" Text="Save Changes" CssClass="save-btn" OnClick="btnSave_Click" />
                 </div>
             </div>
         </div>
