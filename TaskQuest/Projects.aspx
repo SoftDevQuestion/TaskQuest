@@ -18,15 +18,20 @@
 
     <div class="projects-container">
         <asp:Label ID="lblNoProjects" runat="server" Text="No projects found. Create one!" Visible="false" CssClass="no-projects-msg"></asp:Label>
+        
+        <!-- Hidden Fields for State Management -->
+        <asp:HiddenField ID="hfEditProjectId" runat="server" />
+        <asp:HiddenField ID="hfDeleteProjectId" runat="server" />
+
         <div class="projects-grid">
-            <asp:Repeater ID="rptProjects" runat="server">
+            <asp:Repeater ID="rptProjects" runat="server" OnItemCommand="rptProjects_ItemCommand">
                 <ItemTemplate>
                     <div class="project-card">
                         <div class="card-menu-container">
                             <span class="three-dots" onclick="toggleMenu(this)">&#8942;</span>
                             <div class="dropdown-menu">
-                                <a href="#">Edit</a>
-                                <a href="#">Delete</a>
+                                <asp:LinkButton ID="btnEdit" runat="server" CommandName="Edit" CommandArgument='<%# Eval("ProjectID") %>'>Edit</asp:LinkButton>
+                                <a href="#" onclick="openDeleteModal('<%# Eval("ProjectID") %>'); return false;">Delete</a>
                                 <a href="#">Access</a>
                             </div>
                         </div>
@@ -45,25 +50,25 @@
         </div>
     </div>
 
-    <!-- Create Project Modal -->
+    <!-- Create/Edit Project Modal -->
     <div id="projectModal" class="modal-overlay">
         <div class="modal-content">
             <!-- Header -->
             <div class="modal-header">
-                <h3>Create Project</h3>
+                <h3><asp:Label ID="lblModalTitle" runat="server" Text="Create Project"></asp:Label></h3>
             </div>
 
             <!-- Visuals Area (Cover & Logo) -->
             <div class="visuals-container">
                 <!-- Cover Image Area -->
                 <div class="cover-upload" onclick="triggerFileUpload('fuProjectCover')">
-                    <img id="imgCoverPreview" src="assets/images/default_cover.jpg" alt="Cover" />
+                    <asp:Image ID="imgCoverPreview" runat="server" ImageUrl="assets/images/default_cover.jpg" ClientIDMode="Static" AlternateText="Cover" />
                     <div class="upload-overlay"><span>Click to change cover</span></div>
                 </div>
 
                 <!-- Logo Image Area -->
                 <div class="logo-upload" onclick="triggerFileUpload('fuProjectLogo')">
-                    <img id="imgLogoPreview" src="assets/images/projectTestAvatar.jpg" alt="Logo" />
+                    <asp:Image ID="imgLogoPreview" runat="server" ImageUrl="assets/images/projectTestAvatar.jpg" ClientIDMode="Static" AlternateText="Logo" />
                     <div class="logo-overlay"><span>Logo</span></div>
                 </div>
             </div>
@@ -93,6 +98,22 @@
             <div class="modal-footer">
                 <button type="button" class="btn-give-up" onclick="closeProjectModal()">Give up</button>
                 <asp:Button ID="btnCreateProject" runat="server" Text="Create" CssClass="btn-create" OnClick="btnCreateProject_Click" />
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="modal-overlay">
+        <div class="modal-content" style="width: 400px; height: auto;">
+            <div class="modal-header">
+                <h3 style="color: #dc3545;">Delete Project</h3>
+            </div>
+            <div style="padding: 20px; text-align: center;">
+                <p>Are you sure about deleting this project? This action can not be undone!</p>
+            </div>
+            <div class="modal-footer" style="justify-content: center;">
+                <button type="button" class="btn-give-up" onclick="closeDeleteModal()">No</button>
+                <asp:Button ID="btnConfirmDelete" runat="server" Text="Yes" CssClass="btn-create" Style="background-color: #dc3545;" OnClick="btnConfirmDelete_Click" />
             </div>
         </div>
     </div>
@@ -381,6 +402,16 @@
 
         function closeProjectModal() {
             document.getElementById('projectModal').style.display = 'none';
+            // Clear the form if needed or reset via postback logic
+        }
+
+        function openDeleteModal(projectId) {
+            document.getElementById('<%= hfDeleteProjectId.ClientID %>').value = projectId;
+            document.getElementById('deleteModal').style.display = 'flex';
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').style.display = 'none';
         }
 
         function triggerFileUpload(id) {

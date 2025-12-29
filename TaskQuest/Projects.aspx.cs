@@ -145,16 +145,27 @@ namespace TaskQuest
             }
         }
 
-        private bool IsProjectNameTaken(int userId, string projectName)
+        private bool IsProjectNameTaken(int userId, string projectName, int? excludeProjectId = null)
         {
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
                 try
                 {
                     conn.Open();
-                    SqlCommand cmd = new SqlCommand("SELECT COUNT(*) FROM Projects WHERE CreatorUserId = @UserId AND ProjectName = @ProjectName", conn);
+                    string query = "SELECT COUNT(*) FROM Projects WHERE CreatorUserId = @UserId AND ProjectName = @ProjectName";
+                    if (excludeProjectId.HasValue)
+                    {
+                        query += " AND ProjectID != @ExcludeID";
+                    }
+
+                    SqlCommand cmd = new SqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@UserId", userId);
                     cmd.Parameters.AddWithValue("@ProjectName", projectName);
+                    if (excludeProjectId.HasValue)
+                    {
+                        cmd.Parameters.AddWithValue("@ExcludeID", excludeProjectId.Value);
+                    }
+
                     int count = (int)cmd.ExecuteScalar();
                     return count > 0;
                 }
