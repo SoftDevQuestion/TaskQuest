@@ -24,7 +24,7 @@ namespace TaskQuest
             SetActiveMenu();
         }
 
-        private void LoadRecentProjects()
+        public void LoadRecentProjects()
         {
             if (Session["User"] == null) return;
 

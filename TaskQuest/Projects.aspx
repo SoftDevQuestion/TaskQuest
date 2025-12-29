@@ -160,7 +160,7 @@
         .card-menu-container {
             position: absolute;
             top: 10px;
-            left: 10px;
+            right: 10px;
             z-index: 10;
         }
 
@@ -177,7 +177,8 @@
             display: none;
             position: absolute;
             top: 30px;
-            left: 0;
+            right: 0;
+            left: auto;
             background-color: white;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
             border-radius: 4px;

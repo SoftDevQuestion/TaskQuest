@@ -37,6 +37,98 @@ namespace TaskQuest
             catch { }
         }
 
+        protected void rptProjects_ItemCommand(object source, System.Web.UI.WebControls.RepeaterCommandEventArgs e)
+        {
+            if (e.CommandName == "Edit")
+            {
+                string projectId = e.CommandArgument.ToString();
+                LoadProjectForEdit(projectId);
+            }
+        }
+
+        private void LoadProjectForEdit(string projectId)
+        {
+            int pId = int.Parse(projectId);
+            DataRow project = GetProjectById(pId);
+            
+            if (project != null)
+            {
+                hfEditProjectId.Value = projectId;
+                txtProjectName.Text = project["ProjectName"].ToString();
+                txtDescription.Text = project["Description"].ToString();
+                
+                string logo = project["ProjectLogo"].ToString();
+                string cover = project["ProjectCover"].ToString();
+                
+                imgLogoPreview.ImageUrl = string.IsNullOrEmpty(logo) ? "assets/images/projectTestAvatar.jpg" : logo;
+                imgCoverPreview.ImageUrl = string.IsNullOrEmpty(cover) ? "assets/images/default_cover.jpg" : cover;
+                
+                lblModalTitle.Text = "Edit Project";
+                btnCreateProject.Text = "Save Changes";
+                
+                KeepModalOpen();
+            }
+        }
+
+        private DataRow GetProjectById(int projectId)
+        {
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    conn.Open();
+                    SqlCommand cmd = new SqlCommand("SELECT * FROM Projects WHERE ProjectID = @ProjectID", conn);
+                    cmd.Parameters.AddWithValue("@ProjectID", projectId);
+                    SqlDataAdapter da = new SqlDataAdapter(cmd);
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
+                    if (dt.Rows.Count > 0) return dt.Rows[0];
+                }
+                catch (Exception ex)
+                {
+                    Log($"Error in GetProjectById: {ex.Message}");
+                }
+            }
+            return null;
+        }
+
+        protected void btnConfirmDelete_Click(object sender, EventArgs e)
+        {
+             if (!string.IsNullOrEmpty(hfDeleteProjectId.Value))
+             {
+                 int projectId = int.Parse(hfDeleteProjectId.Value);
+                 DeleteProjectFromDb(projectId);
+                 LoadProjects();
+                 hfDeleteProjectId.Value = string.Empty;
+                 
+                 // Update Sidebar
+                 if (Master is SideBar sideBar)
+                 {
+                     sideBar.LoadRecentProjects();
+                 }
+
+                 ClientScript.RegisterStartupScript(this.GetType(), "CloseDeleteModal", "closeDeleteModal();", true);
+             }
+        }
+
+        private void DeleteProjectFromDb(int projectId)
+        {
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    conn.Open();
+                    SqlCommand cmd = new SqlCommand("DELETE FROM Projects WHERE ProjectID = @ProjectID", conn);
+                    cmd.Parameters.AddWithValue("@ProjectID", projectId);
+                    cmd.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    Log($"Error deleting project: {ex.Message}");
+                }
+            }
+        }
+
         protected void btnCreateProject_Click(object sender, EventArgs e)
         {
             Log("btnCreateProject_Click started.");
@@ -53,75 +145,99 @@ namespace TaskQuest
                 string username = Session["User"].ToString();
                 string projectName = txtProjectName.Text.Trim();
                 string description = txtDescription.Text.Trim();
-
-                Log($"User: {username}, Project: {projectName}");
+                int userId = GetUserId(username);
 
                 if (string.IsNullOrEmpty(projectName))
                 {
-                    Log("Project name is empty.");
                     ShowError("Project Name is required");
                     KeepModalOpen();
                     return;
                 }
 
-                int userId = GetUserId(username);
-                Log($"UserID: {userId}");
-
                 if (userId == -1)
                 {
-                    Log("User not found.");
-                    ShowError("User not found in database. Please re-login.");
+                    ShowError("User not found. Please re-login.");
                     KeepModalOpen();
                     return;
                 }
 
-                // Check Uniqueness
-                if (IsProjectNameTaken(userId, projectName))
+                // Check if it's Edit or Create
+                if (!string.IsNullOrEmpty(hfEditProjectId.Value))
                 {
-                    Log("Project name taken.");
-                    ShowError("Project name already exists for this user.");
-                    KeepModalOpen();
-                    return;
+                    // EDIT MODE
+                    int projectId = int.Parse(hfEditProjectId.Value);
+                    
+                    // Check Uniqueness (exclude current project)
+                    if (IsProjectNameTaken(userId, projectName, projectId))
+                    {
+                        ShowError("Project name already exists for this user.");
+                        KeepModalOpen();
+                        return;
+                    }
+
+                    // Get existing paths
+                    DataRow existing = GetProjectById(projectId);
+                    string logoPath = existing["ProjectLogo"].ToString();
+                    string coverPath = existing["ProjectCover"].ToString();
+
+                    if (fuProjectLogo.HasFile) logoPath = UploadFile(fuProjectLogo, "logo");
+                    if (fuProjectCover.HasFile) coverPath = UploadFile(fuProjectCover, "cover");
+
+                    UpdateProjectInDb(projectId, projectName, description, logoPath, coverPath);
                 }
-
-                // Handle Files
-                string logoPath = "assets/images/projectTestAvatar.jpg";
-                string coverPath = "assets/images/default_cover.jpg";
-
-                if (fuProjectLogo.HasFile)
+                else
                 {
-                    Log("Uploading logo...");
-                    logoPath = UploadFile(fuProjectLogo, "logo");
+                    // CREATE MODE
+                    if (IsProjectNameTaken(userId, projectName))
+                    {
+                        ShowError("Project name already exists for this user.");
+                        KeepModalOpen();
+                        return;
+                    }
+
+                    string logoPath = "assets/images/projectTestAvatar.jpg";
+                    string coverPath = "assets/images/default_cover.jpg";
+
+                    if (fuProjectLogo.HasFile) logoPath = UploadFile(fuProjectLogo, "logo");
+                    if (fuProjectCover.HasFile) coverPath = UploadFile(fuProjectCover, "cover");
+
+                    SaveProjectToDb(userId, projectName, description, logoPath, coverPath);
                 }
-
-                if (fuProjectCover.HasFile)
-                {
-                    Log("Uploading cover...");
-                    coverPath = UploadFile(fuProjectCover, "cover");
-                }
-
-                Log($"Saving to DB. Logo: {logoPath}, Cover: {coverPath}");
-
-                // Save to DB
-                SaveProjectToDb(userId, projectName, description, logoPath, coverPath);
                 
-                Log("Save successful. Refreshing grid.");
-
-                // Refresh Grid and Close Modal locally (avoids Redirect issues)
                 LoadProjects();
                 
-                // Clear inputs
+                // Reset Form
                 txtProjectName.Text = string.Empty;
                 txtDescription.Text = string.Empty;
-                
-                // Close modal
+                hfEditProjectId.Value = string.Empty;
+                lblModalTitle.Text = "Create Project";
+                btnCreateProject.Text = "Create";
+                imgLogoPreview.ImageUrl = "assets/images/projectTestAvatar.jpg";
+                imgCoverPreview.ImageUrl = "assets/images/default_cover.jpg";
+
                 ClientScript.RegisterStartupScript(this.GetType(), "CloseModal", "closeProjectModal();", true);
             }
             catch (Exception ex)
             {
-                Log($"Error in btnCreateProject_Click: {ex.Message}\nStack: {ex.StackTrace}");
+                Log($"Error in btnCreateProject_Click: {ex.Message}");
                 ShowError("Error: " + ex.Message);
                 KeepModalOpen();
+            }
+        }
+
+        private void UpdateProjectInDb(int projectId, string name, string description, string logo, string cover)
+        {
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+                string query = @"UPDATE Projects SET ProjectName=@Name, Description=@Description, ProjectLogo=@Logo, ProjectCover=@Cover WHERE ProjectID=@ID";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@Name", name);
+                cmd.Parameters.AddWithValue("@Description", description);
+                cmd.Parameters.AddWithValue("@Logo", logo);
+                cmd.Parameters.AddWithValue("@Cover", cover);
+                cmd.Parameters.AddWithValue("@ID", projectId);
+                cmd.ExecuteNonQuery();
             }
         }
 
