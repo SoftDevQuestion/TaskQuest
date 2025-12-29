@@ -355,7 +355,7 @@ namespace TaskQuest
 
         private void KeepModalOpen()
         {
-            ScriptManager.RegisterStartupScript(this, this.GetType(), "KeepModalOpen", "openProjectModal();", true);
+            System.Web.UI.ScriptManager.RegisterStartupScript(this, this.GetType(), "KeepModalOpen", "openProjectModal();", true);
         }
 
         private void LoadProjects()
