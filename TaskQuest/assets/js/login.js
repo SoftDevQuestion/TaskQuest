@@ -191,7 +191,8 @@ class MaterialLoginForm {
                 return false;
             }
         } else {
-            // Validate as username
+            // Validate as username - just check length
+            // If it's not an email (no @), we treat it as a username
             if (email.length < 3) {
                 this.showError('email', 'Username must be at least 3 characters');
                 return false;

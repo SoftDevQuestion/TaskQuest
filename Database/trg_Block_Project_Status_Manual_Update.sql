@@ -1,4 +1,4 @@
-﻿CREATE TRIGGER trg_Block_Project_Status_Manual_Update
+CREATE OR ALTER TRIGGER trg_Block_Project_Status_Manual_Update
 ON Projects
 AFTER UPDATE
 AS

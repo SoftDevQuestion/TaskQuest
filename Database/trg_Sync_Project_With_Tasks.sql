@@ -1,4 +1,4 @@
-CREATE TRIGGER trg_Sync_Project_With_Tasks
+CREATE OR ALTER TRIGGER trg_Sync_Project_With_Tasks
 ON Tasks
 AFTER INSERT, UPDATE, DELETE
 AS
