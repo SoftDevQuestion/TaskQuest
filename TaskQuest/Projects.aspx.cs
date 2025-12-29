@@ -1,4 +1,5 @@
 using System;
+using System.Data;
 using System.Data.SqlClient;
 using System.Web.Configuration;
 using System.Collections.Generic;
@@ -32,7 +33,8 @@ namespace TaskQuest
 
             string username = Session["User"].ToString();
             string projectName = txtProjectName.Text.Trim();
-            
+            string description = txtDescription.Text.Trim();
+
             if (string.IsNullOrEmpty(projectName))
             {
                 ShowError("Project Name is required");
@@ -70,10 +72,11 @@ namespace TaskQuest
             }
 
             // Save to DB
-            SaveProjectToDb(userId, projectName, logoPath, coverPath);
+            SaveProjectToDb(userId, projectName, description, logoPath, coverPath);
 
             // Refresh and Close
             txtProjectName.Text = "";
+            txtDescription.Text = "a brief of how i wanna change the world!";
             Response.Redirect(Request.RawUrl);
         }
 
@@ -132,17 +135,18 @@ namespace TaskQuest
             }
         }
 
-        private void SaveProjectToDb(int userId, string projectName, string logo, string cover)
+        private void SaveProjectToDb(int userId, string projectName, string description, string logo, string cover)
         {
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
                 conn.Open();
-                string query = @"INSERT INTO Projects (CreatorUserId, ProjectName, CreatedAt, ProjectLogo, ProjectCover) 
-                                 VALUES (@UserId, @ProjectName, @CreatedAt, @ProjectLogo, @ProjectCover)";
+                string query = @"INSERT INTO Projects (CreatorUserId, ProjectName, Description, CreatedAt, ProjectLogo, ProjectCover) 
+                                 VALUES (@UserId, @ProjectName, @Description, @CreatedAt, @ProjectLogo, @ProjectCover)";
                 
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@UserId", userId);
                 cmd.Parameters.AddWithValue("@ProjectName", projectName);
+                cmd.Parameters.AddWithValue("@Description", description);
                 cmd.Parameters.AddWithValue("@CreatedAt", DateTime.Now);
                 cmd.Parameters.AddWithValue("@ProjectLogo", logo);
                 cmd.Parameters.AddWithValue("@ProjectCover", cover);
@@ -163,33 +167,25 @@ namespace TaskQuest
 
         private void LoadProjects()
         {
-            var projects = new List<ProjectVM>
-    {
-        new ProjectVM
-        {
-            Title = "Physics",
-            Description = "Small and concise headline for physics project",
-            ImageUrl = "assets/images/project1.jpeg"
-        },
-        new ProjectVM
-        {
-            Title = "UI/UX Design System",
-            Description = "Longer description that should not break the layout",
-            ImageUrl = "assets/images/project2.jpeg"
+            if (Session["User"] == null) return;
+
+            string username = Session["User"].ToString();
+            int userId = GetUserId(username);
+
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+                // Fetch projects created by this user
+                SqlCommand cmd = new SqlCommand("SELECT * FROM Projects WHERE CreatorUserId = @UserId ORDER BY CreatedAt DESC", conn);
+                cmd.Parameters.AddWithValue("@UserId", userId);
+
+                SqlDataAdapter da = new SqlDataAdapter(cmd);
+                DataTable dt = new DataTable();
+                da.Fill(dt);
+
+                rptProjects.DataSource = dt;
+                rptProjects.DataBind();
+            }
         }
-    };
-
-            rptProjects.DataSource = projects;
-            rptProjects.DataBind();
-        }
-
-        public class ProjectVM
-        {
-            public string Title { get; set; }
-            public string Description { get; set; }
-            public string ImageUrl { get; set; }
-        }
-
-
     }
 }

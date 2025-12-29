@@ -21,12 +21,21 @@
             <asp:Repeater ID="rptProjects" runat="server">
                 <ItemTemplate>
                     <div class="project-card">
+                        <div class="card-menu-container">
+                            <span class="three-dots" onclick="toggleMenu(this)">&#8942;</span>
+                            <div class="dropdown-menu">
+                                <a href="#">Edit</a>
+                                <a href="#">Delete</a>
+                                <a href="#">Access</a>
+                            </div>
+                        </div>
+
                         <div class="project-image">
-                            <img src='<%# Eval("ImageUrl") %>' />
+                            <img src='<%# Eval("ProjectCover") %>' />
                         </div>
 
                         <div class="project-content">
-                            <h3 class="project-title"><%# Eval("Title") %></h3>
+                            <h3 class="project-title"><%# Eval("ProjectName") %></h3>
                             <p class="project-description"><%# Eval("Description") %></p>
                         </div>
                     </div>
@@ -44,6 +53,11 @@
             <div class="form-group">
                 <label>Project Name</label>
                 <asp:TextBox ID="txtProjectName" runat="server" CssClass="form-control"></asp:TextBox>
+            </div>
+
+            <div class="form-group">
+                <label>Description</label>
+                <asp:TextBox ID="txtDescription" runat="server" CssClass="form-control" TextMode="MultiLine" Rows="3" Text="a brief of how i wanna change the world!"></asp:TextBox>
             </div>
 
             <div class="form-group">
@@ -87,6 +101,51 @@
 
         .create-project-btn:hover {
             background-color: #3355DD;
+        }
+
+        /* Card Menu Styles */
+        .project-card {
+            position: relative;
+        }
+
+        .card-menu-container {
+            position: absolute;
+            top: 10px;
+            left: 10px; /* Changed to left as requested */
+            z-index: 10;
+        }
+
+        .three-dots {
+            cursor: pointer;
+            font-size: 24px;
+            color: white;
+            text-shadow: 0 0 3px rgba(0,0,0,0.5);
+            font-weight: bold;
+            user-select: none;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 30px;
+            left: 0;
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            border-radius: 4px;
+            min-width: 100px;
+            z-index: 20;
+        }
+
+        .dropdown-menu a {
+            display: block;
+            padding: 8px 12px;
+            text-decoration: none;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .dropdown-menu a:hover {
+            background-color: #f5f5f5;
         }
 
         /* Modal Styles */
@@ -191,5 +250,34 @@
         function closeProjectModal() {
             document.getElementById('projectModal').style.display = 'none';
         }
+
+        function toggleMenu(element) {
+            // Close all other menus first
+            var dropdowns = document.getElementsByClassName("dropdown-menu");
+            for (var i = 0; i < dropdowns.length; i++) {
+                if (dropdowns[i] !== element.nextElementSibling) {
+                    dropdowns[i].style.display = "none";
+                }
+            }
+
+            // Toggle current menu
+            var dropdown = element.nextElementSibling;
+            if (dropdown.style.display === "block") {
+                dropdown.style.display = "none";
+            } else {
+                dropdown.style.display = "block";
+            }
+            
+            // Prevent event bubbling so document click doesn't close it immediately
+            event.stopPropagation();
+        }
+
+        // Close menu when clicking outside
+        document.addEventListener('click', function(event) {
+            var dropdowns = document.getElementsByClassName("dropdown-menu");
+            for (var i = 0; i < dropdowns.length; i++) {
+                dropdowns[i].style.display = "none";
+            }
+        });
     </script>
 </asp:Content>
