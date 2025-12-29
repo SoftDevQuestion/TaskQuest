@@ -99,7 +99,13 @@
             <!-- Footer Buttons -->
             <div class="modal-footer">
                 <button type="button" class="btn-give-up" onclick="closeProjectModal()">Give up</button>
-                <asp:Button ID="btnCreateProject" runat="server" Text="Create" CssClass="btn-create" OnClick="btnCreateProject_Click" />
+                
+                <!-- Visible Trigger Button -->
+                <button type="button" id="btnVisibleCreate" runat="server" class="btn-create" onclick="handleSaveProject()">Create</button>
+
+                <!-- Hidden Logic Buttons -->
+                <asp:Button ID="btnSaveFull" runat="server" Text="SaveFull" OnClick="btnCreateProject_Click" Style="display:none;" />
+                <asp:Button ID="btnSaveAsync" runat="server" Text="SaveAsync" OnClick="btnCreateProject_Click" Style="display:none;" />
             </div>
         </div>
     </div>
@@ -121,7 +127,7 @@
     </div>
         </ContentTemplate>
         <Triggers>
-            <asp:PostBackTrigger ControlID="btnCreateProject" />
+            <asp:PostBackTrigger ControlID="btnSaveFull" />
         </Triggers>
     </asp:UpdatePanel>
 
@@ -474,5 +480,18 @@
                 dropdowns[i].style.display = "none";
             }
         });
+
+        function handleSaveProject() {
+            var logo = document.getElementById('fuProjectLogo');
+            var cover = document.getElementById('fuProjectCover');
+            var hasFiles = (logo && logo.files && logo.files.length > 0) || 
+                           (cover && cover.files && cover.files.length > 0);
+            
+            if (hasFiles) {
+                document.getElementById('<%= btnSaveFull.ClientID %>').click();
+            } else {
+                document.getElementById('<%= btnSaveAsync.ClientID %>').click();
+            }
+        }
     </script>
 </asp:Content>

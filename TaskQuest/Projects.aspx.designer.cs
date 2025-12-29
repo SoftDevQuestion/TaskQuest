@@ -132,13 +132,31 @@ namespace TaskQuest
         protected global::System.Web.UI.WebControls.Label lblProjectError;
 
         /// <summary>
-        /// btnCreateProject control.
+        /// btnVisibleCreate control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnCreateProject;
+        protected global::System.Web.UI.HtmlControls.HtmlButton btnVisibleCreate;
+
+        /// <summary>
+        /// btnSaveFull control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnSaveFull;
+
+        /// <summary>
+        /// btnSaveAsync control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnSaveAsync;
 
         /// <summary>
         /// btnConfirmDelete control.

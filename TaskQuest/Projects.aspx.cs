@@ -64,7 +64,7 @@ namespace TaskQuest
                 imgCoverPreview.ImageUrl = string.IsNullOrEmpty(cover) ? "assets/images/default_cover.jpg" : cover;
                 
                 lblModalTitle.Text = "Edit Project";
-                btnCreateProject.Text = "Save Changes";
+                btnVisibleCreate.InnerText = "Save Changes";
                 
                 KeepModalOpen();
             }
@@ -211,7 +211,7 @@ namespace TaskQuest
                 txtDescription.Text = string.Empty;
                 hfEditProjectId.Value = string.Empty;
                 lblModalTitle.Text = "Create Project";
-                btnCreateProject.Text = "Create";
+                btnVisibleCreate.InnerText = "Create";
                 imgLogoPreview.ImageUrl = "assets/images/projectTestAvatar.jpg";
                 imgCoverPreview.ImageUrl = "assets/images/default_cover.jpg";
 
