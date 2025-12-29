@@ -180,13 +180,22 @@ class MaterialLoginForm {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         
         if (!email) {
-            this.showError('email', 'Email is required');
+            this.showError('email', 'Email or Username is required');
             return false;
         }
         
-        if (!emailRegex.test(email)) {
-            this.showError('email', 'Enter a valid email address');
-            return false;
+        // If input contains @, validate as email
+        if (email.includes('@')) {
+            if (!emailRegex.test(email)) {
+                this.showError('email', 'Enter a valid email address');
+                return false;
+            }
+        } else {
+            // Validate as username
+            if (email.length < 3) {
+                this.showError('email', 'Username must be at least 3 characters');
+                return false;
+            }
         }
         
         this.clearError('email');
