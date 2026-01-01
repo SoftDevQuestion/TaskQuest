@@ -160,6 +160,7 @@
     <Content Include="assets\js\wow.min.js" />
     <Content Include="Default.aspx" />
     <Content Include="Login.aspx" />
+    <Content Include="ForgotPassword.aspx" />
     <Content Include="Profile.aspx" />
     <Content Include="SignUp.aspx" />
     <Content Include="Dashboard.aspx" />
@@ -168,6 +169,19 @@
     <Content Include="Teams.aspx" />
     <Content Include="ChooseAvatar.aspx" />
     <Content Include="assets\css\choose-avatar.css" />
+    <Content Include="assets\css\dashboard.css" />
+    <Content Include="assets\css\fonts.css" />
+    <Content Include="assets\fonts\PlusJakartaSans-VariableFont_wght.ttf" />
+    <Content Include="assets\fonts\PlusJakartaSans-Italic-VariableFont_wght.ttf" />
+    <Content Include="assets\fonts\Vazirmatn-FD-Thin.ttf" />
+    <Content Include="assets\fonts\Vazirmatn-FD-ExtraLight.ttf" />
+    <Content Include="assets\fonts\Vazirmatn-FD-Light.ttf" />
+    <Content Include="assets\fonts\Vazirmatn-FD-Regular.ttf" />
+    <Content Include="assets\fonts\Vazirmatn-FD-Medium.ttf" />
+    <Content Include="assets\fonts\Vazirmatn-FD-SemiBold.ttf" />
+    <Content Include="assets\fonts\Vazirmatn-FD-Bold.ttf" />
+    <Content Include="assets\fonts\Vazirmatn-FD-ExtraBold.ttf" />
+    <Content Include="assets\fonts\Vazirmatn-FD-Black.ttf" />
     <Content Include="assets\js\choose-avatar.js" />
     <Content Include="assets\images\default-avatar.svg" />
     <Content Include="Web.config" />
@@ -251,6 +265,8 @@
   <ItemGroup>
     <Content Include="assets\fonts\LineIcons.eot" />
     <Content Include="assets\fonts\LineIcons.ttf" />
+    <Content Include="assets\fonts\PlusJakartaSans-VariableFont_wght.ttf" />
+    <Content Include="assets\fonts\PlusJakartaSans-Italic-VariableFont_wght.ttf" />
     <Content Include="assets\fonts\LineIcons.woff" />
     <Content Include="assets\fonts\LineIcons.woff2" />
     <Content Include="assets\img\.DS_Store" />

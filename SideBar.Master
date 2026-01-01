@@ -32,31 +32,39 @@
     <ul class="menu">
 
         <li id="liDashboard" runat="server">
-            <img src="https://cdn.jsdelivr.net/npm/feather-icons/dist/icons/grid.svg" class="icon">
-            <a href="Dashboard.aspx"><span>Dashboard</span></a>
+            <a href="Dashboard.aspx" class="menu-link">
+                <img src="https://cdn.jsdelivr.net/npm/feather-icons/dist/icons/grid.svg" class="icon">
+                <span>Dashboard</span>
+            </a>
         </li>
 
         <li id="liTasks" runat="server">
-            <img src="https://cdn.jsdelivr.net/npm/feather-icons/dist/icons/calendar.svg" class="icon">
-            <a href="Tasks.aspx"><span>Tasks</span></a>
+            <a href="Tasks.aspx" class="menu-link">
+                <img src="https://cdn.jsdelivr.net/npm/feather-icons/dist/icons/calendar.svg" class="icon">
+                <span>Tasks</span>
+            </a>
         </li>
 
 
         <li id="liTeams" runat="server">
-            <img src="https://cdn.jsdelivr.net/npm/feather-icons/dist/icons/users.svg" class="icon">
-            <a href="Teams.aspx"><span>Teams</span></a>
+            <a href="Teams.aspx" class="menu-link">
+                <img src="https://cdn.jsdelivr.net/npm/feather-icons/dist/icons/users.svg" class="icon">
+                <span>Teams</span>
+            </a>
         </li>
 
         <!-- Active Item -->
         <li id="liProjects" runat="server">
-            <img src="https://cdn.jsdelivr.net/npm/feather-icons/dist/icons/folder.svg" class="icon">
-            <a href="Projects.aspx"><span>Projects</span></a>
+            <a href="Projects.aspx" class="menu-link">
+                <img src="https://cdn.jsdelivr.net/npm/feather-icons/dist/icons/folder.svg" class="icon">
+                <span>Projects</span>
+            </a>
         </li>
 
     </ul>
 
     <!-- PROJECT LIST -->
-    <div class="project-section">
+    <div class="project-section" id="projectSection" runat="server">
         <div class="project-header">
             <span>PROJECTS</span>
             <button class="add-btn" onclick="handleCreateProject(); return false;">+</button>

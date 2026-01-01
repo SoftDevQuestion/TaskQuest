@@ -6,7 +6,7 @@
 }
 
 body {
-    font-family: 'LineIcons', 'Vazirmatn', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: 'PlusJakartaSans', 'Vazirmatn', 'LineIcons', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     background: #fafafa;
     min-height: 100vh;
     display: flex;

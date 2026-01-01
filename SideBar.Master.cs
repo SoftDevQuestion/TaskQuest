@@ -16,10 +16,20 @@ namespace TaskQuest
 
         protected void Page_Load(object sender, EventArgs e)
         {
+            string activePage = System.IO.Path.GetFileName(Request.Url.AbsolutePath).ToLower();
+            
+            // Toggle visibility of project list based on current page
+            projectSection.Visible = (activePage == "projects.aspx");
+
             if (!IsPostBack)
             {
                 UpdateProfileInfo();
-                LoadRecentProjects();
+                
+                // Only load projects if the section is visible
+                if (projectSection.Visible)
+                {
+                    LoadRecentProjects();
+                }
             }
             SetActiveMenu();
         }

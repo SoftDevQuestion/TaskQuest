@@ -2,12 +2,12 @@
 
 body {
     margin: 0;
-    font-family: 'LineIcons', 'Vazirmatn', 'Inter', sans-serif;
+    font-family: 'PlusJakartaSans', 'Vazirmatn', 'LineIcons', 'Inter', sans-serif;
     background: #f5f6fa;
 }
 
 * {
-    font-family: 'LineIcons', 'Vazirmatn', 'Inter', sans-serif;
+    font-family: 'PlusJakartaSans', 'Vazirmatn', 'LineIcons', 'Inter', sans-serif;
 }
 #main{
     flex:1;
@@ -53,30 +53,38 @@ body {
 }
 
     .menu li {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 10px 15px;
+        padding: 0;
         cursor: pointer;
         color: #4f4f4f;
         border-radius: 10px;
         margin-bottom: 5px;
+        display: block;
     }
 
-a {
-    text-decoration: none;
-    color: #4f4f4f;
-}
-        .menu li:hover {
-            background: #f0f4ff;
-        }
+    .menu-link {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 15px;
+        width: 100%;
+        height: 100%;
+        color: inherit;
+        text-decoration: none;
+        box-sizing: border-box;
+    }
+
+    .menu li:hover {
+        background: #f0f4ff;
+    }
 
 .menu li.active {
     background: #5577FF;
     color: #fff;
 }
+.menu li.active .menu-link {
+    color: #fff;
+}
 .menu li.active span {
-    
     color: #fff;
 }
 
