@@ -175,7 +175,7 @@ namespace TaskQuest
                 using (SqlConnection conn = new SqlConnection(connectionString))
                 {
                     conn.Open();
-                    string query = "UPDATE Team SET TeamName = @TeamName" + (logoPath != null ? ", LogoPath = @LogoPath" : "") + " WHERE TeamId = @TeamId";
+                    string query = "UPDATE Team SET TeamName = @TeamName, UpdatedAt = GETDATE()" + (logoPath != null ? ", LogoPath = @LogoPath" : "") + " WHERE TeamId = @TeamId";
                     SqlCommand cmd = new SqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@TeamName", newName);
                     cmd.Parameters.AddWithValue("@TeamId", teamId);
@@ -270,6 +270,56 @@ namespace TaskQuest
             return users;
         }
 
+        [WebMethod]
+        public static string AddMemberToTeam(int teamId, string username)
+        {
+            string connStr = WebConfigurationManager.ConnectionStrings["TodoAppDB"].ConnectionString;
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                conn.Open();
+
+                // 1. Find User
+                string findUserQuery = "SELECT Username FROM Users WHERE Username = @Id OR Email = @Id";
+                SqlCommand findCmd = new SqlCommand(findUserQuery, conn);
+                findCmd.Parameters.AddWithValue("@Id", username);
+                object result = findCmd.ExecuteScalar();
+
+                if (result == null)
+                {
+                    return "User not found.";
+                }
+
+                string realUsername = result.ToString();
+
+                // 2. Check if already member
+                string checkMemberQuery = "SELECT COUNT(*) FROM TeamMembers WHERE TeamId = @TeamId AND Username = @Username";
+                SqlCommand checkCmd = new SqlCommand(checkMemberQuery, conn);
+                checkCmd.Parameters.AddWithValue("@TeamId", teamId);
+                checkCmd.Parameters.AddWithValue("@Username", realUsername);
+                int count = (int)checkCmd.ExecuteScalar();
+
+                if (count > 0)
+                {
+                    return "User is already a member of this team.";
+                }
+
+                // 3. Add Member
+                string insertQuery = "INSERT INTO TeamMembers (TeamId, Username, Role) VALUES (@TeamId, @Username, 'member')";
+                SqlCommand insertCmd = new SqlCommand(insertQuery, conn);
+                insertCmd.Parameters.AddWithValue("@TeamId", teamId);
+                insertCmd.Parameters.AddWithValue("@Username", realUsername);
+                insertCmd.ExecuteNonQuery();
+
+                // 4. Update Team's UpdatedAt
+                string updateTeamQuery = "UPDATE Team SET UpdatedAt = GETDATE() WHERE TeamId = @TeamId";
+                SqlCommand updateCmd = new SqlCommand(updateTeamQuery, conn);
+                updateCmd.Parameters.AddWithValue("@TeamId", teamId);
+                updateCmd.ExecuteNonQuery();
+
+                return "Success";
+            }
+        }
+
         public class UserDTO
         {
             public string Username { get; set; }
@@ -318,7 +368,7 @@ namespace TaskQuest
                 try
                 {
                     // 1. Create Team
-                    string insertTeamQuery = "INSERT INTO Team (TeamName, LogoPath) VALUES (@Name, @LogoPath); SELECT SCOPE_IDENTITY();";
+                    string insertTeamQuery = "INSERT INTO Team (TeamName, LogoPath, UpdatedAt) VALUES (@Name, @LogoPath, GETDATE()); SELECT SCOPE_IDENTITY();";
                     SqlCommand cmdTeam = new SqlCommand(insertTeamQuery, conn, transaction);
                     cmdTeam.Parameters.AddWithValue("@Name", teamName);
                     cmdTeam.Parameters.AddWithValue("@LogoPath", logoPath); // Always store a path (default or uploaded)

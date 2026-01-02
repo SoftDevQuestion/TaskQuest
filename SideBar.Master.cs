@@ -20,17 +20,24 @@ namespace TaskQuest
             
             // Toggle visibility of project list based on current page
             projectSection.Visible = (activePage == "projects.aspx");
+            teamSection.Visible = (activePage == "teams.aspx");
 
             if (!IsPostBack)
             {
                 UpdateProfileInfo();
-                
-                // Only load projects if the section is visible
-                if (projectSection.Visible)
-                {
-                    LoadRecentProjects();
-                }
             }
+
+            // Always load lists to ensure they are up-to-date after postbacks (e.g. edits)
+            if (projectSection.Visible)
+            {
+                LoadRecentProjects();
+            }
+
+            if (teamSection.Visible)
+            {
+                LoadRecentTeams();
+            }
+            
             SetActiveMenu();
         }
 
@@ -44,18 +51,9 @@ namespace TaskQuest
                 {
                     conn.Open();
                     // Fetch top 3 recent projects
-                    // Note: If you want to filter by user, uncomment the parameter logic
-                    // Currently following Projects.aspx logic which fetches all
                     string query = "SELECT TOP 3 ProjectName, ProjectLogo FROM Projects ORDER BY CreatedAt DESC";
                     
-                    // If filtering by user is needed in future:
-                    // string query = "SELECT TOP 3 ProjectName, ProjectLogo FROM Projects WHERE CreatorUserId = @UserId ORDER BY CreatedAt DESC";
-                    
                     SqlCommand cmd = new SqlCommand(query, conn);
-                    
-                    // int userId = GetUserId(Session["User"].ToString());
-                    // if (userId != -1) cmd.Parameters.AddWithValue("@UserId", userId);
-
                     SqlDataAdapter da = new SqlDataAdapter(cmd);
                     DataTable dt = new DataTable();
                     da.Fill(dt);
@@ -65,7 +63,35 @@ namespace TaskQuest
                 }
                 catch (Exception)
                 {
-                    // Fail silently for sidebar widgets to avoid breaking the whole page
+                    // Fail silently
+                }
+            }
+        }
+
+        public void LoadRecentTeams()
+        {
+            if (Session["User"] == null) return;
+
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    conn.Open();
+                    // Fetch top 3 recent teams. 
+                    // Sorted by UpdatedAt descending to show recently created or edited teams.
+                    string query = "SELECT TOP 3 TeamId, TeamName, LogoPath FROM Team ORDER BY UpdatedAt DESC";
+                    
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    SqlDataAdapter da = new SqlDataAdapter(cmd);
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
+
+                    rptSideBarTeams.DataSource = dt;
+                    rptSideBarTeams.DataBind();
+                }
+                catch (Exception)
+                {
+                    // Fail silently
                 }
             }
         }

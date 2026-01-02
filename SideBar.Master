@@ -91,7 +91,29 @@
                             <li>
                                 <img src='<%# Eval("ProjectLogo") %>' class="project-img" onerror="this.src='assets/images/projectTestAvatar.jpg'">
                                 <span><%# Eval("ProjectName") %></span>
-                                <!-- <span class="count">0</span> --> 
+                            </li>
+                        </ItemTemplate>
+                    </asp:Repeater>
+                </ContentTemplate>
+            </asp:UpdatePanel>
+        </ul>
+    </div>
+
+    <!-- TEAM LIST -->
+    <div class="team-section" id="teamSection" runat="server" visible="false">
+        <div class="team-header">
+            <span>TEAMS</span>
+            <button class="add-btn" onclick="if(typeof showCreateTeamModal === 'function') showCreateTeamModal(); else window.location.href='Teams.aspx'; return false;">+</button>
+        </div>
+
+        <ul class="team-list">
+            <asp:UpdatePanel ID="upSideBarTeams" runat="server" UpdateMode="Conditional" ChildrenAsTriggers="false">
+                <ContentTemplate>
+                    <asp:Repeater ID="rptSideBarTeams" runat="server">
+                        <ItemTemplate>
+                            <li>
+                                <img src='<%# !string.IsNullOrEmpty(Eval("LogoPath") as string) ? Eval("LogoPath") : "assets/images/teamwork.png" %>' class="project-img" style="border-radius: 6px; object-fit: cover;">
+                                <span><%# Eval("TeamName") %></span>
                             </li>
                         </ItemTemplate>
                     </asp:Repeater>

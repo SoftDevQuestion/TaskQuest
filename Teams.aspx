@@ -135,6 +135,24 @@
             </div>
         </div>
     </div>
+    
+    <!-- Add Member Modal Structure -->
+     <div id="addMemberModal" class="modal-overlay" style="display: none;">
+         <div class="modal-content" style="max-width: 320px;">
+             <h3 style="margin: 0; font-size: 16px;">Add New Member</h3>
+             <div class="form-group" style="margin-top: 12px;">
+                 <label>Search User</label>
+                 <div class="input-wrapper" style="position: relative;">
+                     <input type="text" id="txtSearchAddMember" class="form-control" placeholder="Enter username or email..." onkeyup="searchMemberForExistingTeam(this)" />
+                     <div id="addMemberSearchResults" class="search-results" style="display:none;"></div>
+                 </div>
+             </div>
+             <div class="modal-footer" style="margin-top: 12px;">
+                 <button type="button" class="btn-give-up" onclick="closeAddMemberModal()">Cancel</button>
+             </div>
+         </div>
+     </div>
+    
     <asp:HiddenField ID="hfEditTeamId" runat="server" />
 
     <asp:HiddenField ID="hfTeamMembers" runat="server" />
@@ -313,8 +331,88 @@
             dropdown.classList.toggle('show');
         }
 
+        let currentAddMemberTeamId = null;
+
         function showAddMemberModal(teamId) {
-            alert('Add Member functionality for existing teams is not yet implemented.');
+            currentAddMemberTeamId = teamId;
+            document.getElementById('addMemberModal').style.display = 'flex';
+            document.getElementById('txtSearchAddMember').value = '';
+            document.getElementById('addMemberSearchResults').style.display = 'none';
+            document.getElementById('txtSearchAddMember').focus();
+        }
+
+        function closeAddMemberModal() {
+            document.getElementById('addMemberModal').style.display = 'none';
+            currentAddMemberTeamId = null;
+        }
+
+        let searchAddMemberTimeout;
+        function searchMemberForExistingTeam(input) {
+            const term = input.value;
+            const resultsDiv = document.getElementById('addMemberSearchResults');
+            
+            if (term.length < 2) {
+                resultsDiv.style.display = 'none';
+                return;
+            }
+
+            clearTimeout(searchAddMemberTimeout);
+            searchAddMemberTimeout = setTimeout(() => {
+                $.ajax({
+                    type: "POST",
+                    url: "Teams.aspx/SearchUsers",
+                    data: JSON.stringify({ term: term }),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (response) {
+                        const users = response.d;
+                        resultsDiv.innerHTML = '';
+                        if (users.length > 0) {
+                            users.forEach(user => {
+                                const div = document.createElement('div');
+                                div.className = 'search-result-item';
+                                div.innerText = `${user.Username} (${user.Email})`;
+                                div.onclick = () => addMemberToTeam(user.Username);
+                                resultsDiv.appendChild(div);
+                            });
+                            resultsDiv.style.display = 'block';
+                        } else {
+                            resultsDiv.style.display = 'none';
+                        }
+                    },
+                    error: function (err) {
+                        console.error('Error searching users', err);
+                    }
+                });
+            }, 300);
+        }
+
+        function addMemberToTeam(username) {
+            if (!currentAddMemberTeamId) return;
+            
+            // Just add without confirmation
+            $.ajax({
+                type: "POST",
+                url: "Teams.aspx/AddMemberToTeam",
+                data: JSON.stringify({ teamId: currentAddMemberTeamId, username: username }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (response) {
+                    if (response.d === "Success") {
+                        // No alert, just reload or close
+                        closeAddMemberModal();
+                        window.location.reload(); 
+                    } else {
+                        // Keep error alert if something goes wrong? 
+                        // User said "don't give a message", but errors are different. 
+                        // I will suppress success message as requested.
+                        alert(response.d);
+                    }
+                },
+                error: function (err) {
+                    console.error('Error adding member', err);
+                }
+            });
         }
 
         function triggerFileUpload() {

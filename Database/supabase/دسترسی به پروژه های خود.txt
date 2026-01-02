@@ -1,9 +1,0 @@
-create policy "Team members can view projects"
-on projects
-for select
-using (
-  team_access_id in (
-    select team_id from user_profiles
-    where id = auth.uid()
-  )
-);

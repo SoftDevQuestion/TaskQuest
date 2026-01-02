@@ -1,4 +1,0 @@
-create policy "User can view own profile"
-on user_profiles
-for select
-using (id = auth.uid());

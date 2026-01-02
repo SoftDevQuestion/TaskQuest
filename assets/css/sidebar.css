@@ -98,6 +98,41 @@ body {
     margin-top: 25px;
 }
 
+/* Reuse project styles for teams */
+.team-section {
+    margin-top: 20px;
+    flex-grow: 1;
+}
+
+.team-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #b0b0b0;
+    font-size: 12px;
+    margin-bottom: 10px;
+}
+
+.team-list {
+    list-style: none;
+    padding: 0;
+}
+
+.team-list li {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    gap: 12px;
+    font-size: 14px;
+    color: #333;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.team-list li:hover {
+    background: #f5f7ff;
+}
+
 .project-header {
     display: flex;
     justify-content: space-between;
