@@ -319,7 +319,6 @@ namespace TaskQuest
                 }
             }
             LoadTeams();
-            }
         }
 
         private void DeleteTeam(int teamId)
