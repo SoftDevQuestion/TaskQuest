@@ -128,10 +128,10 @@
 /* اعضا */
 .team-members {
     flex: 1;
-    margin: 8px 0;
+    margin: 16px 0;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 12px;
 }
 
 .member-row {
@@ -139,38 +139,47 @@
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    padding: 8px;
-    border-radius: 8px;
-    background-color: #f9fafb;
+    padding: 12px 16px;
+    border-radius: 16px;
+    background-color: #ffffff;
+    border: 1px solid #f3f4f6;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.member-row:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
 }
 
 /* عکس پروفایل */
 .member-info-with-avatar {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     min-width: 0;
 }
 
 .member-avatar {
-    width: 36px;
-    height: 36px;
-    border-radius: 999px;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
     object-fit: cover;
     flex-shrink: 0;
-    border: 1px solid #e5e7eb;
 }
 
 /* متن عضو */
 .member-info {
     display: flex;
     flex-direction: column;
+    gap: 2px;
     min-width: 0;
 }
 
 .member-name {
-    font-size: 14px;
-    font-weight: 500;
+    font-size: 15px;
+    font-weight: 600;
+    color: #1f2937;
     margin: 0;
     white-space: nowrap;
     overflow: hidden;
@@ -178,9 +187,9 @@
 }
 
 .member-role {
-    font-size: 12px;
-    color: #6b7280;
-    margin: 2px 0 0;
+    font-size: 13px;
+    color: #9ca3af;
+    margin: 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -189,50 +198,54 @@
 /* برچسب نقش */
 .member-badge {
     flex-shrink: 0;
-    padding: 4px 10px;
+    padding: 4px 12px;
     border-radius: 999px;
-    font-size: 11px;
-    font-weight: 500;
-    border: 1px solid transparent;
+    font-size: 12px;
+    font-weight: 600;
+    border: none;
     white-space: nowrap;
 }
 
 .member-badge-admin {
-    background-color: #fee2e2;
-    border-color: #fecaca;
-    color: #b91c1c;
+    background-color: #e0e7ff;
+    color: #4338ca;
 }
 
 .member-badge-member {
-    background-color: #e0f2fe;
-    border-color: #bae6fd;
-    color: #0369a1;
+    background-color: #fce7f3;
+    color: #db2777;
 }
 
 /* فوتر کارت */
 .team-card-footer {
     margin-top: 8px;
-    padding-top: 8px;
-    border-top: 1px solid #e5e7eb;
+    padding-top: 0;
+    border-top: none;
 }
 
 /* دکمه افزودن عضو */
 .add-member-btn {
     width: 100%;
-    border-radius: 999px;
-    border: 1px solid #9ca3af; /* تغییر به solid */
+    height: 48px;
+    border-radius: 12px;
+    border: 1.5px solid #3b82f6;
     background: white;
-    padding: 8px;
-    color: #374151;
-    font-size: 13px;
-    font-weight: 500;
+    padding: 0;
+    color: #3b82f6;
+    font-size: 15px;
+    font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
 }
 
 .add-member-btn:hover {
-    background-color: #f3f4f6;
-    border-color: #6b7280;
+    background-color: #eff6ff;
+    box-shadow: 0 4px 6px rgba(59, 130, 246, 0.15);
 }
 
 /* Modal Styles */
