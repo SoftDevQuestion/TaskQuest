@@ -251,17 +251,39 @@ namespace TaskQuest
             if (result != null)
             {
                 string username = result.ToString();
-                
-                string updateQuery = @"
-                    UPDATE user_profiles 
-                    SET team_id = @TeamId, role = @Role 
-                    WHERE username = @Username";
-                
-                SqlCommand updateCmd = new SqlCommand(updateQuery, conn, trans);
-                updateCmd.Parameters.AddWithValue("@TeamId", teamId);
-                updateCmd.Parameters.AddWithValue("@Role", role);
-                updateCmd.Parameters.AddWithValue("@Username", username);
-                updateCmd.ExecuteNonQuery();
+
+                // Check if user_profile exists
+                string checkProfileQuery = "SELECT COUNT(*) FROM user_profiles WHERE username = @Username";
+                SqlCommand checkCmd = new SqlCommand(checkProfileQuery, conn, trans);
+                checkCmd.Parameters.AddWithValue("@Username", username);
+                int count = (int)checkCmd.ExecuteScalar();
+
+                if (count > 0)
+                {
+                    string updateQuery = @"
+                        UPDATE user_profiles 
+                        SET team_id = @TeamId, role = @Role 
+                        WHERE username = @Username";
+                    
+                    SqlCommand updateCmd = new SqlCommand(updateQuery, conn, trans);
+                    updateCmd.Parameters.AddWithValue("@TeamId", teamId);
+                    updateCmd.Parameters.AddWithValue("@Role", role);
+                    updateCmd.Parameters.AddWithValue("@Username", username);
+                    updateCmd.ExecuteNonQuery();
+                }
+                else
+                {
+                    // Insert new profile
+                    string insertQuery = @"
+                        INSERT INTO user_profiles (username, team_id, role) 
+                        VALUES (@Username, @TeamId, @Role)";
+                    
+                    SqlCommand insertCmd = new SqlCommand(insertQuery, conn, trans);
+                    insertCmd.Parameters.AddWithValue("@Username", username);
+                    insertCmd.Parameters.AddWithValue("@TeamId", teamId);
+                    insertCmd.Parameters.AddWithValue("@Role", role);
+                    insertCmd.ExecuteNonQuery();
+                }
             }
         }
     }

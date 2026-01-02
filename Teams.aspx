@@ -16,8 +16,85 @@
             <h1 class="page-title">Team Management</h1>
             <button type="button" class="create-team-btn" onclick="showCreateTeamModal()">+ Create New Team</button>
         </div>
+        
+        <asp:Label ID="lblError" runat="server" CssClass="error-message" ForeColor="Red" EnableViewState="false"></asp:Label>
 
         <div class="teams-grid">
+            <!-- Static Cards (Restored) -->
+            <section class="team-card">
+                <header class="team-card-header">
+                    <div class="team-card-title">
+                        <span class="team-emoji">🎨</span>
+                        <div class="team-texts">
+                            <h2 class="team-name">Design Team</h2>
+                            <p class="team-members-count">3 members</p>
+                        </div>
+                    </div>
+                    <div class="team-menu-container">
+                        <button class="team-menu-btn" type="button" onclick="toggleMenu(this)">
+                            <span></span><span></span><span></span>
+                        </button>
+                    </div>
+                </header>
+                <div class="team-members">
+                    <div class="member-row">
+                        <div class="member-info-with-avatar">
+                            <img src="assets/images/avatars/avatar-1.png" alt="Sarah" class="member-avatar" onerror="this.src='assets/images/default-avatar.svg'" />
+                            <div class="member-info">
+                                <p class="member-name">Sarah</p>
+                                <p class="member-role">Admin</p>
+                            </div>
+                        </div>
+                        <span class="member-badge member-badge-admin">Admin</span>
+                    </div>
+                    <div class="member-row">
+                        <div class="member-info-with-avatar">
+                            <img src="assets/images/avatars/avatar-2.png" alt="Mike" class="member-avatar" onerror="this.src='assets/images/default-avatar.svg'" />
+                            <div class="member-info">
+                                <p class="member-name">Mike</p>
+                                <p class="member-role">Member</p>
+                            </div>
+                        </div>
+                        <span class="member-badge member-badge-member">Member</span>
+                    </div>
+                </div>
+                <div class="team-card-footer">
+                    <button class="add-member-btn" type="button">+ Add member</button>
+                </div>
+            </section>
+
+             <section class="team-card">
+                <header class="team-card-header">
+                    <div class="team-card-title">
+                        <span class="team-emoji">🚀</span>
+                        <div class="team-texts">
+                            <h2 class="team-name">Development</h2>
+                            <p class="team-members-count">4 members</p>
+                        </div>
+                    </div>
+                    <div class="team-menu-container">
+                        <button class="team-menu-btn" type="button" onclick="toggleMenu(this)">
+                            <span></span><span></span><span></span>
+                        </button>
+                    </div>
+                </header>
+                <div class="team-members">
+                    <div class="member-row">
+                        <div class="member-info-with-avatar">
+                            <img src="assets/images/avatars/avatar-3.png" alt="Alex" class="member-avatar" onerror="this.src='assets/images/default-avatar.svg'" />
+                            <div class="member-info">
+                                <p class="member-name">Alex</p>
+                                <p class="member-role">Admin</p>
+                            </div>
+                        </div>
+                        <span class="member-badge member-badge-admin">Admin</span>
+                    </div>
+                </div>
+                <div class="team-card-footer">
+                    <button class="add-member-btn" type="button">+ Add member</button>
+                </div>
+            </section>
+
             <asp:Repeater ID="rptTeams" runat="server" OnItemCommand="rptTeams_ItemCommand">
                 <ItemTemplate>
                     <section class="team-card">
