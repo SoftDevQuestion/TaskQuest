@@ -100,7 +100,6 @@
                     <section class="team-card">
                         <header class="team-card-header">
                             <div class="team-card-title">
-                                <span class="team-emoji">💻</span>
                                 <div class="team-texts">
                                     <h2 class="team-name"><%# Eval("TeamName") %></h2>
                                     <p class="team-members-count"><%# Eval("MemberCount") %> members</p>
@@ -339,6 +338,23 @@
 
         function showAddMemberModal(teamId) {
             alert('Add Member functionality for existing teams is not yet implemented.');
+        }
+
+        function triggerFileUpload() {
+            document.getElementById('<%= fuTeamLogo.ClientID %>').click();
+        }
+
+        function previewLogo(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    var img = document.getElementById('imgLogoPreview');
+                    img.src = e.target.result;
+                    img.style.display = 'block';
+                    document.getElementById('logoPlaceholderText').style.display = 'none';
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
         }
     </script>
 </asp:Content>

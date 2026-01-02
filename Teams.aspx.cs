@@ -16,6 +16,9 @@ namespace TaskQuest
 
         protected void Page_Load(object sender, EventArgs e)
         {
+            // Ensure form allows file uploads
+            this.Form.Enctype = "multipart/form-data";
+
             // Check if user is logged in
             if (Session["User"] == null)
             {
@@ -41,16 +44,17 @@ namespace TaskQuest
                     conn.Open();
                     string query = @"
                         SELECT 
-                            t.id as TeamId, 
-                            t.name as TeamName, 
-                            t.description, 
-                            up.username, 
-                            up.role, 
+                            t.TeamId, 
+                            t.TeamName, 
+                            t.Description, 
+                            t.LogoPath,
+                            tm.Username, 
+                            tm.Role, 
                             u.AvatarPath 
-                        FROM teams t 
-                        LEFT JOIN user_profiles up ON t.id = up.team_id 
-                        LEFT JOIN Users u ON up.username = u.Username
-                        ORDER BY t.id";
+                        FROM Team t 
+                        LEFT JOIN TeamMembers tm ON t.TeamId = tm.TeamId 
+                        LEFT JOIN Users u ON tm.Username = u.Username
+                        ORDER BY t.TeamId";
 
                     SqlCommand cmd = new SqlCommand(query, conn);
                     SqlDataReader reader = cmd.ExecuteReader();
@@ -68,7 +72,8 @@ namespace TaskQuest
                         {
                             TeamId = Convert.ToInt32(firstRow["TeamId"]),
                             TeamName = firstRow["TeamName"].ToString(),
-                            Description = firstRow["description"] != DBNull.Value ? firstRow["description"].ToString() : "",
+                            Description = firstRow["Description"] != DBNull.Value ? firstRow["Description"].ToString() : "",
+                            LogoPath = firstRow["LogoPath"] != DBNull.Value ? firstRow["LogoPath"].ToString() : null,
                             Members = new List<MemberViewModel>()
                         };
 
@@ -122,13 +127,13 @@ namespace TaskQuest
                 {
                     conn.Open();
                     // Update profiles first
-                    string updateProfiles = "UPDATE user_profiles SET team_id = NULL, role = NULL WHERE team_id = @TeamId";
+                    string updateProfiles = "UPDATE UserProfile SET team_id = NULL, role = NULL WHERE team_id = @TeamId";
                     SqlCommand cmdUpdate = new SqlCommand(updateProfiles, conn);
                     cmdUpdate.Parameters.AddWithValue("@TeamId", teamId);
                     cmdUpdate.ExecuteNonQuery();
 
                     // Delete team
-                    string deleteTeam = "DELETE FROM teams WHERE id = @TeamId";
+                    string deleteTeam = "DELETE FROM Team WHERE id = @TeamId";
                     SqlCommand cmdDelete = new SqlCommand(deleteTeam, conn);
                     cmdDelete.Parameters.AddWithValue("@TeamId", teamId);
                     cmdDelete.ExecuteNonQuery();
@@ -145,6 +150,7 @@ namespace TaskQuest
             public int TeamId { get; set; }
             public string TeamName { get; set; }
             public string Description { get; set; }
+            public string LogoPath { get; set; }
             public List<MemberViewModel> Members { get; set; }
             public int MemberCount => Members.Count;
         }
@@ -196,8 +202,34 @@ namespace TaskQuest
         {
             string teamName = hfTeamName.Value;
             string membersJson = hfTeamMembers.Value;
+            string logoPath = null;
 
             if (string.IsNullOrEmpty(teamName)) return;
+
+            // Handle File Upload
+            if (fuTeamLogo.HasFile)
+            {
+                try
+                {
+                    string filename = System.IO.Path.GetFileName(fuTeamLogo.FileName);
+                    string extension = System.IO.Path.GetExtension(filename);
+                    string uniqueName = Guid.NewGuid().ToString() + extension;
+                    string folderPath = Server.MapPath("~/assets/images/teams/");
+                    
+                    if (!System.IO.Directory.Exists(folderPath))
+                    {
+                        System.IO.Directory.CreateDirectory(folderPath);
+                    }
+
+                    string savePath = System.IO.Path.Combine(folderPath, uniqueName);
+                    fuTeamLogo.SaveAs(savePath);
+                    logoPath = "assets/images/teams/" + uniqueName;
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine("Upload error: " + ex.Message);
+                }
+            }
 
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
@@ -207,12 +239,18 @@ namespace TaskQuest
                 try
                 {
                     // 1. Create Team
-                    string insertTeamQuery = "INSERT INTO teams (name) VALUES (@Name); SELECT SCOPE_IDENTITY();";
+                    string insertTeamQuery = "INSERT INTO Team (TeamName, LogoPath) VALUES (@Name, @LogoPath); SELECT SCOPE_IDENTITY();";
                     SqlCommand cmdTeam = new SqlCommand(insertTeamQuery, conn, transaction);
                     cmdTeam.Parameters.AddWithValue("@Name", teamName);
+                    cmdTeam.Parameters.AddWithValue("@LogoPath", (object)logoPath ?? DBNull.Value);
                     
-                    decimal newTeamIdDec = (decimal)cmdTeam.ExecuteScalar();
-                    int newTeamId = Convert.ToInt32(newTeamIdDec);
+                    object result = cmdTeam.ExecuteScalar();
+                    if (result == null || result == DBNull.Value)
+                    {
+                        throw new Exception("Failed to create team. ID not returned.");
+                    }
+
+                    int newTeamId = Convert.ToInt32(result);
 
                     // 2. Add Creator (Current User) as Admin
                     string currentUser = Session["User"].ToString();
@@ -236,6 +274,8 @@ namespace TaskQuest
                 catch (Exception ex)
                 {
                     transaction.Rollback();
+                    lblError.Text = "Error creating team: " + ex.Message;
+                    lblError.Visible = true;
                     System.Diagnostics.Debug.WriteLine("Error creating team: " + ex.Message);
                 }
             }
@@ -252,35 +292,23 @@ namespace TaskQuest
             {
                 string username = result.ToString();
 
-                // Check if user_profile exists
-                string checkProfileQuery = "SELECT COUNT(*) FROM user_profiles WHERE username = @Username";
-                SqlCommand checkCmd = new SqlCommand(checkProfileQuery, conn, trans);
+                // Check if user is already in the team
+                string checkMemberQuery = "SELECT COUNT(*) FROM TeamMembers WHERE TeamId = @TeamId AND Username = @Username";
+                SqlCommand checkCmd = new SqlCommand(checkMemberQuery, conn, trans);
+                checkCmd.Parameters.AddWithValue("@TeamId", teamId);
                 checkCmd.Parameters.AddWithValue("@Username", username);
                 int count = (int)checkCmd.ExecuteScalar();
 
-                if (count > 0)
+                if (count == 0)
                 {
-                    string updateQuery = @"
-                        UPDATE user_profiles 
-                        SET team_id = @TeamId, role = @Role 
-                        WHERE username = @Username";
-                    
-                    SqlCommand updateCmd = new SqlCommand(updateQuery, conn, trans);
-                    updateCmd.Parameters.AddWithValue("@TeamId", teamId);
-                    updateCmd.Parameters.AddWithValue("@Role", role);
-                    updateCmd.Parameters.AddWithValue("@Username", username);
-                    updateCmd.ExecuteNonQuery();
-                }
-                else
-                {
-                    // Insert new profile
+                    // Insert new member
                     string insertQuery = @"
-                        INSERT INTO user_profiles (username, team_id, role) 
-                        VALUES (@Username, @TeamId, @Role)";
+                        INSERT INTO TeamMembers (TeamId, Username, Role) 
+                        VALUES (@TeamId, @Username, @Role)";
                     
                     SqlCommand insertCmd = new SqlCommand(insertQuery, conn, trans);
-                    insertCmd.Parameters.AddWithValue("@Username", username);
                     insertCmd.Parameters.AddWithValue("@TeamId", teamId);
+                    insertCmd.Parameters.AddWithValue("@Username", username);
                     insertCmd.Parameters.AddWithValue("@Role", role);
                     insertCmd.ExecuteNonQuery();
                 }
