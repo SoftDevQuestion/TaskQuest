@@ -142,9 +142,13 @@
              <h3 style="margin: 0; font-size: 16px;">Add New Member</h3>
              <div class="form-group" style="margin-top: 12px;">
                  <label>Search User</label>
-                 <div class="input-wrapper" style="position: relative;">
-                     <input type="text" id="txtSearchAddMember" class="form-control" placeholder="Enter username or email..." onkeyup="searchMemberForExistingTeam(this)" />
-                     <div id="addMemberSearchResults" class="search-results" style="display:none;"></div>
+                 <div class="input-wrapper" style="position: relative; display: flex; gap: 8px;">
+                     <input type="text" id="txtSearchAddMember" class="form-control" placeholder="Enter username or email..." onkeyup="searchMemberForExistingTeam(this)" style="flex: 1;" />
+                     <select id="ddlAddMemberRole" class="form-control" style="width: auto;">
+                        <option value="member">Member</option>
+                        <option value="admin">Admin</option>
+                     </select>
+                     <div id="addMemberSearchResults" class="search-results" style="display:none; top: 100%; left: 0; width: 100%;"></div>
                  </div>
              </div>
              <div class="modal-footer" style="margin-top: 12px;">
@@ -203,6 +207,10 @@
                         <input type="text" class="member-search-input" placeholder="Username or Email" onkeyup="searchUsers(this, '${rowId}')" onkeydown="handleEnterKey(event, this)" />
                         <div class="search-results" style="display:none;"></div>
                     </div>
+                    <select class="member-role-select form-control" style="width: auto; margin-left: 8px;">
+                        <option value="member">Member</option>
+                        <option value="admin">Admin</option>
+                    </select>
                     <button type="button" class="remove-row-btn" onclick="removeRow('${rowId}')">×</button>
                 </div>
             `;
@@ -294,11 +302,16 @@
             }
 
             // Collect members
-            const memberInputs = document.querySelectorAll('.member-search-input');
+            const memberRows = document.querySelectorAll('.member-input-row');
             const members = [];
-            memberInputs.forEach(input => {
+            memberRows.forEach(row => {
+                const input = row.querySelector('.member-search-input');
+                const roleSelect = row.querySelector('.member-role-select');
                 if (input.value.trim()) {
-                    members.push(input.value.trim());
+                    members.push({
+                        username: input.value.trim(),
+                        role: roleSelect ? roleSelect.value : 'member'
+                    });
                 }
             });
 
@@ -390,11 +403,13 @@
         function addMemberToTeam(username) {
             if (!currentAddMemberTeamId) return;
             
+            const role = document.getElementById('ddlAddMemberRole').value;
+
             // Just add without confirmation
             $.ajax({
                 type: "POST",
                 url: "Teams.aspx/AddMemberToTeam",
-                data: JSON.stringify({ teamId: currentAddMemberTeamId, username: username }),
+                data: JSON.stringify({ teamId: currentAddMemberTeamId, username: username, role: role }),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function (response) {

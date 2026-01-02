@@ -149,8 +149,26 @@ namespace TaskQuest
                 string newName = txtEditTeamName.Text.Trim();
                 if (string.IsNullOrEmpty(newName)) return;
 
-                string logoPath = null;
-                if (fuEditTeamLogo.HasFile)
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+
+                    // Check for duplicate name
+                    string checkTeamQuery = "SELECT COUNT(*) FROM Team WHERE TeamName = @Name AND TeamId != @Id";
+                    SqlCommand checkCmd = new SqlCommand(checkTeamQuery, conn);
+                    checkCmd.Parameters.AddWithValue("@Name", newName);
+                    checkCmd.Parameters.AddWithValue("@Id", teamId);
+                    int count = (int)checkCmd.ExecuteScalar();
+                    if (count > 0)
+                    {
+                        lblError.Text = "Team name already exists. Please choose another name.";
+                        lblError.Visible = true;
+                        ClientScript.RegisterStartupScript(this.GetType(), "Pop", "showEditTeamModal();", true);
+                        return;
+                    }
+
+                    string logoPath = null;
+                    if (fuEditTeamLogo.HasFile)
                 {
                     try
                     {
@@ -172,19 +190,25 @@ namespace TaskQuest
                     }
                 }
 
-                using (SqlConnection conn = new SqlConnection(connectionString))
+                if (logoPath != null)
                 {
-                    conn.Open();
-                    string query = "UPDATE Team SET TeamName = @TeamName, UpdatedAt = GETDATE()" + (logoPath != null ? ", LogoPath = @LogoPath" : "") + " WHERE TeamId = @TeamId";
-                    SqlCommand cmd = new SqlCommand(query, conn);
-                    cmd.Parameters.AddWithValue("@TeamName", newName);
-                    cmd.Parameters.AddWithValue("@TeamId", teamId);
-                    if (logoPath != null)
-                        cmd.Parameters.AddWithValue("@LogoPath", logoPath);
-                    
-                    cmd.ExecuteNonQuery();
+                     string query = "UPDATE Team SET TeamName = @TeamName, UpdatedAt = GETDATE(), LogoPath = @LogoPath WHERE TeamId = @TeamId";
+                     SqlCommand cmd = new SqlCommand(query, conn);
+                     cmd.Parameters.AddWithValue("@TeamName", newName);
+                     cmd.Parameters.AddWithValue("@TeamId", teamId);
+                     cmd.Parameters.AddWithValue("@LogoPath", logoPath);
+                     cmd.ExecuteNonQuery();
                 }
-                LoadTeams();
+                else
+                {
+                     string query = "UPDATE Team SET TeamName = @TeamName, UpdatedAt = GETDATE() WHERE TeamId = @TeamId";
+                     SqlCommand cmd = new SqlCommand(query, conn);
+                     cmd.Parameters.AddWithValue("@TeamName", newName);
+                     cmd.Parameters.AddWithValue("@TeamId", teamId);
+                     cmd.ExecuteNonQuery();
+                }
+            }
+            LoadTeams();
             }
         }
 
@@ -271,7 +295,7 @@ namespace TaskQuest
         }
 
         [WebMethod]
-        public static string AddMemberToTeam(int teamId, string username)
+        public static string AddMemberToTeam(int teamId, string username, string role)
         {
             string connStr = WebConfigurationManager.ConnectionStrings["TodoAppDB"].ConnectionString;
             using (SqlConnection conn = new SqlConnection(connStr))
@@ -304,10 +328,11 @@ namespace TaskQuest
                 }
 
                 // 3. Add Member
-                string insertQuery = "INSERT INTO TeamMembers (TeamId, Username, Role) VALUES (@TeamId, @Username, 'member')";
+                string insertQuery = "INSERT INTO TeamMembers (TeamId, Username, Role) VALUES (@TeamId, @Username, @Role)";
                 SqlCommand insertCmd = new SqlCommand(insertQuery, conn);
                 insertCmd.Parameters.AddWithValue("@TeamId", teamId);
                 insertCmd.Parameters.AddWithValue("@Username", realUsername);
+                insertCmd.Parameters.AddWithValue("@Role", role);
                 insertCmd.ExecuteNonQuery();
 
                 // 4. Update Team's UpdatedAt
@@ -326,6 +351,12 @@ namespace TaskQuest
             public string Email { get; set; }
         }
 
+        public class MemberDTO
+        {
+            public string username { get; set; }
+            public string role { get; set; }
+        }
+
         protected void btnTeamUp_Click(object sender, EventArgs e)
         {
             string teamName = hfTeamName.Value;
@@ -334,6 +365,24 @@ namespace TaskQuest
             string logoPath = "assets/images/teamwork.png";
 
             if (string.IsNullOrEmpty(teamName)) return;
+
+            // Check if team name exists
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+                string checkTeamQuery = "SELECT COUNT(*) FROM Team WHERE TeamName = @Name";
+                SqlCommand checkCmd = new SqlCommand(checkTeamQuery, conn);
+                checkCmd.Parameters.AddWithValue("@Name", teamName);
+                int count = (int)checkCmd.ExecuteScalar();
+                if (count > 0)
+                {
+                    lblError.Text = "Team name already exists. Please choose another name.";
+                    lblError.Visible = true;
+                    // Re-open modal logic if needed, or just show error on page
+                    ClientScript.RegisterStartupScript(this.GetType(), "Pop", "showCreateTeamModal();", true);
+                    return;
+                }
+            }
 
             // Handle File Upload
             if (fuTeamLogo.HasFile)
@@ -387,13 +436,13 @@ namespace TaskQuest
 
                     // 3. Add Members
                     JavaScriptSerializer serializer = new JavaScriptSerializer();
-                    string[] members = serializer.Deserialize<string[]>(membersJson);
+                    MemberDTO[] members = serializer.Deserialize<MemberDTO[]>(membersJson);
 
                     if (members != null)
                     {
-                        foreach (string memberInput in members)
+                        foreach (MemberDTO member in members)
                         {
-                            UpdateUserTeam(conn, transaction, memberInput, newTeamId, "member");
+                            UpdateUserTeam(conn, transaction, member.username, newTeamId, member.role);
                         }
                     }
 

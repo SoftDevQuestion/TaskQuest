@@ -114,6 +114,33 @@ namespace TaskQuest
         protected global::System.Web.UI.WebControls.Repeater rptSideBarProjects;
 
         /// <summary>
+        /// teamSection control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl teamSection;
+
+        /// <summary>
+        /// upSideBarTeams control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.UpdatePanel upSideBarTeams;
+
+        /// <summary>
+        /// rptSideBarTeams control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Repeater rptSideBarTeams;
+
+        /// <summary>
         /// imgProfileAvatar control.
         /// </summary>
         /// <remarks>
