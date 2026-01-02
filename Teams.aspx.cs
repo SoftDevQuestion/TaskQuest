@@ -22,6 +22,137 @@ namespace TaskQuest
                 Context.ApplicationInstance.CompleteRequest();
                 return;
             }
+
+            if (!IsPostBack)
+            {
+                LoadTeams();
+            }
+        }
+
+        private void LoadTeams()
+        {
+            List<TeamViewModel> teams = new List<TeamViewModel>();
+            
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                try 
+                {
+                    conn.Open();
+                    string query = @"
+                        SELECT 
+                            t.id as TeamId, 
+                            t.name as TeamName, 
+                            t.description, 
+                            up.username, 
+                            up.role, 
+                            u.AvatarPath 
+                        FROM teams t 
+                        LEFT JOIN user_profiles up ON t.id = up.team_id 
+                        LEFT JOIN Users u ON up.username = u.Username
+                        ORDER BY t.id";
+
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    DataTable dt = new DataTable();
+                    dt.Load(reader);
+
+                    var grouped = dt.AsEnumerable()
+                        .GroupBy(row => row["TeamId"]);
+
+                    foreach (var grp in grouped)
+                    {
+                        var firstRow = grp.First();
+                        TeamViewModel team = new TeamViewModel
+                        {
+                            TeamId = Convert.ToInt32(firstRow["TeamId"]),
+                            TeamName = firstRow["TeamName"].ToString(),
+                            Description = firstRow["description"] != DBNull.Value ? firstRow["description"].ToString() : "",
+                            Members = new List<MemberViewModel>()
+                        };
+
+                        foreach (var row in grp)
+                        {
+                            if (row["username"] != DBNull.Value)
+                            {
+                                team.Members.Add(new MemberViewModel
+                                {
+                                    Username = row["username"].ToString(),
+                                    Role = row["role"].ToString(),
+                                    AvatarPath = row["AvatarPath"] != DBNull.Value && !string.IsNullOrEmpty(row["AvatarPath"].ToString()) 
+                                        ? row["AvatarPath"].ToString() 
+                                        : "assets/images/default-avatar.svg"
+                                });
+                            }
+                        }
+                        
+                        teams.Add(team);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine("Error loading teams: " + ex.Message);
+                }
+            }
+
+            rptTeams.DataSource = teams;
+            rptTeams.DataBind();
+        }
+
+        protected void rptTeams_ItemCommand(object source, RepeaterCommandEventArgs e)
+        {
+            if (e.CommandName == "Delete")
+            {
+                int teamId = Convert.ToInt32(e.CommandArgument);
+                DeleteTeam(teamId);
+                LoadTeams();
+            }
+            else if (e.CommandName == "Edit")
+            {
+                // Placeholder for edit functionality
+            }
+        }
+
+        private void DeleteTeam(int teamId)
+        {
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    conn.Open();
+                    // Update profiles first
+                    string updateProfiles = "UPDATE user_profiles SET team_id = NULL, role = NULL WHERE team_id = @TeamId";
+                    SqlCommand cmdUpdate = new SqlCommand(updateProfiles, conn);
+                    cmdUpdate.Parameters.AddWithValue("@TeamId", teamId);
+                    cmdUpdate.ExecuteNonQuery();
+
+                    // Delete team
+                    string deleteTeam = "DELETE FROM teams WHERE id = @TeamId";
+                    SqlCommand cmdDelete = new SqlCommand(deleteTeam, conn);
+                    cmdDelete.Parameters.AddWithValue("@TeamId", teamId);
+                    cmdDelete.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine("Error deleting team: " + ex.Message);
+                }
+            }
+        }
+
+        public class TeamViewModel
+        {
+            public int TeamId { get; set; }
+            public string TeamName { get; set; }
+            public string Description { get; set; }
+            public List<MemberViewModel> Members { get; set; }
+            public int MemberCount => Members.Count;
+        }
+
+        public class MemberViewModel
+        {
+            public string Username { get; set; }
+            public string Role { get; set; }
+            public string AvatarPath { get; set; }
         }
 
         [WebMethod]

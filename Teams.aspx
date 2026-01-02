@@ -18,176 +18,55 @@
         </div>
 
         <div class="teams-grid">
-            <!-- Team card 1 -->
-            <section class="team-card">
-                <header class="team-card-header">
-                    <div class="team-card-title">
-                        <span class="team-emoji">💻</span>
-                        <div class="team-texts">
-                            <h2 class="team-name">Development Team</h2>
-                            <p class="team-members-count">3 members</p>
-                        </div>
-                    </div>
-                    <button class="team-menu-btn" type="button" aria-label="More options">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                    </button>
-                </header>
-
-                <div class="team-members">
-                    <div class="member-row">
-                        <div class="member-info-with-avatar">
-                            <img src="assets/images/avatar1.png" alt="Mahsa Dinani" class="member-avatar" />
-                            <div class="member-info">
-                                <p class="member-name">Mahsa Dinani</p>
-                                <p class="member-role">Backend Developer</p>
+            <asp:Repeater ID="rptTeams" runat="server" OnItemCommand="rptTeams_ItemCommand">
+                <ItemTemplate>
+                    <section class="team-card">
+                        <header class="team-card-header">
+                            <div class="team-card-title">
+                                <span class="team-emoji">💻</span>
+                                <div class="team-texts">
+                                    <h2 class="team-name"><%# Eval("TeamName") %></h2>
+                                    <p class="team-members-count"><%# Eval("MemberCount") %> members</p>
+                                </div>
                             </div>
-                        </div>
-                        <span class="member-badge member-badge-admin">Admin</span>
-                    </div>
-
-                    <div class="member-row">
-                        <div class="member-info-with-avatar">
-                            <img src="assets/images/avatar2.png" alt="Mahsa Dinani" class="member-avatar" />
-                            <div class="member-info">
-                                <p class="member-name">Mahsa Dinani</p>
-                                <p class="member-role">Backend Developer</p>
+                            <div class="team-menu-container">
+                                <button class="team-menu-btn" type="button" onclick="toggleMenu(this)">
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                </button>
+                                <div class="team-menu-dropdown">
+                                    <asp:LinkButton ID="btnEdit" runat="server" CommandName="Edit" CommandArgument='<%# Eval("TeamId") %>' CssClass="menu-item">Edit</asp:LinkButton>
+                                    <asp:LinkButton ID="btnDelete" runat="server" CommandName="Delete" CommandArgument='<%# Eval("TeamId") %>' CssClass="menu-item delete" OnClientClick="return confirm('Are you sure you want to delete this team?');">Delete</asp:LinkButton>
+                                </div>
                             </div>
+                        </header>
+
+                        <div class="team-members">
+                            <asp:Repeater ID="rptMembers" runat="server" DataSource='<%# Eval("Members") %>'>
+                                <ItemTemplate>
+                                    <div class="member-row">
+                                        <div class="member-info-with-avatar">
+                                            <img src='<%# Eval("AvatarPath") %>' alt='<%# Eval("Username") %>' class="member-avatar" onerror="this.src='assets/images/default-avatar.svg'" />
+                                            <div class="member-info">
+                                                <p class="member-name"><%# Eval("Username") %></p>
+                                                <p class="member-role"><%# Eval("Role") %></p>
+                                            </div>
+                                        </div>
+                                        <span class='<%# "member-badge member-badge-" + Eval("Role").ToString().ToLower() %>'><%# Eval("Role") %></span>
+                                    </div>
+                                </ItemTemplate>
+                            </asp:Repeater>
                         </div>
-                        <span class="member-badge member-badge-admin">Admin</span>
-                    </div>
 
-                    <div class="member-row">
-                        <div class="member-info-with-avatar">
-                            <img src="assets/images/avatar3.png" alt="Mahsa Dinani" class="member-avatar" />
-                            <div class="member-info">
-                                <p class="member-name">Elahe Mahmudi</p>
-                                <p class="member-role">Frontend Developer</p>
-                            </div>
+                        <div class="team-card-footer">
+                            <button class="add-member-btn" type="button" onclick="showAddMemberModal('<%# Eval("TeamId") %>')">
+                                + Add member
+                            </button>
                         </div>
-
-                        <span class="member-badge member-badge-member">Member</span>
-                    </div>
-                </div>
-
-                <div class="team-card-footer">
-                    <button class="add-member-btn" type="button">
-                        + Add member
-                    </button>
-                </div>
-            </section>
-
-            <!-- Team card 2 -->
-            <section class="team-card">
-                <header class="team-card-header">
-                    <div class="team-card-title">
-                        <span class="team-emoji">🎨</span>
-                        <div class="team-texts">
-                            <h2 class="team-name">Design Team</h2>
-                            <p class="team-members-count">2 members</p>
-                        </div>
-                    </div>
-                    <button class="team-menu-btn" type="button" aria-label="More options">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                    </button>
-                </header>
-
-                <div class="team-members">
-                    <div class="member-row">
-                        <div class="member-info-with-avatar">
-                            <img src="assets/images/avatar4.png" alt="Mahsa Dinani" class="member-avatar" />
-                            <div class="member-info">
-                                <p class="member-name">Mehrnaz Osquee</p>
-                                <p class="member-role">UI/UX Designer</p>
-                            </div>
-                        </div>
-                        <span class="member-badge member-badge-admin">Admin</span>
-                    </div>
-
-                    <div class="member-row">
-                        <div class="member-info-with-avatar">
-                            <img src="assets/images/avatar5.png" alt="Mahsa Dinani" class="member-avatar" />
-                            <div class="member-info">
-                                <p class="member-name">Melika Judi</p>
-                                <p class="member-role">Creative Director</p>
-                            </div>
-                        </div>
-                        <span class="member-badge member-badge-member">Member</span>
-                    </div>
-                </div>
-
-                <div class="team-card-footer">
-                    <button class="add-member-btn" type="button">
-                        + Add member
-                    </button>
-                </div>
-            </section>
-
-            <!-- Team card 3 -->
-            <section class="team-card">
-                <header class="team-card-header">
-                    <div class="team-card-title">
-                        <span class="team-emoji">📣</span>
-                        <div class="team-texts">
-                            <h2 class="team-name">Marketing Team</h2>
-                            <p class="team-members-count">3 members</p>
-                        </div>
-                    </div>
-                    <button class="team-menu-btn" type="button" aria-label="More options">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                    </button>
-                </header>
-
-                <div class="team-members">
-                    <div class="member-row">
-                        <div class="member-info-with-avatar">
-                            <img src="assets/images/avatar6.png" alt="Mahsa Dinani" class="member-avatar" />
-                            <div class="member-info">
-                                <p class="member-name">Aylin Noushin</p>
-                                <p class="member-role">Marketing Management</p>
-                            </div>
-                        </div>
-                        <span class="member-badge member-badge-admin">Admin</span>
-                    </div>
-
-                    <div class="member-row">
-                        <div class="member-info-with-avatar">
-                            <img src="assets/images/avatar7.png" alt="Mahsa Dinani" class="member-avatar" />
-                            <div class="member-info">
-                                <p class="member-name">Haniye Salehi</p>
-                                <p class="member-role">Content Writer</p>
-                            </div>
-                        </div>
-                        <span class="member-badge member-badge-member">Member</span>
-                    </div>
-
-                    <div class="member-row">
-                        <div class="member-info-with-avatar">
-                            <img src="assets/images/avatar1.png" alt="Mahsa Dinani" class="member-avatar" />
-                            <div class="member-info">
-                                <p class="member-name">
-                                    Sara Rezaie with a very long family name to test truncation
-                                </p>
-                                <p class="member-role">
-                                    Social Media Specialist and Strategy Consultant with long title
-                                </p>
-                            </div>
-                        </div>
-                        <span class="member-badge member-badge-member">Member</span>
-                    </div>
-                </div>
-
-                <div class="team-card-footer">
-                    <button class="add-member-btn" type="button">
-                        + Add member
-                    </button>
-                </div>
-            </section>
+                    </section>
+                </ItemTemplate>
+            </asp:Repeater>
         </div>
     </div>
 
@@ -363,7 +242,27 @@
             if (!e.target.closest('.input-wrapper')) {
                 document.querySelectorAll('.search-results').forEach(el => el.style.display = 'none');
             }
+            
+            // Close team menus when clicking outside
+            if (!e.target.matches('.team-menu-btn') && !e.target.closest('.team-menu-btn')) {
+                document.querySelectorAll('.team-menu-dropdown').forEach(el => {
+                    el.classList.remove('show');
+                });
+            }
         });
+
+        function toggleMenu(btn) {
+            const dropdown = btn.nextElementSibling;
+            // Close other open menus
+            document.querySelectorAll('.team-menu-dropdown').forEach(el => {
+                if (el !== dropdown) el.classList.remove('show');
+            });
+            dropdown.classList.toggle('show');
+        }
+
+        function showAddMemberModal(teamId) {
+            alert('Add Member functionality for existing teams is not yet implemented.');
+        }
     </script>
 </asp:Content>
 
