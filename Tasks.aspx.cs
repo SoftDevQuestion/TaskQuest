@@ -67,7 +67,10 @@ namespace TaskQuest
                     conn.Open();
                     // Fetch projects where user is creator OR member of assigned team
                     string query = @"
-                        SELECT DISTINCT p.* 
+                        SELECT DISTINCT p.*,
+                            (SELECT COUNT(*) FROM Tasks t WHERE t.ProjectID = p.ProjectID AND t.Status = 3) AS DoneStatusCount,
+                            (SELECT COUNT(*) FROM Tasks t WHERE t.ProjectID = p.ProjectID AND t.Status = 2) AS InProgressStatusCount,
+                            (SELECT COUNT(*) FROM Tasks t WHERE t.ProjectID = p.ProjectID AND t.Status = 1) AS ToDoStatusCount
                         FROM Projects p
                         LEFT JOIN ProjectTeams pt ON p.ProjectID = pt.ProjectID
                         LEFT JOIN TeamMembers tm ON pt.TeamID = tm.TeamId

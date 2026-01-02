@@ -573,10 +573,10 @@ namespace TaskQuest
             }
         }
 
-        protected bool IsProjectAdmin(object creatorIdObj)
+        protected bool IsProjectAdmin(object canEditObj)
         {
-            if (creatorIdObj == DBNull.Value) return false;
-            return Convert.ToInt32(creatorIdObj) == CurrentUserId;
+            if (canEditObj == DBNull.Value) return false;
+            return Convert.ToInt32(canEditObj) == 1;
         }
     }
 }

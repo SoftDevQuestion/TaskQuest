@@ -159,6 +159,15 @@ namespace TaskQuest
         protected global::System.Web.UI.WebControls.Button btnSaveAsync;
 
         /// <summary>
+        /// hfAccessProjectId control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.HiddenField hfAccessProjectId;
+
+        /// <summary>
         /// cblTeams control.
         /// </summary>
         /// <remarks>
