@@ -24,6 +24,7 @@
         <!-- Hidden Fields for State Management -->
         <asp:HiddenField ID="hfEditProjectId" runat="server" />
         <asp:HiddenField ID="hfDeleteProjectId" runat="server" />
+        <asp:HiddenField ID="hfAccessProjectId" runat="server" />
 
         <div class="projects-grid">
             <asp:Repeater ID="rptProjects" runat="server" OnItemCommand="rptProjects_ItemCommand">
@@ -109,6 +110,36 @@
             </div>
         </div>
     </div>
+
+    <!-- Access Modal -->
+    <div id="accessModal" class="modal-overlay" style="display:none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Manage Project Access</h3>
+                <span class="close-modal" onclick="closeAccessModal()">×</span>
+            </div>
+            <div class="form-container">
+                <p>Select teams that can access this project:</p>
+                <div style="max-height: 300px; overflow-y: auto;">
+                    <asp:CheckBoxList ID="cblTeams" runat="server" CssClass="team-checkbox-list" DataTextField="TeamName" DataValueField="TeamId"></asp:CheckBoxList>
+                </div>
+                <asp:Label ID="lblAccessError" runat="server" CssClass="error-message"></asp:Label>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" onclick="closeAccessModal()">Cancel</button>
+                <asp:Button ID="btnSaveAccess" runat="server" Text="Save Access" OnClick="btnSaveAccess_Click" CssClass="btn-save" />
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openAccessModal() {
+            document.getElementById('accessModal').style.display = 'flex';
+        }
+        function closeAccessModal() {
+            document.getElementById('accessModal').style.display = 'none';
+        }
+    </script>
 
     <!-- Delete Confirmation Modal -->
     <div id="deleteModal" class="modal-overlay">

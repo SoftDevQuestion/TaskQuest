@@ -55,9 +55,13 @@ namespace TaskQuest
                         FROM Team t 
                         LEFT JOIN TeamMembers tm ON t.TeamId = tm.TeamId 
                         LEFT JOIN Users u ON tm.Username = u.Username
+                        WHERE t.TeamId IN (
+                            SELECT TeamId FROM TeamMembers WHERE Username = @CurrentUser
+                        )
                         ORDER BY t.TeamId";
 
                     SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@CurrentUser", Session["User"].ToString());
                     SqlDataReader reader = cmd.ExecuteReader();
 
                     DataTable dt = new DataTable();
@@ -94,6 +98,13 @@ namespace TaskQuest
                         }
                         
                         teams.Add(team);
+                    }
+
+                    // Set IsAdmin for each team
+                    string currentUser = Session["User"].ToString();
+                    foreach (var team in teams)
+                    {
+                        team.IsAdmin = team.Members.Any(m => m.Username == currentUser && m.Role == "admin");
                     }
                 }
                 catch (Exception ex)
@@ -615,4 +626,5 @@ namespace TaskQuest
             }
         }
     }
+}   }
 }

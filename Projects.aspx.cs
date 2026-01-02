@@ -24,7 +24,36 @@ namespace TaskQuest
 
             if (!IsPostBack)
             {
+                EnsureProjectTeamsTable();
                 LoadProjects();
+            }
+        }
+
+        private void EnsureProjectTeamsTable()
+        {
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    conn.Open();
+                    string query = @"
+                        IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='ProjectTeams' AND xtype='U')
+                        BEGIN
+                            CREATE TABLE ProjectTeams (
+                                ProjectTeamID INT IDENTITY(1,1) PRIMARY KEY,
+                                ProjectID INT NOT NULL,
+                                TeamID INT NOT NULL,
+                                FOREIGN KEY (ProjectID) REFERENCES Projects(ProjectID) ON DELETE CASCADE,
+                                FOREIGN KEY (TeamID) REFERENCES Team(TeamId) ON DELETE CASCADE
+                            );
+                        END";
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    Log($"Error creating ProjectTeams table: {ex.Message}");
+                }
             }
         }
 
@@ -44,6 +73,124 @@ namespace TaskQuest
             {
                 string projectId = e.CommandArgument.ToString();
                 LoadProjectForEdit(projectId);
+            }
+            else if (e.CommandName == "Access")
+            {
+                string projectId = e.CommandArgument.ToString();
+                hfAccessProjectId.Value = projectId;
+                LoadProjectAccess(projectId);
+                ClientScript.RegisterStartupScript(this.GetType(), "OpenAccessModal", "openAccessModal();", true);
+            }
+        }
+
+        private void LoadProjectAccess(string projectId)
+        {
+            if (Session["User"] == null) return;
+            string username = Session["User"].ToString();
+
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                try 
+                {
+                    conn.Open();
+
+                    // Get Teams User is member of
+                    string teamQuery = @"
+                        SELECT t.TeamId, t.TeamName 
+                        FROM Team t
+                        JOIN TeamMembers tm ON t.TeamId = tm.TeamId
+                        WHERE tm.Username = @Username";
+                    
+                    SqlCommand cmd = new SqlCommand(teamQuery, conn);
+                    cmd.Parameters.AddWithValue("@Username", username);
+                    
+                    SqlDataAdapter da = new SqlDataAdapter(cmd);
+                    DataTable dtTeams = new DataTable();
+                    da.Fill(dtTeams);
+
+                    cblTeams.DataSource = dtTeams;
+                    cblTeams.DataBind();
+
+                    // Mark teams that already have access
+                    string accessQuery = "SELECT TeamID FROM ProjectTeams WHERE ProjectID = @ProjectID";
+                    SqlCommand accessCmd = new SqlCommand(accessQuery, conn);
+                    accessCmd.Parameters.AddWithValue("@ProjectID", projectId);
+                    
+                    List<int> existingTeamIds = new List<int>();
+                    using (SqlDataReader reader = accessCmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            existingTeamIds.Add(reader.GetInt32(0));
+                        }
+                    }
+
+                    foreach (System.Web.UI.WebControls.ListItem item in cblTeams.Items)
+                    {
+                        if (existingTeamIds.Contains(int.Parse(item.Value)))
+                        {
+                            item.Selected = true;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log("Error loading project access: " + ex.Message);
+                }
+            }
+        }
+
+        protected void btnSaveAccess_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(hfAccessProjectId.Value)) return;
+            int projectId = int.Parse(hfAccessProjectId.Value);
+            if (Session["User"] == null) return;
+            string username = Session["User"].ToString();
+
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+                SqlTransaction transaction = conn.BeginTransaction();
+                
+                try
+                {
+                    // Delete existing access for visible teams
+                    string deleteQuery = @"
+                        DELETE FROM ProjectTeams 
+                        WHERE ProjectID = @ProjectID 
+                        AND TeamID IN (SELECT TeamId FROM TeamMembers WHERE Username = @Username)";
+                    
+                    SqlCommand deleteCmd = new SqlCommand(deleteQuery, conn, transaction);
+                    deleteCmd.Parameters.AddWithValue("@ProjectID", projectId);
+                    deleteCmd.Parameters.AddWithValue("@Username", username);
+                    deleteCmd.ExecuteNonQuery();
+
+                    // Insert selected teams
+                    string insertQuery = "INSERT INTO ProjectTeams (ProjectID, TeamID) VALUES (@ProjectID, @TeamID)";
+                    
+                    foreach (System.Web.UI.WebControls.ListItem item in cblTeams.Items)
+                    {
+                        if (item.Selected)
+                        {
+                            SqlCommand insertCmd = new SqlCommand(insertQuery, conn, transaction);
+                            insertCmd.Parameters.AddWithValue("@ProjectID", projectId);
+                            insertCmd.Parameters.AddWithValue("@TeamID", int.Parse(item.Value));
+                            insertCmd.ExecuteNonQuery();
+                        }
+                    }
+
+                    transaction.Commit();
+                    
+                    LoadProjects();
+                    
+                    ClientScript.RegisterStartupScript(this.GetType(), "CloseAccessModal", "closeAccessModal();", true);
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    lblAccessError.Text = "Error saving access: " + ex.Message;
+                    ClientScript.RegisterStartupScript(this.GetType(), "OpenAccessModal", "openAccessModal();", true);
+                }
             }
         }
 
@@ -383,9 +530,19 @@ namespace TaskQuest
                 try
                 {
                     conn.Open();
-                    // Fetch all projects (removed CreatorUserId filter)
-                    SqlCommand cmd = new SqlCommand("SELECT * FROM Projects ORDER BY CreatedAt DESC", conn);
-                    // cmd.Parameters.AddWithValue("@UserId", userId);
+                    // Fetch projects where user is Creator OR user belongs to a Team that has access
+                    string query = @"
+                        SELECT DISTINCT p.* 
+                        FROM Projects p
+                        LEFT JOIN ProjectTeams pt ON p.ProjectID = pt.ProjectID
+                        LEFT JOIN TeamMembers tm ON pt.TeamID = tm.TeamID
+                        WHERE p.CreatorUserId = @UserId 
+                           OR tm.Username = @Username
+                        ORDER BY p.CreatedAt DESC";
+
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@UserId", userId);
+                    cmd.Parameters.AddWithValue("@Username", username);
 
                     SqlDataAdapter da = new SqlDataAdapter(cmd);
                     DataTable dt = new DataTable();
@@ -404,12 +561,22 @@ namespace TaskQuest
                         rptProjects.DataBind();
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
                     lblNoProjects.Visible = true;
-                    lblNoProjects.Text = "Error loading projects.";
+                    lblNoProjects.Text = "Error loading projects: " + ex.Message;
+                    Log("LoadProjects Error: " + ex.Message);
                 }
             }
+        }
+
+        protected bool IsProjectCreator(object creatorUserId)
+        {
+            if (Session["User"] == null || creatorUserId == DBNull.Value) return false;
+            string username = Session["User"].ToString();
+            int currentUserId = GetUserId(username);
+            int creatorId = Convert.ToInt32(creatorUserId);
+            return currentUserId == creatorId;
         }
     }
 }

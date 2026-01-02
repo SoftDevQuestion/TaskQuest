@@ -24,7 +24,33 @@ namespace TaskQuest
 
             if (!IsPostBack)
             {
+                EnsureProjectTeamsTable();
                 LoadProjects();
+            }
+        }
+
+        private void EnsureProjectTeamsTable()
+        {
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    conn.Open();
+                    string query = @"
+                        IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='ProjectTeams' AND xtype='U')
+                        BEGIN
+                            CREATE TABLE ProjectTeams (
+                                ProjectTeamID INT IDENTITY(1,1) PRIMARY KEY,
+                                ProjectID INT NOT NULL,
+                                TeamID INT NOT NULL,
+                                FOREIGN KEY (ProjectID) REFERENCES Projects(ProjectID) ON DELETE CASCADE,
+                                FOREIGN KEY (TeamID) REFERENCES Team(TeamId) ON DELETE CASCADE
+                            );
+                        END";
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.ExecuteNonQuery();
+                }
+                catch { }
             }
         }
 
@@ -160,5 +186,23 @@ namespace TaskQuest
         // Helper to get status class for Overdue logic (optional/advanced)
         // Currently relying on basic status mapping. 
         // Overdue logic would require checking DueDate vs DateTime.Now and Status != Done.
+        
+        private int GetUserId(string username)
+        {
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    conn.Open();
+                    string query = "SELECT UserId FROM Users WHERE Username = @Username";
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@Username", username);
+                    object result = cmd.ExecuteScalar();
+                    if (result != null) return Convert.ToInt32(result);
+                }
+                catch { }
+                return -1;
+            }
+        }
     }
 }

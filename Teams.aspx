@@ -34,7 +34,7 @@
                                     <p class="team-members-count"><%# Eval("MemberCount") %> members</p>
                                 </div>
                             </div>
-                            <div class="team-menu-container">
+                            <div class="team-menu-container" style='<%# (bool)Eval("IsAdmin") ? "" : "display:none" %>'>
                                 <button class="team-menu-btn" type="button" onclick="toggleMenu(this)">
                                     <span></span>
                                     <span></span>

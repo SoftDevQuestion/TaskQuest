@@ -330,12 +330,19 @@
     display: flex;
     gap: 8px;
     align-items: center;
+    flex-wrap: nowrap;
 }
 
 .input-wrapper {
     flex: 1;
     position: relative;
     min-width: 0; /* Prevent flex overflow */
+}
+
+.member-role-select {
+    width: auto;
+    flex-shrink: 0; /* Prevent select from shrinking */
+    box-sizing: border-box;
 }
 
 .member-search-input {
