@@ -376,6 +376,7 @@ namespace TaskQuest
             public string LogoPath { get; set; }
             public List<MemberViewModel> Members { get; set; }
             public int MemberCount => Members.Count;
+            public bool IsAdmin { get; set; }
         }
 
         public class MemberViewModel
@@ -626,5 +627,4 @@ namespace TaskQuest
             }
         }
     }
-}   }
 }
