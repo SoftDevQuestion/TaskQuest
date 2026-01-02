@@ -29,6 +29,7 @@ namespace TaskQuest
 
             if (!IsPostBack)
             {
+                hfCurrentUser.Value = Session["User"].ToString();
                 LoadTeams();
             }
         }

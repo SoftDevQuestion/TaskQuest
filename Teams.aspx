@@ -169,6 +169,7 @@
     <asp:HiddenField ID="hfEditTeamId" runat="server" />
     <asp:HiddenField ID="hfEditTeamMembers" runat="server" />
     <asp:HiddenField ID="hfEditTeamMembersInitial" runat="server" />
+    <asp:HiddenField ID="hfCurrentUser" runat="server" />
 
     <asp:HiddenField ID="hfTeamMembers" runat="server" />
     <asp:HiddenField ID="hfTeamName" runat="server" />
@@ -211,17 +212,30 @@
             const container = document.getElementById('editMembersList');
             const rowId = 'edit_row_' + new Date().getTime() + Math.random().toString(36).substr(2, 5);
             
+            // Get current user to prevent removal
+            const currentUser = document.getElementById('<%= hfCurrentUser.ClientID %>').value;
+            const isCurrentUser = (username === currentUser);
+            
+            // If it is the current user, we can disable input or just hide the remove button
+            // Also, ensure input wrapper has flex: 1
+            
+            const removeBtnHtml = isCurrentUser 
+                ? `<div style="width: 24px;"></div>` // Placeholder to keep layout alignment if needed, or just nothing
+                : `<button type="button" class="remove-row-btn" onclick="removeRow('${rowId}')">×</button>`;
+
+            const inputDisabled = isCurrentUser ? 'disabled' : '';
+            
             const rowHtml = `
                 <div class="member-input-row" id="${rowId}">
-                    <div class="input-wrapper">
-                        <input type="text" class="member-search-input" placeholder="Username or Email" value="${username}" onkeyup="searchUsers(this, '${rowId}')" onkeydown="handleEnterKey(event, this)" />
+                    <div class="input-wrapper" style="flex: 1; position: relative; min-width: 0;">
+                        <input type="text" class="member-search-input" placeholder="Username or Email" value="${username}" ${inputDisabled} onkeyup="searchUsers(this, '${rowId}')" onkeydown="handleEnterKey(event, this)" />
                         <div class="search-results" style="display:none;"></div>
                     </div>
                     <select class="member-role-select form-control" style="width: auto; margin-left: 8px;">
                         <option value="member" ${role === 'member' ? 'selected' : ''}>Member</option>
                         <option value="admin" ${role === 'admin' ? 'selected' : ''}>Admin</option>
                     </select>
-                    <button type="button" class="remove-row-btn" onclick="removeRow('${rowId}')">×</button>
+                    ${removeBtnHtml}
                 </div>
             `;
             
@@ -271,7 +285,7 @@
             
             const rowHtml = `
                 <div class="member-input-row" id="${rowId}">
-                    <div class="input-wrapper">
+                    <div class="input-wrapper" style="flex: 1; position: relative; min-width: 0;">
                         <input type="text" class="member-search-input" placeholder="Username or Email" onkeyup="searchUsers(this, '${rowId}')" onkeydown="handleEnterKey(event, this)" />
                         <div class="search-results" style="display:none;"></div>
                     </div>

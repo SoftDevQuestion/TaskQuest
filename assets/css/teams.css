@@ -335,6 +335,7 @@
 .input-wrapper {
     flex: 1;
     position: relative;
+    min-width: 0; /* Prevent flex overflow */
 }
 
 .member-search-input {
@@ -343,6 +344,7 @@
     border: 1px solid #e5e7eb;
     border-radius: 6px;
     font-size: 13px;
+    box-sizing: border-box; /* Fix width calculation */
 }
 
 .search-results {
