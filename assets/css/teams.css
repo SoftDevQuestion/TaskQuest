@@ -8,11 +8,34 @@
     background-color: #f3f4f6;
 }
 
+.page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+}
+
 .page-title {
     font-size: 24px;
     font-weight: 600;
-    margin-bottom: 24px;
+    margin: 0;
     color: #111827;
+}
+
+.create-team-btn {
+    background-color: #4f46e5;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    font-size: 14px;
+}
+
+.create-team-btn:hover {
+    background-color: #4338ca;
 }
 
 /* گرید کارت‌ها */
@@ -198,44 +221,185 @@
     width: 100%;
     border-radius: 999px;
     border: 1px solid #9ca3af; /* تغییر به solid */
-    background-color: #f9fafb;
-    color: #4b5563;
+    background: white;
+    padding: 8px;
+    color: #374151;
     font-size: 13px;
-    padding: 8px 0;
+    font-weight: 500;
     cursor: pointer;
-    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    transition: all 0.2s;
 }
 
-    .add-member-btn:hover {
-        background-color: #eff6ff;
-        border-color: #3b82f6;
-        color: #1d4ed8;
-    }
+.add-member-btn:hover {
+    background-color: #f3f4f6;
+    border-color: #6b7280;
+}
 
-/* ریسپانسیو */
-@media (max-width: 640px) {
-    .teams-page {
-        padding: 0 12px 32px;
-    }
+/* Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
 
-    .page-title {
-        font-size: 20px;
-        margin-bottom: 16px;
-    }
+.modal-content {
+    background-color: white;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 450px;
+    padding: 32px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
 
-    .team-card {
-        padding: 14px 12px 10px;
-    }
+.modal-logo-section {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+}
 
-    .team-name {
-        font-size: 15px;
-    }
+.logo-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6b7280;
+    font-size: 14px;
+    border: 2px dashed #9ca3af;
+    cursor: pointer;
+}
 
-    .member-row {
-        padding: 7px 6px;
-    }
+.form-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 6px;
+}
 
-    .add-member-btn {
-        font-size: 12px;
-    }
+.form-control {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.members-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.members-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.member-input-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.input-wrapper {
+    flex: 1;
+    position: relative;
+}
+
+.member-search-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    font-size: 13px;
+}
+
+.search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.search-result-item {
+    padding: 8px 12px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.search-result-item:hover {
+    background-color: #f3f4f6;
+}
+
+.remove-row-btn {
+    background: none;
+    border: none;
+    color: #ef4444;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 0 4px;
+}
+
+.add-member-link {
+    background: none;
+    border: none;
+    color: #4f46e5;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: left;
+    padding: 0;
+    width: fit-content;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.btn-give-up {
+    background: white;
+    border: 1px solid #d1d5db;
+    color: #374151;
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.btn-team-up {
+    background-color: #4f46e5;
+    border: none;
+    color: white;
+    padding: 8px 24px;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.btn-team-up:hover {
+    background-color: #4338ca;
 }
