@@ -56,16 +56,29 @@ namespace TaskQuest
 
         private void LoadProjects()
         {
+            if (Session["User"] == null) return;
+            string currentUser = Session["User"].ToString();
+            int currentUserId = GetUserId(currentUser);
+
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
                 try
                 {
                     conn.Open();
-                    // Fetch projects sorted by creation date (newest first)
-                    // In a real app, you might filter by CreatorUserId here using GetUserId()
-                    string query = "SELECT * FROM Projects ORDER BY CreatedAt DESC";
+                    // Fetch projects where user is creator OR member of assigned team
+                    string query = @"
+                        SELECT DISTINCT p.* 
+                        FROM Projects p
+                        LEFT JOIN ProjectTeams pt ON p.ProjectID = pt.ProjectID
+                        LEFT JOIN TeamMembers tm ON pt.TeamID = tm.TeamId
+                        WHERE tm.Username = @CurrentUser 
+                           OR p.CreatorUserId = @CurrentUserId
+                        ORDER BY p.CreatedAt DESC";
                     
                     SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@CurrentUser", currentUser);
+                    cmd.Parameters.AddWithValue("@CurrentUserId", currentUserId);
+
                     SqlDataAdapter da = new SqlDataAdapter(cmd);
                     DataTable dt = new DataTable();
                     da.Fill(dt);

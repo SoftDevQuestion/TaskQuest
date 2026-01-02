@@ -514,36 +514,24 @@ namespace TaskQuest
 
         private void LoadProjects()
         {
-            if (Session["User"] == null) return;
-
-            string username = Session["User"].ToString();
-            int userId = GetUserId(username);
-
-            if (userId == -1)
-            {
-                lblNoProjects.Visible = true;
-                return;
-            }
-
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
                 try
                 {
                     conn.Open();
-                    // Fetch projects where user is Creator OR user belongs to a Team that has access
                     string query = @"
                         SELECT DISTINCT p.* 
                         FROM Projects p
                         LEFT JOIN ProjectTeams pt ON p.ProjectID = pt.ProjectID
-                        LEFT JOIN TeamMembers tm ON pt.TeamID = tm.TeamID
-                        WHERE p.CreatorUserId = @UserId 
-                           OR tm.Username = @Username
+                        LEFT JOIN TeamMembers tm ON pt.TeamID = tm.TeamId
+                        WHERE tm.Username = @CurrentUser 
+                           OR p.CreatorUserId = @CurrentUserId
                         ORDER BY p.CreatedAt DESC";
 
                     SqlCommand cmd = new SqlCommand(query, conn);
-                    cmd.Parameters.AddWithValue("@UserId", userId);
-                    cmd.Parameters.AddWithValue("@Username", username);
-
+                    cmd.Parameters.AddWithValue("@CurrentUser", Session["User"].ToString());
+                    cmd.Parameters.AddWithValue("@CurrentUserId", CurrentUserId);
+                    
                     SqlDataAdapter da = new SqlDataAdapter(cmd);
                     DataTable dt = new DataTable();
                     da.Fill(dt);
@@ -556,27 +544,24 @@ namespace TaskQuest
                     }
                     else
                     {
-                        lblNoProjects.Visible = true;
                         rptProjects.DataSource = null;
                         rptProjects.DataBind();
+                        lblNoProjects.Visible = true;
                     }
                 }
                 catch (Exception ex)
                 {
-                    lblNoProjects.Visible = true;
+                    // Log error
                     lblNoProjects.Text = "Error loading projects: " + ex.Message;
-                    Log("LoadProjects Error: " + ex.Message);
+                    lblNoProjects.Visible = true;
                 }
             }
         }
 
-        protected bool IsProjectCreator(object creatorUserId)
+        protected bool IsProjectAdmin(object creatorIdObj)
         {
-            if (Session["User"] == null || creatorUserId == DBNull.Value) return false;
-            string username = Session["User"].ToString();
-            int currentUserId = GetUserId(username);
-            int creatorId = Convert.ToInt32(creatorUserId);
-            return currentUserId == creatorId;
+            if (creatorIdObj == DBNull.Value) return false;
+            return Convert.ToInt32(creatorIdObj) == CurrentUserId;
         }
     }
 }

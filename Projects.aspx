@@ -33,9 +33,9 @@
                         <div class="card-menu-container">
                             <span class="three-dots" onclick="toggleMenu(this)">&#8942;</span>
                             <div class="dropdown-menu">
-                                <asp:LinkButton ID="btnEdit" runat="server" CommandName="Edit" CommandArgument='<%# Eval("ProjectID") %>'>Edit</asp:LinkButton>
-                                <a href="#" onclick="openDeleteModal('<%# Eval("ProjectID") %>'); return false;">Delete</a>
-                                <a href="#">Access</a>
+                                <asp:LinkButton ID="btnEdit" runat="server" CommandName="Edit" CommandArgument='<%# Eval("ProjectID") %>' Visible='<%# IsProjectAdmin(Eval("CreatorUserId")) %>'>Edit</asp:LinkButton>
+                                <a href="#" onclick="openDeleteModal('<%# Eval("ProjectID") %>'); return false;" style='<%# IsProjectAdmin(Eval("CreatorUserId")) ? "" : "display:none" %>'>Delete</a>
+                                <asp:LinkButton ID="btnAccess" runat="server" CommandName="Access" CommandArgument='<%# Eval("ProjectID") %>' Visible='<%# IsProjectAdmin(Eval("CreatorUserId")) %>'>Access</asp:LinkButton>
                             </div>
                         </div>
 

@@ -159,6 +159,33 @@ namespace TaskQuest
         protected global::System.Web.UI.WebControls.Button btnSaveAsync;
 
         /// <summary>
+        /// cblTeams control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBoxList cblTeams;
+
+        /// <summary>
+        /// lblAccessError control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblAccessError;
+
+        /// <summary>
+        /// btnSaveAccess control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnSaveAccess;
+
+        /// <summary>
         /// btnConfirmDelete control.
         /// </summary>
         /// <remarks>
