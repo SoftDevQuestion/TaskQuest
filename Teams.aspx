@@ -384,7 +384,7 @@
             }
 
             // Collect members
-            const memberRows = document.querySelectorAll('.member-input-row');
+            const memberRows = document.querySelectorAll('#membersList .member-input-row');
             const members = [];
             memberRows.forEach(row => {
                 const input = row.querySelector('.member-search-input');
