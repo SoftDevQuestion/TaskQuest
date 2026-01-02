@@ -115,7 +115,76 @@ namespace TaskQuest
             }
             else if (e.CommandName == "Edit")
             {
-                // Placeholder for edit functionality
+                int teamId = Convert.ToInt32(e.CommandArgument);
+                hfEditTeamId.Value = teamId.ToString();
+                
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+                    string query = "SELECT TeamName, LogoPath FROM Team WHERE TeamId = @TeamId";
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@TeamId", teamId);
+                    
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            txtEditTeamName.Text = reader["TeamName"].ToString();
+                            string logo = reader["LogoPath"] as string;
+                            imgEditLogoPreview.ImageUrl = !string.IsNullOrEmpty(logo) ? logo : "assets/images/default-team.png";
+                            
+                            // Show Modal
+                            ClientScript.RegisterStartupScript(this.GetType(), "Pop", "showEditTeamModal();", true);
+                        }
+                    }
+                }
+            }
+        }
+
+        protected void btnSaveEdit_Click(object sender, EventArgs e)
+        {
+            int teamId;
+            if (int.TryParse(hfEditTeamId.Value, out teamId))
+            {
+                string newName = txtEditTeamName.Text.Trim();
+                if (string.IsNullOrEmpty(newName)) return;
+
+                string logoPath = null;
+                if (fuEditTeamLogo.HasFile)
+                {
+                    try
+                    {
+                         string filename = System.IO.Path.GetFileName(fuEditTeamLogo.FileName);
+                         string extension = System.IO.Path.GetExtension(filename);
+                         string uniqueName = Guid.NewGuid().ToString() + extension;
+                         string folderPath = Server.MapPath("~/assets/images/teams/");
+                         if (!System.IO.Directory.Exists(folderPath))
+                         {
+                             System.IO.Directory.CreateDirectory(folderPath);
+                         }
+                         string savePath = System.IO.Path.Combine(folderPath, uniqueName);
+                         fuEditTeamLogo.SaveAs(savePath);
+                         logoPath = "assets/images/teams/" + uniqueName;
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine("Upload error: " + ex.Message);
+                    }
+                }
+
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+                    string query = "UPDATE Team SET TeamName = @TeamName" + (logoPath != null ? ", LogoPath = @LogoPath" : "") + " WHERE TeamId = @TeamId";
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@TeamName", newName);
+                    cmd.Parameters.AddWithValue("@TeamId", teamId);
+                    if (logoPath != null)
+                        cmd.Parameters.AddWithValue("@LogoPath", logoPath);
+                    
+                    cmd.ExecuteNonQuery();
+                }
+                LoadTeams();
             }
         }
 
@@ -126,20 +195,29 @@ namespace TaskQuest
                 try
                 {
                     conn.Open();
-                    // Update profiles first
-                    string updateProfiles = "UPDATE UserProfile SET team_id = NULL, role = NULL WHERE team_id = @TeamId";
-                    SqlCommand cmdUpdate = new SqlCommand(updateProfiles, conn);
-                    cmdUpdate.Parameters.AddWithValue("@TeamId", teamId);
-                    cmdUpdate.ExecuteNonQuery();
+                    
+                    // 1. Unlink Projects (Set TeamAccessId to NULL) to avoid FK conflict
+                    string unlinkProjects = "UPDATE Projects SET TeamAccessId = NULL WHERE TeamAccessId = @TeamId";
+                    SqlCommand cmdUnlink = new SqlCommand(unlinkProjects, conn);
+                    cmdUnlink.Parameters.AddWithValue("@TeamId", teamId);
+                    cmdUnlink.ExecuteNonQuery();
 
-                    // Delete team
-                    string deleteTeam = "DELETE FROM Team WHERE id = @TeamId";
+                    // 2. Delete associated members
+                    string deleteMembers = "DELETE FROM TeamMembers WHERE TeamId = @TeamId";
+                    SqlCommand cmdDeleteMembers = new SqlCommand(deleteMembers, conn);
+                    cmdDeleteMembers.Parameters.AddWithValue("@TeamId", teamId);
+                    cmdDeleteMembers.ExecuteNonQuery();
+
+                    // 3. Delete team
+                    string deleteTeam = "DELETE FROM Team WHERE TeamId = @TeamId";
                     SqlCommand cmdDelete = new SqlCommand(deleteTeam, conn);
                     cmdDelete.Parameters.AddWithValue("@TeamId", teamId);
                     cmdDelete.ExecuteNonQuery();
                 }
                 catch (Exception ex)
                 {
+                    lblError.Text = "Error deleting team: " + ex.Message;
+                    lblError.Visible = true;
                     System.Diagnostics.Debug.WriteLine("Error deleting team: " + ex.Message);
                 }
             }
@@ -202,7 +280,8 @@ namespace TaskQuest
         {
             string teamName = hfTeamName.Value;
             string membersJson = hfTeamMembers.Value;
-            string logoPath = null;
+            // Set default logo path initially
+            string logoPath = "assets/images/teamwork.png";
 
             if (string.IsNullOrEmpty(teamName)) return;
 
@@ -242,7 +321,7 @@ namespace TaskQuest
                     string insertTeamQuery = "INSERT INTO Team (TeamName, LogoPath) VALUES (@Name, @LogoPath); SELECT SCOPE_IDENTITY();";
                     SqlCommand cmdTeam = new SqlCommand(insertTeamQuery, conn, transaction);
                     cmdTeam.Parameters.AddWithValue("@Name", teamName);
-                    cmdTeam.Parameters.AddWithValue("@LogoPath", (object)logoPath ?? DBNull.Value);
+                    cmdTeam.Parameters.AddWithValue("@LogoPath", logoPath); // Always store a path (default or uploaded)
                     
                     object result = cmdTeam.ExecuteScalar();
                     if (result == null || result == DBNull.Value)
@@ -269,11 +348,23 @@ namespace TaskQuest
                     }
 
                     transaction.Commit();
-                    Response.Redirect(Request.RawUrl);
+                    
+                    // Redirect after successful commit
+                    Response.Redirect(Request.RawUrl, false);
+                    Context.ApplicationInstance.CompleteRequest();
                 }
                 catch (Exception ex)
                 {
-                    transaction.Rollback();
+                    // Check if transaction is still active before rollback
+                    if (transaction != null && transaction.Connection != null)
+                    {
+                        try
+                        {
+                            transaction.Rollback();
+                        }
+                        catch { /* Ignore rollback errors */ }
+                    }
+
                     lblError.Text = "Error creating team: " + ex.Message;
                     lblError.Visible = true;
                     System.Diagnostics.Debug.WriteLine("Error creating team: " + ex.Message);

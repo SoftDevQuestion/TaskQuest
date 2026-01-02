@@ -20,86 +20,15 @@
         <asp:Label ID="lblError" runat="server" CssClass="error-message" ForeColor="Red" EnableViewState="false"></asp:Label>
 
         <div class="teams-grid">
-            <!-- Static Cards (Restored) -->
-            <section class="team-card">
-                <header class="team-card-header">
-                    <div class="team-card-title">
-                        <span class="team-emoji">🎨</span>
-                        <div class="team-texts">
-                            <h2 class="team-name">Design Team</h2>
-                            <p class="team-members-count">3 members</p>
-                        </div>
-                    </div>
-                    <div class="team-menu-container">
-                        <button class="team-menu-btn" type="button" onclick="toggleMenu(this)">
-                            <span></span><span></span><span></span>
-                        </button>
-                    </div>
-                </header>
-                <div class="team-members">
-                    <div class="member-row">
-                        <div class="member-info-with-avatar">
-                            <img src="assets/images/avatars/avatar-1.png" alt="Sarah" class="member-avatar" onerror="this.src='assets/images/default-avatar.svg'" />
-                            <div class="member-info">
-                                <p class="member-name">Sarah</p>
-                                <p class="member-role">Admin</p>
-                            </div>
-                        </div>
-                        <span class="member-badge member-badge-admin">Admin</span>
-                    </div>
-                    <div class="member-row">
-                        <div class="member-info-with-avatar">
-                            <img src="assets/images/avatars/avatar-2.png" alt="Mike" class="member-avatar" onerror="this.src='assets/images/default-avatar.svg'" />
-                            <div class="member-info">
-                                <p class="member-name">Mike</p>
-                                <p class="member-role">Member</p>
-                            </div>
-                        </div>
-                        <span class="member-badge member-badge-member">Member</span>
-                    </div>
-                </div>
-                <div class="team-card-footer">
-                    <button class="add-member-btn" type="button">+ Add member</button>
-                </div>
-            </section>
-
-             <section class="team-card">
-                <header class="team-card-header">
-                    <div class="team-card-title">
-                        <span class="team-emoji">🚀</span>
-                        <div class="team-texts">
-                            <h2 class="team-name">Development</h2>
-                            <p class="team-members-count">4 members</p>
-                        </div>
-                    </div>
-                    <div class="team-menu-container">
-                        <button class="team-menu-btn" type="button" onclick="toggleMenu(this)">
-                            <span></span><span></span><span></span>
-                        </button>
-                    </div>
-                </header>
-                <div class="team-members">
-                    <div class="member-row">
-                        <div class="member-info-with-avatar">
-                            <img src="assets/images/avatars/avatar-3.png" alt="Alex" class="member-avatar" onerror="this.src='assets/images/default-avatar.svg'" />
-                            <div class="member-info">
-                                <p class="member-name">Alex</p>
-                                <p class="member-role">Admin</p>
-                            </div>
-                        </div>
-                        <span class="member-badge member-badge-admin">Admin</span>
-                    </div>
-                </div>
-                <div class="team-card-footer">
-                    <button class="add-member-btn" type="button">+ Add member</button>
-                </div>
-            </section>
-
             <asp:Repeater ID="rptTeams" runat="server" OnItemCommand="rptTeams_ItemCommand">
                 <ItemTemplate>
                     <section class="team-card">
                         <header class="team-card-header">
                             <div class="team-card-title">
+                                <img src='<%# !string.IsNullOrEmpty(Eval("LogoPath") as string) ? Eval("LogoPath") : "assets/images/teamwork.png" %>' 
+                                     alt="Team Logo" 
+                                     class="team-logo" 
+                                     style="width: 48px; height: 48px; border-radius: 12px; object-fit: cover; margin-right: 12px;" />
                                 <div class="team-texts">
                                     <h2 class="team-name"><%# Eval("TeamName") %></h2>
                                     <p class="team-members-count"><%# Eval("MemberCount") %> members</p>
@@ -112,8 +41,8 @@
                                     <span></span>
                                 </button>
                                 <div class="team-menu-dropdown">
-                                    <asp:LinkButton ID="btnEdit" runat="server" CommandName="Edit" CommandArgument='<%# Eval("TeamId") %>' CssClass="menu-item">Edit</asp:LinkButton>
-                                    <asp:LinkButton ID="btnDelete" runat="server" CommandName="Delete" CommandArgument='<%# Eval("TeamId") %>' CssClass="menu-item delete" OnClientClick="return confirm('Are you sure you want to delete this team?');">Delete</asp:LinkButton>
+                                    <asp:LinkButton ID="btnEdit" runat="server" CommandName="Edit" CommandArgument='<%# Eval("TeamId") %>' CssClass="menu-item" CausesValidation="false">Edit</asp:LinkButton>
+                                    <asp:LinkButton ID="btnDelete" runat="server" CommandName="Delete" CommandArgument='<%# Eval("TeamId") %>' CssClass="menu-item delete" OnClientClick="return confirm('Are you sure you want to delete this team?');" CausesValidation="false">Delete</asp:LinkButton>
                                 </div>
                             </div>
                         </header>
@@ -151,9 +80,11 @@
         <div class="modal-content">
             <!-- Logo Circle Placeholder -->
             <div class="modal-logo-section">
-                <div class="logo-circle">
-                    <span>Logo</span>
+                <div class="logo-circle" onclick="triggerFileUpload()">
+                    <img id="imgLogoPreview" src="assets/images/default-team.png" class="logo-preview" style="display:none; width:100%; height:100%; border-radius:50%; object-fit:cover;" />
+                    <span id="logoPlaceholderText">Upload Logo</span>
                 </div>
+                <asp:FileUpload ID="fuTeamLogo" runat="server" Style="display: none;" onchange="previewLogo(this)" ClientIDMode="Static" />
             </div>
 
             <!-- Team Name Input -->
@@ -179,6 +110,33 @@
         </div>
     </div>
 
+    <!-- Edit Team Modal Structure -->
+    <div id="editTeamModal" class="modal-overlay" style="display: none;" runat="server" clientidmode="Static">
+        <div class="modal-content">
+            <!-- Logo Circle Placeholder -->
+            <div class="modal-logo-section">
+                <div class="logo-circle" onclick="triggerEditFileUpload()">
+                    <asp:Image ID="imgEditLogoPreview" runat="server" CssClass="logo-preview" Style="width:100%; height:100%; border-radius:50%; object-fit:cover;" ImageUrl="assets/images/default-team.png" ClientIDMode="Static" />
+                    <span id="editLogoPlaceholderText" style="display:none;">Change Logo</span>
+                </div>
+                <asp:FileUpload ID="fuEditTeamLogo" runat="server" Style="display: none;" onchange="previewEditLogo(this)" ClientIDMode="Static" />
+            </div>
+
+            <!-- Team Name Input -->
+            <div class="form-group">
+                <label for="txtEditTeamName">Team Name</label>
+                <asp:TextBox ID="txtEditTeamName" runat="server" CssClass="form-control" placeholder="Enter team name..." ClientIDMode="Static"></asp:TextBox>
+            </div>
+
+            <!-- Footer Buttons -->
+            <div class="modal-footer">
+                <button type="button" class="btn-give-up" onclick="closeEditTeamModal(); return false;">Cancel</button>
+                <asp:Button ID="btnSaveEdit" runat="server" Text="Save Changes" CssClass="btn-team-up" OnClick="btnSaveEdit_Click" />
+            </div>
+        </div>
+    </div>
+    <asp:HiddenField ID="hfEditTeamId" runat="server" />
+
     <asp:HiddenField ID="hfTeamMembers" runat="server" />
     <asp:HiddenField ID="hfTeamName" runat="server" />
 
@@ -188,14 +146,33 @@
             document.getElementById('createTeamModal').style.display = 'flex';
             document.getElementById('txtNewTeamName').value = '';
             document.getElementById('membersList').innerHTML = '';
-            // Add one empty row by default? No, prompt says "when clicked... adds a new row".
-            // But usually nice to have one. I'll stick to button adding it or maybe empty start.
-            // Prompt: "پایین این ها یک باکس باشد به نام add member ... وقتی روی آن کلیک شد، یک ردیف جدید بسازد"
-            // So initially maybe empty.
         }
 
         function closeCreateTeamModal() {
             document.getElementById('createTeamModal').style.display = 'none';
+        }
+
+        function showEditTeamModal() {
+            document.getElementById('editTeamModal').style.display = 'flex';
+        }
+
+        function closeEditTeamModal() {
+            document.getElementById('editTeamModal').style.display = 'none';
+        }
+
+        function triggerEditFileUpload() {
+             var fileUpload = document.getElementById('fuEditTeamLogo');
+             if (fileUpload) fileUpload.click();
+        }
+
+        function previewEditLogo(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('imgEditLogoPreview').src = e.target.result;
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
         }
 
         function addNewMemberRow() {
@@ -341,7 +318,10 @@
         }
 
         function triggerFileUpload() {
-            document.getElementById('<%= fuTeamLogo.ClientID %>').click();
+            var fileUpload = document.getElementById('<%= fuTeamLogo.ClientID %>');
+            if (fileUpload) {
+                fileUpload.click();
+            }
         }
 
         function previewLogo(input) {
