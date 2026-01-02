@@ -519,8 +519,23 @@ namespace TaskQuest
                 try
                 {
                     conn.Open();
+                    // Fetch projects where user is creator OR member of assigned team
+                    // Also determine if user CanEdit (IsAdmin of project OR IsAdmin of assigned team)
                     string query = @"
-                        SELECT DISTINCT p.* 
+                        SELECT DISTINCT 
+                            p.*,
+                            CASE 
+                                WHEN p.CreatorUserId = @CurrentUserId THEN 1
+                                WHEN EXISTS (
+                                    SELECT 1 
+                                    FROM ProjectTeams pt 
+                                    JOIN TeamMembers tm ON pt.TeamID = tm.TeamId 
+                                    WHERE pt.ProjectID = p.ProjectID 
+                                    AND tm.Username = @CurrentUser 
+                                    AND tm.Role = 'admin'
+                                ) THEN 1
+                                ELSE 0 
+                            END as CanEdit
                         FROM Projects p
                         LEFT JOIN ProjectTeams pt ON p.ProjectID = pt.ProjectID
                         LEFT JOIN TeamMembers tm ON pt.TeamID = tm.TeamId
