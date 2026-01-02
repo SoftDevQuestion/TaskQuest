@@ -132,11 +132,32 @@ namespace TaskQuest
                             txtEditTeamName.Text = reader["TeamName"].ToString();
                             string logo = reader["LogoPath"] as string;
                             imgEditLogoPreview.ImageUrl = !string.IsNullOrEmpty(logo) ? logo : "assets/images/default-team.png";
-                            
-                            // Show Modal
-                            ClientScript.RegisterStartupScript(this.GetType(), "Pop", "showEditTeamModal();", true);
+                        }
+                        reader.Close();
+                    }
+
+                    // Fetch Members
+                    List<MemberDTO> members = new List<MemberDTO>();
+                    string memberQuery = "SELECT Username, Role FROM TeamMembers WHERE TeamId = @TeamId";
+                    SqlCommand memberCmd = new SqlCommand(memberQuery, conn);
+                    memberCmd.Parameters.AddWithValue("@TeamId", teamId);
+                    using (SqlDataReader memberReader = memberCmd.ExecuteReader())
+                    {
+                        while (memberReader.Read())
+                        {
+                            members.Add(new MemberDTO
+                            {
+                                username = memberReader["Username"].ToString(),
+                                role = memberReader["Role"].ToString()
+                            });
                         }
                     }
+                    
+                    JavaScriptSerializer serializer = new JavaScriptSerializer();
+                    hfEditTeamMembersInitial.Value = serializer.Serialize(members);
+
+                    // Show Modal
+                    ClientScript.RegisterStartupScript(this.GetType(), "Pop", "showEditTeamModal();", true);
                 }
             }
         }
@@ -167,45 +188,134 @@ namespace TaskQuest
                         return;
                     }
 
+                    // Update Team Info
                     string logoPath = null;
                     if (fuEditTeamLogo.HasFile)
-                {
-                    try
                     {
-                         string filename = System.IO.Path.GetFileName(fuEditTeamLogo.FileName);
-                         string extension = System.IO.Path.GetExtension(filename);
-                         string uniqueName = Guid.NewGuid().ToString() + extension;
-                         string folderPath = Server.MapPath("~/assets/images/teams/");
-                         if (!System.IO.Directory.Exists(folderPath))
-                         {
-                             System.IO.Directory.CreateDirectory(folderPath);
-                         }
-                         string savePath = System.IO.Path.Combine(folderPath, uniqueName);
-                         fuEditTeamLogo.SaveAs(savePath);
-                         logoPath = "assets/images/teams/" + uniqueName;
+                        try
+                        {
+                            string filename = System.IO.Path.GetFileName(fuEditTeamLogo.FileName);
+                            string extension = System.IO.Path.GetExtension(filename);
+                            string uniqueName = Guid.NewGuid().ToString() + extension;
+                            string folderPath = Server.MapPath("~/assets/images/teams/");
+                            if (!System.IO.Directory.Exists(folderPath))
+                            {
+                                System.IO.Directory.CreateDirectory(folderPath);
+                            }
+                            string savePath = System.IO.Path.Combine(folderPath, uniqueName);
+                            fuEditTeamLogo.SaveAs(savePath);
+                            logoPath = "assets/images/teams/" + uniqueName;
+                        }
+                        catch (Exception ex)
+                        {
+                            System.Diagnostics.Debug.WriteLine("Upload error: " + ex.Message);
+                        }
                     }
-                    catch (Exception ex)
-                    {
-                        System.Diagnostics.Debug.WriteLine("Upload error: " + ex.Message);
-                    }
-                }
 
-                if (logoPath != null)
-                {
-                     string query = "UPDATE Team SET TeamName = @TeamName, UpdatedAt = GETDATE(), LogoPath = @LogoPath WHERE TeamId = @TeamId";
-                     SqlCommand cmd = new SqlCommand(query, conn);
-                     cmd.Parameters.AddWithValue("@TeamName", newName);
-                     cmd.Parameters.AddWithValue("@TeamId", teamId);
-                     cmd.Parameters.AddWithValue("@LogoPath", logoPath);
-                     cmd.ExecuteNonQuery();
-                }
-                else
-                {
-                     string query = "UPDATE Team SET TeamName = @TeamName, UpdatedAt = GETDATE() WHERE TeamId = @TeamId";
-                     SqlCommand cmd = new SqlCommand(query, conn);
-                     cmd.Parameters.AddWithValue("@TeamName", newName);
-                     cmd.Parameters.AddWithValue("@TeamId", teamId);
-                     cmd.ExecuteNonQuery();
+                    if (logoPath != null)
+                    {
+                         string query = "UPDATE Team SET TeamName = @TeamName, UpdatedAt = GETDATE(), LogoPath = @LogoPath WHERE TeamId = @TeamId";
+                         SqlCommand cmd = new SqlCommand(query, conn);
+                         cmd.Parameters.AddWithValue("@TeamName", newName);
+                         cmd.Parameters.AddWithValue("@TeamId", teamId);
+                         cmd.Parameters.AddWithValue("@LogoPath", logoPath);
+                         cmd.ExecuteNonQuery();
+                    }
+                    else
+                    {
+                         string query = "UPDATE Team SET TeamName = @TeamName, UpdatedAt = GETDATE() WHERE TeamId = @TeamId";
+                         SqlCommand cmd = new SqlCommand(query, conn);
+                         cmd.Parameters.AddWithValue("@TeamName", newName);
+                         cmd.Parameters.AddWithValue("@TeamId", teamId);
+                         cmd.ExecuteNonQuery();
+                    }
+
+                    // Update Members
+                    string membersJson = hfEditTeamMembers.Value;
+                    JavaScriptSerializer serializer = new JavaScriptSerializer();
+                    MemberDTO[] newMembers = serializer.Deserialize<MemberDTO[]>(membersJson);
+
+                    if (newMembers != null)
+                    {
+                        // 1. Get current DB members to identify removed ones
+                        List<string> currentDbUsers = new List<string>();
+                        string getMembersQuery = "SELECT Username FROM TeamMembers WHERE TeamId = @TeamId";
+                        SqlCommand getMembersCmd = new SqlCommand(getMembersQuery, conn);
+                        getMembersCmd.Parameters.AddWithValue("@TeamId", teamId);
+                        using (SqlDataReader rdr = getMembersCmd.ExecuteReader())
+                        {
+                            while (rdr.Read()) currentDbUsers.Add(rdr["Username"].ToString());
+                        }
+
+                        // 2. Identify and Delete Removed Members
+                        // Keep only members present in the new list
+                        List<string> newMemberUsernames = new List<string>();
+                        foreach (var m in newMembers) newMemberUsernames.Add(m.username);
+
+                        foreach (string dbUser in currentDbUsers)
+                        {
+                            if (!newMemberUsernames.Contains(dbUser))
+                            {
+                                string deleteMemberQuery = "DELETE FROM TeamMembers WHERE TeamId = @TeamId AND Username = @Username";
+                                SqlCommand deleteCmd = new SqlCommand(deleteMemberQuery, conn);
+                                deleteCmd.Parameters.AddWithValue("@TeamId", teamId);
+                                deleteCmd.Parameters.AddWithValue("@Username", dbUser);
+                                deleteCmd.ExecuteNonQuery();
+                            }
+                        }
+
+                        // 3. Add or Update Members
+                        foreach (MemberDTO member in newMembers)
+                        {
+                            // Using UpdateUserTeam which handles Insert/Check logic
+                            // But UpdateUserTeam currently only Inserts if not exists.
+                            // We need to UPDATE role if exists.
+                            
+                            // Check if exists
+                            string checkMemberQuery = "SELECT COUNT(*) FROM TeamMembers WHERE TeamId = @TeamId AND Username = @Username";
+                            SqlCommand checkMemberCmd = new SqlCommand(checkMemberQuery, conn);
+                            checkMemberCmd.Parameters.AddWithValue("@TeamId", teamId);
+                            checkMemberCmd.Parameters.AddWithValue("@Username", member.username);
+                            int exists = (int)checkMemberCmd.ExecuteScalar();
+
+                            if (exists > 0)
+                            {
+                                // Update Role
+                                string updateRoleQuery = "UPDATE TeamMembers SET Role = @Role WHERE TeamId = @TeamId AND Username = @Username";
+                                SqlCommand updateRoleCmd = new SqlCommand(updateRoleQuery, conn);
+                                updateRoleCmd.Parameters.AddWithValue("@Role", member.role);
+                                updateRoleCmd.Parameters.AddWithValue("@TeamId", teamId);
+                                updateRoleCmd.Parameters.AddWithValue("@Username", member.username);
+                                updateRoleCmd.ExecuteNonQuery();
+                            }
+                            else
+                            {
+                                // Insert (Using helper or direct insert)
+                                // Note: Helper fetches user ID again, let's just do it directly if we trust username is valid from client/search
+                                // But better to verify user exists in Users table first.
+                                string verifyUserQuery = "SELECT COUNT(*) FROM Users WHERE Username = @Username OR Email = @Username";
+                                SqlCommand verifyCmd = new SqlCommand(verifyUserQuery, conn);
+                                verifyCmd.Parameters.AddWithValue("@Username", member.username);
+                                int userExists = (int)verifyCmd.ExecuteScalar();
+                                
+                                if (userExists > 0)
+                                {
+                                    // Get real username in case email was used
+                                    string getRealUserQuery = "SELECT Username FROM Users WHERE Username = @Username OR Email = @Username";
+                                    SqlCommand getRealUserCmd = new SqlCommand(getRealUserQuery, conn);
+                                    getRealUserCmd.Parameters.AddWithValue("@Username", member.username);
+                                    string realUsername = (string)getRealUserCmd.ExecuteScalar();
+
+                                    string insertQuery = "INSERT INTO TeamMembers (TeamId, Username, Role) VALUES (@TeamId, @Username, @Role)";
+                                    SqlCommand insertCmd = new SqlCommand(insertQuery, conn);
+                                    insertCmd.Parameters.AddWithValue("@TeamId", teamId);
+                                    insertCmd.Parameters.AddWithValue("@Username", realUsername);
+                                    insertCmd.Parameters.AddWithValue("@Role", member.role);
+                                    insertCmd.ExecuteNonQuery();
+                                }
+                            }
+                        }
+                    }
                 }
             }
             LoadTeams();

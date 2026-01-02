@@ -128,10 +128,19 @@
                 <asp:TextBox ID="txtEditTeamName" runat="server" CssClass="form-control" placeholder="Enter team name..." ClientIDMode="Static"></asp:TextBox>
             </div>
 
+            <!-- Edit Member Section -->
+            <div class="members-section">
+                <label>Members</label>
+                <div id="editMembersList" class="members-list">
+                    <!-- Dynamic rows will be added here -->
+                </div>
+                <button type="button" class="add-member-link" onclick="addEditMemberRow()">+ Add Member</button>
+            </div>
+
             <!-- Footer Buttons -->
             <div class="modal-footer">
                 <button type="button" class="btn-give-up" onclick="closeEditTeamModal(); return false;">Cancel</button>
-                <asp:Button ID="btnSaveEdit" runat="server" Text="Save Changes" CssClass="btn-team-up" OnClick="btnSaveEdit_Click" />
+                <asp:Button ID="btnSaveEdit" runat="server" Text="Team up" CssClass="btn-team-up" OnClick="btnSaveEdit_Click" OnClientClick="return prepareEditTeamData();" />
             </div>
         </div>
     </div>
@@ -158,6 +167,8 @@
      </div>
     
     <asp:HiddenField ID="hfEditTeamId" runat="server" />
+    <asp:HiddenField ID="hfEditTeamMembers" runat="server" />
+    <asp:HiddenField ID="hfEditTeamMembersInitial" runat="server" />
 
     <asp:HiddenField ID="hfTeamMembers" runat="server" />
     <asp:HiddenField ID="hfTeamName" runat="server" />
@@ -176,6 +187,63 @@
 
         function showEditTeamModal() {
             document.getElementById('editTeamModal').style.display = 'flex';
+            populateEditMembers();
+        }
+
+        function populateEditMembers() {
+            const container = document.getElementById('editMembersList');
+            container.innerHTML = '';
+            
+            const initialMembersJson = document.getElementById('<%= hfEditTeamMembersInitial.ClientID %>').value;
+            let members = [];
+            try {
+                members = JSON.parse(initialMembersJson);
+            } catch(e) { console.error('Error parsing initial members', e); }
+            
+            if (members && members.length > 0) {
+                members.forEach(member => {
+                    addEditMemberRow(member.username, member.role);
+                });
+            }
+        }
+
+        function addEditMemberRow(username = '', role = 'member') {
+            const container = document.getElementById('editMembersList');
+            const rowId = 'edit_row_' + new Date().getTime() + Math.random().toString(36).substr(2, 5);
+            
+            const rowHtml = `
+                <div class="member-input-row" id="${rowId}">
+                    <div class="input-wrapper">
+                        <input type="text" class="member-search-input" placeholder="Username or Email" value="${username}" onkeyup="searchUsers(this, '${rowId}')" onkeydown="handleEnterKey(event, this)" />
+                        <div class="search-results" style="display:none;"></div>
+                    </div>
+                    <select class="member-role-select form-control" style="width: auto; margin-left: 8px;">
+                        <option value="member" ${role === 'member' ? 'selected' : ''}>Member</option>
+                        <option value="admin" ${role === 'admin' ? 'selected' : ''}>Admin</option>
+                    </select>
+                    <button type="button" class="remove-row-btn" onclick="removeRow('${rowId}')">×</button>
+                </div>
+            `;
+            
+            container.insertAdjacentHTML('beforeend', rowHtml);
+        }
+
+        function prepareEditTeamData() {
+            const memberRows = document.querySelectorAll('#editMembersList .member-input-row');
+            const members = [];
+            memberRows.forEach(row => {
+                const input = row.querySelector('.member-search-input');
+                const roleSelect = row.querySelector('.member-role-select');
+                if (input.value.trim()) {
+                    members.push({
+                        username: input.value.trim(),
+                        role: roleSelect ? roleSelect.value : 'member'
+                    });
+                }
+            });
+
+            document.getElementById('<%= hfEditTeamMembers.ClientID %>').value = JSON.stringify(members);
+            return true;
         }
 
         function closeEditTeamModal() {
