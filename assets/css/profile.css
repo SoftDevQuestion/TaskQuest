@@ -7,13 +7,15 @@
     font-family: 'PlusJakartaSans', 'Vazirmatn', Arial, sans-serif;
 }
 
-.form-container{
-    display:flex;
-    width:100%;
-    align-items:center;
-    justify-content:center;
-    height:100vh;
+.form-container {
+    display: flex;
+    width: 100%;
+    padding-block: 30px;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
 }
+
 .profile-image {
     display: flex;
     align-items: center;
@@ -42,9 +44,11 @@
     gap: 10px;
     margin-bottom: 15px;
 }
+
 .avatar-large {
     max-width: 100px;
 }
+
 .avatar {
     width: 50px;
     height: 50px;
@@ -63,7 +67,7 @@
     }
 
 input {
-    width: 100%;
+    width: 95%;
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 8px;

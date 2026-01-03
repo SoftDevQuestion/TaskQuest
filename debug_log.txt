@@ -24,3 +24,10 @@
 08/10/1404 09:18:27 ق.ظ: btnCreateProject_Click started.
 08/10/1404 09:18:52 ق.ظ: btnCreateProject_Click started.
 08/10/1404 09:19:07 ق.ظ: btnCreateProject_Click started.
+13/10/1404 06:20:28 ب.ظ: btnCreateProject_Click started.
+13/10/1404 06:20:51 ب.ظ: btnCreateProject_Click started.
+14/10/1404 01:46:29 ق.ظ: Error in GetUserId: Connection Timeout Expired.  The timeout period elapsed while attempting to consume the pre-login handshake acknowledgement.  This could be because the pre-login handshake failed or the server was unable to respond back in time.  The duration spent while attempting to connect to this server was - [Pre-Login] initialization=11129; handshake=29046; 
+14/10/1404 01:47:25 ق.ظ: Error creating ProjectTeams table: A network-related or instance-specific error occurred while establishing a connection to SQL Server. The server was not found or was not accessible. Verify that the instance name is correct and that SQL Server is configured to allow remote connections. (provider: Named Pipes Provider, error: 40 - Could not open a connection to SQL Server)
+14/10/1404 01:48:30 ق.ظ: btnCreateProject_Click started.
+14/10/1404 01:49:21 ق.ظ: btnCreateProject_Click started.
+14/10/1404 01:49:54 ق.ظ: btnCreateProject_Click started.
