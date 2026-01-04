@@ -63,6 +63,35 @@ namespace TaskQuest
                     string username = Session["User"].ToString();
                     string avatarPath = selectedAvatarPath.Value;
 
+                    // Check for file upload (only if no default avatar is currently selected)
+                    if (string.IsNullOrEmpty(avatarPath) && fileUpload.HasFile)
+                    {
+                        try
+                        {
+                            string filename = Path.GetFileName(fileUpload.FileName);
+                            string extension = Path.GetExtension(filename).ToLower();
+                            
+                            // Validate extension
+                            if (extension == ".jpg" || extension == ".jpeg" || extension == ".png" || extension == ".gif")
+                            {
+                                string uniqueName = $"avatar_{DateTime.Now.Ticks}{extension}";
+                                string saveDir = Server.MapPath("~/assets/uploads/avatars/");
+                                
+                                if (!Directory.Exists(saveDir))
+                                    Directory.CreateDirectory(saveDir);
+
+                                string savePath = Path.Combine(saveDir, uniqueName);
+                                fileUpload.SaveAs(savePath);
+                                
+                                avatarPath = "assets/uploads/avatars/" + uniqueName;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            System.Diagnostics.Debug.WriteLine("Error uploading file: " + ex.Message);
+                        }
+                    }
+
                     if (string.IsNullOrEmpty(avatarPath))
                     {
                         // If no avatar selected, use default

@@ -21,7 +21,7 @@
     </style>
 </head>
 <body>
-    <form id="form1" runat="server">
+    <form id="form1" runat="server" enctype="multipart/form-data">
         <div class="form-container">
             <div class="profile-modal">
                 <asp:Label ID="ErrorMessage" runat="server" CssClass="error-message" Visible="false" ForeColor="Red"></asp:Label>
