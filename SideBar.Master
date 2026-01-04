@@ -25,7 +25,9 @@
 
     <!-- Logo -->
     <div class="logo">
-        <img src="assets/img/logo/logo.png" alt="logo">
+        <a href="Default.aspx">
+            <img src="assets/img/logo/logo.png" alt="logo">
+        </a>
     </div>
 
     <!-- Main Menu -->
