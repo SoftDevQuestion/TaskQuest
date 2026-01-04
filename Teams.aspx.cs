@@ -49,13 +49,19 @@ namespace TaskQuest
                             t.TeamName, 
                             t.Description, 
                             t.LogoPath,
+                            t.CreatorUsername,
                             tm.Username, 
                             tm.Role, 
                             u.AvatarPath 
                         FROM Team t 
                         LEFT JOIN TeamMembers tm ON t.TeamId = tm.TeamId 
                         LEFT JOIN Users u ON tm.Username = u.Username
-                        WHERE t.CreatorUsername = @CurrentUser
+                        WHERE t.TeamId IN (
+                            SELECT DISTINCT t1.TeamId 
+                            FROM Team t1
+                            LEFT JOIN TeamMembers tm1 ON t1.TeamId = tm1.TeamId
+                            WHERE t1.CreatorUsername = @CurrentUser OR tm1.Username = @CurrentUser
+                        )
                         ORDER BY t.TeamId";
 
                     SqlCommand cmd = new SqlCommand(query, conn);
@@ -102,7 +108,8 @@ namespace TaskQuest
                     string currentUser = Session["User"].ToString();
                     foreach (var team in teams)
                     {
-                        team.IsAdmin = team.Members.Any(m => m.Username == currentUser && m.Role == "admin");
+                        team.IsAdmin = (currentUser == team.CreatorUsername) || 
+                                       team.Members.Any(m => m.Username == currentUser && m.Role == "admin");
                     }
                 }
                 catch (Exception ex)
@@ -178,6 +185,8 @@ namespace TaskQuest
             int teamId;
             if (int.TryParse(hfEditTeamId.Value, out teamId))
             {
+                if (!IsTeamAdmin(teamId, Session["User"].ToString())) return;
+
                 string newName = txtEditTeamName.Text.Trim();
                 string newDescription = txtEditTeamDescription.Text.Trim();
                 if (string.IsNullOrEmpty(newName)) return;

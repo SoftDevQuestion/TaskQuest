@@ -274,6 +274,7 @@
     <Content Include="assets\img\about\.DS_Store" />
     <Content Include="assets\js\.DS_Store" />
     <None Include="packages.config" />
+    <Content Include="Logout.aspx" />
     <Content Include="SideBar.Master" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>

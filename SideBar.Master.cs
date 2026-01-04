@@ -87,7 +87,12 @@ namespace TaskQuest
                     conn.Open();
                     // Fetch top 3 recent teams. 
                     // Sorted by UpdatedAt descending to show recently created or edited teams.
-                    string query = "SELECT TOP 3 TeamId, TeamName, LogoPath FROM Team WHERE CreatorUsername = @Username ORDER BY UpdatedAt DESC";
+                    string query = @"
+                        SELECT DISTINCT TOP 3 t.TeamId, t.TeamName, t.LogoPath, t.UpdatedAt
+                        FROM Team t
+                        LEFT JOIN TeamMembers tm ON t.TeamId = tm.TeamId
+                        WHERE t.CreatorUsername = @Username OR tm.Username = @Username
+                        ORDER BY t.UpdatedAt DESC";
                     
                     SqlCommand cmd = new SqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@Username", Session["User"].ToString());
