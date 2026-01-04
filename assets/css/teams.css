@@ -292,7 +292,7 @@
     gap: 16px;
     height: auto;
     max-height: 90vh; /* Limit height */
-    overflow: hidden; /* Hide outer scroll */
+    overflow-y: auto; /* Allow full modal to scroll */
 }
 
 /* Create Team Modal Redesign */
@@ -307,7 +307,7 @@
 
 .create-team-body {
     padding: 0 32px;
-    overflow-y: auto; /* Enable vertical scroll for body only */
+    overflow-y: visible; /* Fix unnecessary scroll */
     flex: 1; /* Allow it to take remaining space */
 }
 

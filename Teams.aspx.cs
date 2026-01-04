@@ -242,6 +242,9 @@ namespace TaskQuest
                          cmd.ExecuteNonQuery();
                     }
 
+                    // Update Sidebar
+                    ((SideBar)Master).LoadRecentTeams();
+
                     // Update Members
                     string membersJson = hfEditTeamMembers.Value;
                     JavaScriptSerializer serializer = new JavaScriptSerializer();
