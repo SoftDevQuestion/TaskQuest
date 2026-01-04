@@ -380,12 +380,34 @@ namespace TaskQuest
             }
         }
 
+        private bool IsTeamAdmin(int teamId, string username)
+        {
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+                string query = @"
+                    SELECT COUNT(*) 
+                    FROM Team t 
+                    LEFT JOIN TeamMembers tm ON t.TeamId = tm.TeamId 
+                    WHERE t.TeamId = @TeamId 
+                    AND (t.CreatorUsername = @Username OR (tm.Username = @Username AND tm.Role = 'admin'))";
+                
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@TeamId", teamId);
+                cmd.Parameters.AddWithValue("@Username", username);
+                
+                int count = (int)cmd.ExecuteScalar();
+                return count > 0;
+            }
+        }
+
         public class TeamViewModel
         {
             public int TeamId { get; set; }
             public string TeamName { get; set; }
             public string Description { get; set; }
             public string LogoPath { get; set; }
+            public string CreatorUsername { get; set; }
             public List<MemberViewModel> Members { get; set; }
             public int MemberCount => Members.Count;
             public bool IsAdmin { get; set; }
