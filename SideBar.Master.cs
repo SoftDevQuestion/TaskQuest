@@ -21,6 +21,7 @@ namespace TaskQuest
             // Toggle visibility of project list based on current page
             projectSection.Visible = (activePage == "projects.aspx");
             teamSection.Visible = (activePage == "teams.aspx");
+            taskSection.Visible = (activePage == "tasks.aspx");
 
             if (!IsPostBack)
             {
@@ -38,7 +39,68 @@ namespace TaskQuest
                 LoadRecentTeams();
             }
             
+            if (taskSection.Visible)
+            {
+                LoadTaskCounts();
+            }
+            
             SetActiveMenu();
+        }
+
+        public void LoadTaskCounts()
+        {
+            if (Session["User"] == null) return;
+
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    conn.Open();
+                    string username = Session["User"].ToString();
+                    
+                    // Get UserID for CreatorID check
+                    int userId = 0;
+                    SqlCommand cmdUser = new SqlCommand("SELECT UserID FROM Users WHERE Username = @Username", conn);
+                    cmdUser.Parameters.AddWithValue("@Username", username);
+                    object result = cmdUser.ExecuteScalar();
+                    if (result != null) userId = Convert.ToInt32(result);
+
+                    // Count tasks from ALL projects the user has access to (Created by user OR User is member of assigned team)
+                    string query = @"
+                        SELECT 
+                            SUM(CASE WHEN StatusId = 3 THEN 1 ELSE 0 END) AS DoneCount,
+                            SUM(CASE WHEN StatusId != 3 AND (DueDate >= CAST(GETDATE() AS DATE) OR DueDate IS NULL) THEN 1 ELSE 0 END) AS TodoCount,
+                            SUM(CASE WHEN StatusId != 3 AND DueDate < CAST(GETDATE() AS DATE) THEN 1 ELSE 0 END) AS OverdueCount
+                        FROM Tasks t
+                        WHERE t.ProjectID IN (
+                            SELECT DISTINCT p.ProjectID
+                            FROM Projects p
+                            LEFT JOIN ProjectTeams pt ON p.ProjectID = pt.ProjectID
+                            LEFT JOIN Team t ON pt.TeamID = t.TeamId
+                            LEFT JOIN TeamMembers tm ON t.TeamId = tm.TeamId
+                            WHERE p.CreatorID = @UserID OR tm.Username = @Username
+                        )";
+
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@Username", username);
+                    cmd.Parameters.AddWithValue("@UserID", userId);
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            lblDoneCount.InnerText = reader["DoneCount"] != DBNull.Value ? reader["DoneCount"].ToString() : "0";
+                            lblTodoCount.InnerText = reader["TodoCount"] != DBNull.Value ? reader["TodoCount"].ToString() : "0";
+                            lblOverdueCount.InnerText = reader["OverdueCount"] != DBNull.Value ? reader["OverdueCount"].ToString() : "0";
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Log the error for debugging
+                    System.Diagnostics.Debug.WriteLine("Error in LoadTaskCounts: " + ex.Message);
+                }
+            }
         }
 
         public void LoadRecentProjects()

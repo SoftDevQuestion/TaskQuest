@@ -15,7 +15,7 @@
 </head>
 <body>
   <form id="form1" runat="server">
-        <asp:ScriptManager ID="ScriptManager1" runat="server" />
+        <asp:ScriptManager ID="ScriptManager1" runat="server" EnablePageMethods="true" />
     <div id="layout">
       <div id="sidebar">
           <!-- Sidebar HTML -->
@@ -66,6 +66,29 @@
     </ul>
 
     <!-- PROJECT LIST -->
+    <div class="task-section" id="taskSection" runat="server" visible="false">
+        <div class="project-header">
+            <span>TASKS</span>
+        </div>
+        <ul class="project-list">
+            <li>
+                <img src="https://cdn.jsdelivr.net/npm/feather-icons/dist/icons/check-circle.svg" class="project-img" style="width: 20px; height: 20px; border-radius: 0;">
+                <span>Done</span>
+                <span id="lblDoneCount" runat="server" class="count count-purple">0</span>
+            </li>
+            <li>
+                <img src="https://cdn.jsdelivr.net/npm/feather-icons/dist/icons/loader.svg" class="project-img" style="width: 20px; height: 20px; border-radius: 0;">
+                <span>To Do</span>
+                <span id="lblTodoCount" runat="server" class="count count-green">0</span>
+            </li>
+            <li>
+                <img src="https://cdn.jsdelivr.net/npm/feather-icons/dist/icons/clock.svg" class="project-img" style="width: 20px; height: 20px; border-radius: 0;">
+                <span>Overdue</span>
+                <span id="lblOverdueCount" runat="server" class="count count-red">0</span>
+            </li>
+        </ul>
+    </div>
+
     <div class="project-section" id="projectSection" runat="server">
         <div class="project-header">
             <span>PROJECTS</span>
