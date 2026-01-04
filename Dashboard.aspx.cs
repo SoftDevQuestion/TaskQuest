@@ -44,7 +44,7 @@ namespace TaskQuest
                     conn.Open();
                     // Get 3 most recently updated projects
                     string query = @"
-                        SELECT TOP 3 
+                        SELECT DISTINCT TOP 3 
                             p.ProjectID, 
                             p.ProjectName, 
                             p.Description, 
@@ -154,7 +154,7 @@ namespace TaskQuest
                     string query = @"
                         SELECT 
                             FORMAT(t.CreatedAt, 'yyyy-MM-dd') as DateStr, -- Using CreatedAt as proxy if CompletedAt is missing, or update schema to have CompletedAt
-                            COUNT(*) as TaskCount
+                            COUNT(DISTINCT t.TaskID) as TaskCount
                         FROM Tasks t
                         JOIN Projects p ON t.ProjectID = p.ProjectID
                         LEFT JOIN ProjectTeams pt ON p.ProjectID = pt.ProjectID
