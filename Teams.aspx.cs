@@ -392,7 +392,7 @@ namespace TaskQuest
 
             using (SqlConnection conn = new SqlConnection(connStr))
             {
-                string query = "SELECT TOP 5 Username, Email FROM Users WHERE Username LIKE @Term OR Email LIKE @Term";
+                string query = "SELECT TOP 5 Username, Email, AvatarPath FROM Users WHERE Username LIKE @Term OR Email LIKE @Term";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@Term", "%" + term + "%");
                 
@@ -402,16 +402,28 @@ namespace TaskQuest
                     SqlDataReader reader = cmd.ExecuteReader();
                     while (reader.Read())
                     {
+                        string avatar = reader["AvatarPath"] != DBNull.Value && !string.IsNullOrEmpty(reader["AvatarPath"].ToString()) 
+                                        ? reader["AvatarPath"].ToString() 
+                                        : "assets/images/default-avatar.svg";
+
                         users.Add(new UserDTO
                         {
                             Username = reader["Username"].ToString(),
-                            Email = reader["Email"].ToString()
+                            Email = reader["Email"].ToString(),
+                            AvatarPath = avatar
                         });
                     }
                 }
                 catch { }
             }
             return users;
+        }
+
+        public class UserDTO
+        {
+            public string Username { get; set; }
+            public string Email { get; set; }
+            public string AvatarPath { get; set; }
         }
 
         [WebMethod]
@@ -465,11 +477,7 @@ namespace TaskQuest
             }
         }
 
-        public class UserDTO
-        {
-            public string Username { get; set; }
-            public string Email { get; set; }
-        }
+
 
         public class MemberDTO
         {

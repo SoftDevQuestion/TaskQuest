@@ -47,7 +47,7 @@
 
 /* کارت تیم */
 .team-card {
-    background-color: #ffffff;
+    background-color: #D3D2DC;
     border-radius: 12px;
     box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
     padding: 16px 16px 12px;
@@ -268,13 +268,13 @@
     width: 100%;
     max-width: 450px;
     padding: 24px;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
     gap: 16px;
     height: auto;
-    max-height: 90vh;
-    overflow-y: auto;
+    max-height: 90vh; /* Limit height */
+    overflow: hidden; /* Hide outer scroll */
 }
 
 .modal-logo-section {
@@ -481,15 +481,27 @@
 /* Create Team Modal Redesign */
 .create-team-modal-content {
     max-width: 600px !important;
-    padding: 32px !important;
+    padding: 0 !important;
     border-radius: 20px !important;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.create-team-body {
+    padding: 0 32px;
+    overflow-y: auto; /* Enable vertical scroll for body only */
+    flex: 1; /* Allow it to take remaining space */
 }
 
 .modal-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 24px;
+    margin-bottom: 0; /* Changed from 24px to 0 because padding is inside header */
+    padding: 24px 32px;
+    border-bottom: 1px solid #e5e7eb;
+    flex-shrink: 0; /* Prevent header from shrinking */
 }
 
 .modal-header h3 {
@@ -507,6 +519,17 @@
     padding: 4px;
 }
 
+.modal-footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 0; /* Changed from 24px to 0 */
+    border-top: 1px solid #e5e7eb;
+    padding: 24px 32px;
+    background-color: #fff;
+    flex-shrink: 0; /* Prevent footer from shrinking */
+}
+
 .modal-close-icon:hover {
     color: #6b7280;
 }
@@ -521,30 +544,56 @@
     margin-bottom: 0 !important; /* Override previous style */
 }
 
+/* Logo Redesign */
 .logo-circle {
     width: 80px;
     height: 80px;
-    border: 2px dashed #bfdbfe; /* Light blue dashed */
     border-radius: 50%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    background: #fff;
+    background: rgba(8, 160, 247, 0.05); /* Very light blue background */
     position: relative;
-    overflow: hidden;
-    transition: border-color 0.2s;
+    overflow: visible; 
+    transition: all 0.2s;
+    border: 2px solid #08A0F7; /* Exact Blue Color */
 }
 
 .logo-circle:hover {
-    border-color: #3b82f6;
+    background: rgba(8, 160, 247, 0.1);
 }
 
 .logo-preview-icon {
-    width: 24px;
-    height: 24px;
-    margin-bottom: 4px;
+    width: 32px;
+    height: 32px;
+    margin-bottom: 0; 
+    /* Blue filter for icon */
+    filter: invert(53%) sepia(93%) saturate(3025%) hue-rotate(180deg) brightness(101%) contrast(98%);
+}
+
+/* Custom "Add Logo" Badge at bottom */
+.logo-circle::after {
+    content: 'Add Logo';
+    position: absolute;
+    bottom: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    
+    /* Glassy effect with blue color */
+    background: rgba(8, 160, 247, 0.2); 
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    
+    color: #08A0F7; 
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 12px;
+    white-space: nowrap;
+    z-index: 5;
+    line-height: 1;
 }
 
 .logo-text {
@@ -597,12 +646,14 @@
     margin-bottom: 8px;
 }
 
-.search-input {
-    padding-left: 40px;
-    background-image: url('../images/search-icon.svg');
-    background-repeat: no-repeat;
-    background-position: 12px center;
-    background-size: 20px;
+/* Search Input Icon Fix */
+.member-search-wrapper .search-input {
+    padding-left: 12px !important;
+    padding-right: 40px !important;
+    background-image: url('../images/magnifier.png') !important; /* Force absolute path check if needed, but relative should work */
+    background-repeat: no-repeat !important;
+    background-position: right 12px center !important;
+    background-size: 20px !important;
 }
 
 .helper-text {
@@ -704,14 +755,7 @@
     transform: scale(0.9);
 }
 
-.modal-footer {
-    display: flex;
-    justify-content: space-between;
-    gap: 16px;
-    margin-top: 24px;
-    border-top: 1px solid #f3f4f6;
-    padding-top: 24px;
-}
+
 
 .btn-cancel {
     background: #fff;
@@ -782,6 +826,7 @@
 }
 
 .search-result-item:hover {
-    background-color: #f3f4f6;
+    background-color: #3b82f6;
+    color: white;
 }
 

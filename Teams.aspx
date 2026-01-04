@@ -4,7 +4,7 @@
 
 <asp:Content ID="HeaderContent" ContentPlaceHolderID="HeaderContent" runat="server">
     <title>Teams Page</title>
-    <link rel="stylesheet" href="assets/css/teams.css">
+    <link rel="stylesheet" href="assets/css/teams.css?v=<%= DateTime.Now.Ticks %>">
 </asp:Content>
 
 
@@ -90,7 +90,7 @@
                         <div class="logo-circle" onclick="triggerFileUpload()">
                             <img id="imgLogoPreview" src="assets/images/plus-icon.svg" class="logo-preview-icon" /> <!-- Default Plus Icon -->
                             <img id="imgLogoReal" class="logo-real" style="display:none;" />
-                            <span id="logoPlaceholderText" class="logo-text">Add Logo</span>
+                            <span id="logoPlaceholderText" class="logo-text"></span>
                         </div>
                         <asp:FileUpload ID="fuTeamLogo" runat="server" Style="display: none;" onchange="previewLogo(this)" ClientIDMode="Static" />
                     </div>
@@ -110,8 +110,12 @@
                 <!-- Add Members -->
                 <div class="members-section">
                     <label>Add Members</label>
-                    <div class="member-search-wrapper">
-                        <input type="text" id="txtNewTeamMemberSearch" class="form-control search-input" placeholder="Search members" onkeyup="searchNewTeamMembers(this)" />
+                    <div class="member-search-wrapper" style="display: flex; gap: 8px;">
+                        <input type="text" id="txtNewTeamMemberSearch" class="form-control search-input" placeholder="Search members" onkeyup="searchNewTeamMembers(this)" style="flex: 1;" />
+                        <select id="ddlNewMemberRole" class="form-control" style="width: auto; background-color: #f3f4f6; color: #374151; border: none; font-weight: 500;">
+                            <option value="member">Member</option>
+                            <option value="admin">Admin</option>
+                        </select>
                         <div id="newTeamMemberSearchResults" class="search-results" style="display:none;"></div>
                     </div>
                     <p class="helper-text">Start typing to add members to the team</p>
@@ -242,7 +246,7 @@
                                 div.className = 'search-result-item';
                                 div.innerHTML = `
                                     <div style="display:flex; align-items:center; gap:8px;">
-                                        <img src="assets/images/default-avatar.svg" style="width:24px; height:24px; border-radius:50%;" />
+                                        <img src="${user.AvatarPath}" style="width:24px; height:24px; border-radius:50%; object-fit: cover;" onerror="this.src='assets/images/default-avatar.svg'" />
                                         <span>${user.Username}</span>
                                     </div>
                                 `;
@@ -273,18 +277,22 @@
                 return;
             }
 
+            const role = document.getElementById('ddlNewMemberRole').value;
+            const badgeClass = role === 'admin' ? 'member-badge-admin' : 'member-badge-pink';
+            const badgeText = role === 'admin' ? 'Admin' : 'Member';
+            // Simple logic for badge color: admin -> blue/indigo (defined in css), member -> pink
+
             const cardHtml = `
                 <div class="member-card-item" id="${rowId}">
                     <div class="member-card-info">
-                         <img src="assets/images/default-avatar.svg" class="member-avatar-small" />
+                         <img src="${user.AvatarPath}" class="member-avatar-small" onerror="this.src='assets/images/default-avatar.svg'" />
                          <div class="member-details">
                              <span class="member-username">${user.Username}</span>
-                             <span class="member-role-text">UI/UX Designer</span> <!-- Placeholder Role -->
                          </div>
                     </div>
-                    <span class="member-badge-pink">Member</span>
+                    <span class="${badgeClass}">${badgeText}</span>
                     <input type="hidden" class="member-username-hidden" value="${user.Username}" />
-                    <input type="hidden" class="member-role-hidden" value="member" />
+                    <input type="hidden" class="member-role-hidden" value="${role}" />
                     <button type="button" class="remove-member-btn" onclick="removeNewMember('${rowId}')">×</button>
                 </div>
             `;
