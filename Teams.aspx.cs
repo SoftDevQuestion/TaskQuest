@@ -83,6 +83,7 @@ namespace TaskQuest
                             TeamName = firstRow["TeamName"].ToString(),
                             Description = firstRow["Description"] != DBNull.Value ? firstRow["Description"].ToString() : "",
                             LogoPath = firstRow["LogoPath"] != DBNull.Value ? firstRow["LogoPath"].ToString() : null,
+                            CreatorUsername = firstRow["CreatorUsername"] != DBNull.Value ? firstRow["CreatorUsername"].ToString() : "",
                             Members = new List<MemberViewModel>()
                         };
 
@@ -176,6 +177,34 @@ namespace TaskQuest
 
                     // Show Modal
                     ClientScript.RegisterStartupScript(this.GetType(), "Pop", "showEditTeamModal();", true);
+                }
+            }
+        }
+
+        private bool IsTeamAdmin(int teamId, string username)
+        {
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    conn.Open();
+                    string sql = @"
+                        SELECT COUNT(*) 
+                        FROM Team t 
+                        LEFT JOIN TeamMembers tm ON t.TeamId = tm.TeamId 
+                        WHERE t.TeamId = @TeamId 
+                        AND (t.CreatorUsername = @Username OR (tm.Username = @Username AND tm.Role = 'admin'))";
+                    
+                    SqlCommand cmd = new SqlCommand(sql, conn);
+                    cmd.Parameters.AddWithValue("@TeamId", teamId);
+                    cmd.Parameters.AddWithValue("@Username", username);
+                    
+                    int count = (int)cmd.ExecuteScalar();
+                    return count > 0;
+                }
+                catch
+                {
+                    return false;
                 }
             }
         }
@@ -386,6 +415,7 @@ namespace TaskQuest
             public string TeamName { get; set; }
             public string Description { get; set; }
             public string LogoPath { get; set; }
+            public string CreatorUsername { get; set; }
             public List<MemberViewModel> Members { get; set; }
             public int MemberCount => Members.Count;
             public bool IsAdmin { get; set; }

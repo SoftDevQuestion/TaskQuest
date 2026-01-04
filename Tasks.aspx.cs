@@ -26,6 +26,33 @@ namespace TaskQuest
             {
                 EnsureProjectTeamsTable();
                 LoadProjects();
+                LoadAllUsers();
+            }
+        }
+
+        private void LoadAllUsers()
+        {
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    conn.Open();
+                    string query = "SELECT UserID, Username, FullName, AvatarPath FROM Users";
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    SqlDataAdapter da = new SqlDataAdapter(cmd);
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
+
+                    rptAssignees.DataSource = dt;
+                    rptAssignees.DataBind();
+
+                    rptAssigneesEdit.DataSource = dt;
+                    rptAssigneesEdit.DataBind();
+                }
+                catch (Exception)
+                {
+                    // Handle error
+                }
             }
         }
 
@@ -131,8 +158,13 @@ namespace TaskQuest
                 try
                 {
                     conn.Open();
-                    // Fetch tasks for the specific project
-                    string query = "SELECT * FROM Tasks WHERE ProjectID = @ProjectID ORDER BY DueDate ASC";
+                    // Fetch tasks with Assignee details
+                    string query = @"
+                        SELECT t.*, u.Username, u.FullName, u.AvatarPath 
+                        FROM Tasks t
+                        LEFT JOIN Users u ON t.UserID = u.UserID
+                        WHERE t.ProjectID = @ProjectID 
+                        ORDER BY t.DueDate ASC";
                     
                     SqlCommand cmd = new SqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@ProjectID", projectId);
@@ -147,6 +179,173 @@ namespace TaskQuest
                 catch (Exception)
                 {
                     // Handle or log error
+                }
+            }
+        }
+
+        [System.Web.Services.WebMethod]
+        public static string CreateNewTask(string projectId, string title, string dueDate, string assigneeUsername)
+        {
+            if (string.IsNullOrEmpty(title) || string.IsNullOrEmpty(projectId))
+                return "Error: Missing required fields.";
+
+            string connectionString = ConnectionHelper.GetConnectionString();
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    conn.Open();
+                    
+                    int? assigneeId = null;
+                    if (!string.IsNullOrEmpty(assigneeUsername))
+                    {
+                        SqlCommand cmdUser = new SqlCommand("SELECT UserID FROM Users WHERE Username = @Username", conn);
+                        cmdUser.Parameters.AddWithValue("@Username", assigneeUsername);
+                        object result = cmdUser.ExecuteScalar();
+                        if (result != null) assigneeId = Convert.ToInt32(result);
+                    }
+
+                    string query = @"INSERT INTO Tasks (ProjectID, Title, StatusId, DueDate, UserID, CreatedAt) 
+                                     VALUES (@ProjectID, @Title, 1, @DueDate, @UserID, GETDATE())";
+                    
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@ProjectID", projectId);
+                    cmd.Parameters.AddWithValue("@Title", title);
+                    
+                    if (string.IsNullOrEmpty(dueDate))
+                        cmd.Parameters.AddWithValue("@DueDate", DBNull.Value);
+                    else
+                        cmd.Parameters.AddWithValue("@DueDate", DateTime.Parse(dueDate));
+
+                    if (assigneeId.HasValue)
+                        cmd.Parameters.AddWithValue("@UserID", assigneeId.Value);
+                    else
+                        cmd.Parameters.AddWithValue("@UserID", DBNull.Value);
+
+                    cmd.ExecuteNonQuery();
+                    return "Success";
+                }
+                catch (Exception ex)
+                {
+                    return "Error: " + ex.Message;
+                }
+            }
+        }
+
+        [System.Web.Services.WebMethod]
+        public static string ToggleTaskStatus(int taskId, bool isDone)
+        {
+            string connectionString = ConnectionHelper.GetConnectionString();
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    conn.Open();
+                    // 3 = Done, 1 = To Do
+                    int newStatus = isDone ? 3 : 1; 
+                    
+                    string query = "UPDATE Tasks SET StatusId = @StatusId WHERE TaskID = @TaskID";
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@StatusId", newStatus);
+                    cmd.Parameters.AddWithValue("@TaskID", taskId);
+                    
+                    cmd.ExecuteNonQuery();
+                    return "Success";
+                }
+                catch (Exception ex)
+                {
+                    // Try TaskId if TaskID fails (fallback logic not really possible here without retry)
+                    return "Error: " + ex.Message;
+                }
+            }
+        }
+
+        [System.Web.Services.WebMethod]
+        public static object GetTaskDetails(int taskId)
+        {
+            string connectionString = ConnectionHelper.GetConnectionString();
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    conn.Open();
+                    string query = @"
+                        SELECT t.Title, t.DueDate, u.Username, u.FullName, u.AvatarPath 
+                        FROM Tasks t
+                        LEFT JOIN Users u ON t.UserID = u.UserID
+                        WHERE t.TaskID = @TaskID";
+                    
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@TaskID", taskId);
+                    
+                    SqlDataReader reader = cmd.ExecuteReader();
+                    if (reader.Read())
+                    {
+                        return new {
+                            Title = reader["Title"].ToString(),
+                            DueDate = reader["DueDate"] != DBNull.Value ? Convert.ToDateTime(reader["DueDate"]).ToString("yyyy-MM-dd") : "",
+                            AssigneeUsername = reader["Username"] != DBNull.Value ? reader["Username"].ToString() : "",
+                            AssigneeFullName = reader["FullName"] != DBNull.Value ? reader["FullName"].ToString() : "Unassigned",
+                            AssigneeAvatar = reader["AvatarPath"] != DBNull.Value ? reader["AvatarPath"].ToString() : ""
+                        };
+                    }
+                    return null;
+                }
+                catch (Exception ex)
+                {
+                    return new { Error = ex.Message };
+                }
+            }
+        }
+
+        [System.Web.Services.WebMethod]
+        public static string UpdateTask(int taskId, string title, string dueDate, string assigneeUsername)
+        {
+            if (string.IsNullOrEmpty(title))
+                return "Error: Title is required.";
+
+            string connectionString = ConnectionHelper.GetConnectionString();
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    conn.Open();
+
+                    int? assigneeId = null;
+                    if (!string.IsNullOrEmpty(assigneeUsername))
+                    {
+                        SqlCommand cmdUser = new SqlCommand("SELECT UserID FROM Users WHERE Username = @Username", conn);
+                        cmdUser.Parameters.AddWithValue("@Username", assigneeUsername);
+                        object result = cmdUser.ExecuteScalar();
+                        if (result != null) assigneeId = Convert.ToInt32(result);
+                    }
+
+                    string query = @"UPDATE Tasks 
+                                     SET Title = @Title, 
+                                         DueDate = @DueDate, 
+                                         UserID = @UserID 
+                                     WHERE TaskID = @TaskID";
+
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@TaskID", taskId);
+                    cmd.Parameters.AddWithValue("@Title", title);
+
+                    if (string.IsNullOrEmpty(dueDate))
+                        cmd.Parameters.AddWithValue("@DueDate", DBNull.Value);
+                    else
+                        cmd.Parameters.AddWithValue("@DueDate", DateTime.Parse(dueDate));
+
+                    if (assigneeId.HasValue)
+                        cmd.Parameters.AddWithValue("@UserID", assigneeId.Value);
+                    else
+                        cmd.Parameters.AddWithValue("@UserID", DBNull.Value);
+
+                    cmd.ExecuteNonQuery();
+                    return "Success";
+                }
+                catch (Exception ex)
+                {
+                    return "Error: " + ex.Message;
                 }
             }
         }
@@ -168,35 +367,64 @@ namespace TaskQuest
         }
 
         // Helper to get status class for CSS
-        protected string GetStatusClass(object statusIdObj)
+        protected string GetStatusClass(object statusIdObj, object dueDateObj)
         {
-            if (statusIdObj == DBNull.Value) return "";
+            // Default to "To Do" if status is missing
+            if (statusIdObj == DBNull.Value || statusIdObj == null) return "status-to-do";
             
             int statusId = Convert.ToInt32(statusIdObj);
             
-            switch (statusId)
+            // 1. Done (Highest Priority for visual state if completed)
+            if (statusId == 3) return "status-done";
+
+            // 2. Overdue (If not done, and date is past)
+            if (dueDateObj != DBNull.Value && dueDateObj != null)
             {
-                case 1: return ""; // To Do (default)
-                case 2: return "status-in-progress";
-                case 3: return "status-done";
-                default: return "";
+                DateTime dueDate;
+                if (DateTime.TryParse(dueDateObj.ToString(), out dueDate))
+                {
+                    if (dueDate.Date < DateTime.Now.Date)
+                    {
+                        return "status-overdue";
+                    }
+                }
             }
+
+            // 3. In Progress
+            if (statusId == 2) return "status-in-progress";
+
+            // 4. Default To Do
+            return "status-to-do";
         }
 
         // Helper to get status text
-        protected string GetStatusText(object statusIdObj)
+        protected string GetStatusText(object statusIdObj, object dueDateObj)
         {
-            if (statusIdObj == DBNull.Value) return "Undefined";
+            if (statusIdObj == DBNull.Value || statusIdObj == null) return "To Do";
             
             int statusId = Convert.ToInt32(statusIdObj);
             
-            switch (statusId)
+            // 1. Done
+            if (statusId == 3) return "Done";
+
+            // 2. Overdue
+            if (dueDateObj != DBNull.Value && dueDateObj != null)
             {
-                case 1: return "To Do";
-                case 2: return "In Progress";
-                case 3: return "Done";
-                default: return "Undefined";
+                DateTime dueDate;
+                if (DateTime.TryParse(dueDateObj.ToString(), out dueDate))
+                {
+                    if (dueDate.Date < DateTime.Now.Date)
+                    {
+                        return "Overdue";
+                    }
+                }
             }
+            
+            // 3. In Progress
+            if (statusId == 2) return "In Progress";
+            
+            // 4. Default
+            return "To Do";
         }
         
         // Helper to get status class for Overdue logic (optional/advanced)

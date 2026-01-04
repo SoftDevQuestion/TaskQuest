@@ -1,7 +1,6 @@
 /* Tasks Page Layout */
 .tasks-page-container {
     padding: 30px;
-    height: 100vh;
     overflow-x: auto;
     overflow-y: hidden;
     background-color: #fcfcfc;
@@ -42,14 +41,13 @@
 .projects-columns-wrapper {
     display: flex;
     gap: 24px;
-    height: calc(100vh - 150px);
+
     padding-bottom: 20px;
 }
 
 /* Project Column Card */
 .project-column {
-    min-width: 350px;
-    width: 350px;
+    flex:1;
     background: #fff;
     border-radius: 16px;
     border: 1px solid #e0e0e0;
@@ -60,8 +58,10 @@
 }
 
 /* Project Header */
-.project-header {
+.project-header-task {
     margin-bottom: 20px;
+    align-items: flex-start;
+    flex-direction: column;
 }
 
 .project-header-top {
@@ -153,6 +153,21 @@
 
 .task-content {
     margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.edit-task-icon {
+    color: #999;
+    cursor: pointer;
+    transition: color 0.2s;
+    min-width: 16px; /* Prevent shrinking */
+    margin-left: 8px;
+}
+
+.edit-task-icon:hover {
+    color: #5577FF;
 }
 
 .task-checkbox-wrapper {
@@ -191,19 +206,27 @@
     font-weight: 600;
 }
 
-.status-in-progress {
+/* To Do - Green */
+.status-to-do {
     background: #E6Fcf5;
     color: #00b074;
 }
 
+/* Done - Lilac/Purple (Yasi) */
 .status-done {
-    background: #eef2ff;
-    color: #5577FF;
+    background: #f3e5f5; /* Light Lilac */
+    color: #9c27b0;     /* Purple */
 }
 
+/* Overdue - Red */
 .status-overdue {
     background: #fff0f0;
     color: #eb5757;
+}
+
+.status-in-progress {
+    background: #e3f2fd;
+    color: #2196f3;
 }
 
 .task-date {
