@@ -354,7 +354,7 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    background: rgba(8, 160, 247, 0.4); /* 40% opacity blue background */
+    background: rgba(8, 160, 247, 0.2); /* 20% opacity blue background */
     position: relative;
     overflow: visible;
     transition: all 0.2s;
@@ -362,7 +362,7 @@
 }
 
 .logo-circle:hover {
-    background: rgba(8, 160, 247, 0.5);
+    background: rgba(8, 160, 247, 0.3);
 }
 
 .logo-preview-icon {

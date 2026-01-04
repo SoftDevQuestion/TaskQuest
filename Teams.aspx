@@ -160,6 +160,12 @@
                     </div>
                 </div>
 
+                <!-- Description -->
+                <div class="form-group">
+                    <label for="txtEditTeamDescription">Description <span class="optional-text">(optional)</span></label>
+                    <asp:TextBox ID="txtEditTeamDescription" runat="server" CssClass="form-control" TextMode="MultiLine" Rows="3" placeholder="What does this team ....." ClientIDMode="Static"></asp:TextBox>
+                </div>
+
                 <!-- Members Section (Using same style as Create, but with logic to show existing) -->
                 <div class="members-section">
                     <label>Members</label>
@@ -173,7 +179,7 @@
                     </div>
                     <p class="helper-text">Start typing to add new members</p>
                     
-                    <div id="editMembersList" class="members-grid">
+                    <div id="editMembersList" class="members-grid" style="overflow-y: visible; max-height: none;">
                         <!-- Dynamic cards will be added here -->
                     </div>
                 </div>

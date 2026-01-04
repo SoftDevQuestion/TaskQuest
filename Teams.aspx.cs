@@ -131,7 +131,7 @@ namespace TaskQuest
                 using (SqlConnection conn = new SqlConnection(connectionString))
                 {
                     conn.Open();
-                    string query = "SELECT TeamName, LogoPath FROM Team WHERE TeamId = @TeamId";
+                    string query = "SELECT TeamName, Description, LogoPath FROM Team WHERE TeamId = @TeamId";
                     SqlCommand cmd = new SqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@TeamId", teamId);
                     
@@ -140,6 +140,7 @@ namespace TaskQuest
                         if (reader.Read())
                         {
                             txtEditTeamName.Text = reader["TeamName"].ToString();
+                            txtEditTeamDescription.Text = reader["Description"] != DBNull.Value ? reader["Description"].ToString() : "";
                             string logo = reader["LogoPath"] as string;
                             imgEditLogoPreview.ImageUrl = !string.IsNullOrEmpty(logo) ? logo : "assets/images/default-team.png";
                         }
@@ -178,6 +179,7 @@ namespace TaskQuest
             if (int.TryParse(hfEditTeamId.Value, out teamId))
             {
                 string newName = txtEditTeamName.Text.Trim();
+                string newDescription = txtEditTeamDescription.Text.Trim();
                 if (string.IsNullOrEmpty(newName)) return;
 
                 using (SqlConnection conn = new SqlConnection(connectionString))
@@ -224,18 +226,20 @@ namespace TaskQuest
 
                     if (logoPath != null)
                     {
-                         string query = "UPDATE Team SET TeamName = @TeamName, UpdatedAt = GETDATE(), LogoPath = @LogoPath WHERE TeamId = @TeamId";
+                         string query = "UPDATE Team SET TeamName = @TeamName, Description = @Description, UpdatedAt = GETDATE(), LogoPath = @LogoPath WHERE TeamId = @TeamId";
                          SqlCommand cmd = new SqlCommand(query, conn);
                          cmd.Parameters.AddWithValue("@TeamName", newName);
+                         cmd.Parameters.AddWithValue("@Description", newDescription);
                          cmd.Parameters.AddWithValue("@TeamId", teamId);
                          cmd.Parameters.AddWithValue("@LogoPath", logoPath);
                          cmd.ExecuteNonQuery();
                     }
                     else
                     {
-                         string query = "UPDATE Team SET TeamName = @TeamName, UpdatedAt = GETDATE() WHERE TeamId = @TeamId";
+                         string query = "UPDATE Team SET TeamName = @TeamName, Description = @Description, UpdatedAt = GETDATE() WHERE TeamId = @TeamId";
                          SqlCommand cmd = new SqlCommand(query, conn);
                          cmd.Parameters.AddWithValue("@TeamName", newName);
+                         cmd.Parameters.AddWithValue("@Description", newDescription);
                          cmd.Parameters.AddWithValue("@TeamId", teamId);
                          cmd.ExecuteNonQuery();
                     }
@@ -424,6 +428,62 @@ namespace TaskQuest
             public string Username { get; set; }
             public string Email { get; set; }
             public string AvatarPath { get; set; }
+        }
+
+        [WebMethod]
+        public static string AddMembersToTeam(int teamId, List<MemberDTO> members)
+        {
+            string connStr = WebConfigurationManager.ConnectionStrings["TodoAppDB"].ConnectionString;
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                conn.Open();
+                int successCount = 0;
+
+                foreach (var member in members)
+                {
+                    // 1. Find User
+                    string findUserQuery = "SELECT Username FROM Users WHERE Username = @Id OR Email = @Id";
+                    SqlCommand findCmd = new SqlCommand(findUserQuery, conn);
+                    findCmd.Parameters.AddWithValue("@Id", member.username);
+                    object result = findCmd.ExecuteScalar();
+
+                    if (result == null) continue; // Skip if user not found
+
+                    string realUsername = result.ToString();
+
+                    // 2. Check if already member
+                    string checkMemberQuery = "SELECT COUNT(*) FROM TeamMembers WHERE TeamId = @TeamId AND Username = @Username";
+                    SqlCommand checkCmd = new SqlCommand(checkMemberQuery, conn);
+                    checkCmd.Parameters.AddWithValue("@TeamId", teamId);
+                    checkCmd.Parameters.AddWithValue("@Username", realUsername);
+                    int count = (int)checkCmd.ExecuteScalar();
+
+                    if (count > 0) continue; // Skip if already member
+
+                    // 3. Add Member
+                    string insertQuery = "INSERT INTO TeamMembers (TeamId, Username, Role) VALUES (@TeamId, @Username, @Role)";
+                    SqlCommand insertCmd = new SqlCommand(insertQuery, conn);
+                    insertCmd.Parameters.AddWithValue("@TeamId", teamId);
+                    insertCmd.Parameters.AddWithValue("@Username", realUsername);
+                    insertCmd.Parameters.AddWithValue("@Role", member.role);
+                    insertCmd.ExecuteNonQuery();
+                    
+                    successCount++;
+                }
+
+                if (successCount > 0)
+                {
+                    // 4. Update Team's UpdatedAt
+                    string updateTeamQuery = "UPDATE Team SET UpdatedAt = GETDATE() WHERE TeamId = @TeamId";
+                    SqlCommand updateCmd = new SqlCommand(updateTeamQuery, conn);
+                    updateCmd.Parameters.AddWithValue("@TeamId", teamId);
+                    updateCmd.ExecuteNonQuery();
+                    
+                    return "Success";
+                }
+                
+                return "No new members were added.";
+            }
         }
 
         [WebMethod]
