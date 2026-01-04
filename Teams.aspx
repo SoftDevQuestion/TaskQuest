@@ -150,7 +150,7 @@
                         <div class="logo-circle" onclick="triggerEditFileUpload()">
                             <asp:Image ID="imgEditLogoPreview" runat="server" CssClass="logo-preview-icon" Style="width:32px; height:32px; border-radius:0; object-fit:contain; filter: invert(53%) sepia(93%) saturate(3025%) hue-rotate(180deg) brightness(101%) contrast(98%);" ImageUrl="assets/images/plus-icon.svg" ClientIDMode="Static" />
                             <asp:Image ID="imgEditLogoReal" runat="server" CssClass="logo-real" Style="display:none;" ClientIDMode="Static" />
-                            <span id="editLogoPlaceholderText" class="logo-text"></span>
+                            <span id="editLogoPlaceholderText" class="logo-text" runat="server" clientidmode="Static"></span>
                         </div>
                         <asp:FileUpload ID="fuEditTeamLogo" runat="server" Style="display: none;" onchange="previewEditLogo(this)" ClientIDMode="Static" />
                     </div>

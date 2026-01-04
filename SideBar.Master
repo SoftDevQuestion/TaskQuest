@@ -166,10 +166,24 @@
 
     <!-- Session Timeout Warning Modal -->
     <div id="sessionWarningModal" class="modal-overlay" style="display:none; z-index: 10001;">
-        <div class="modal-content" style="text-align:center; max-width:400px; padding: 30px; border-radius: 16px;">
-            <h3 style="margin-top:0; color: #333;">Inactivity Alert</h3>
-            <p style="color: #666; margin: 15px 0;">Your session will expire in 30 seconds due to inactivity.</p>
-            <button onclick="resetSessionTimer(); closeSessionWarning(); return false;" style="background-color: #08A0F7; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 14px;">I'm still here</button>
+        <div class="modal-content" style="text-align:center; max-width:400px; padding: 40px 30px; border-radius: 16px; background: #fff; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
+            
+            <!-- Icon -->
+            <div style="position: relative; width: 60px; height: 60px; margin: 0 auto 20px auto;">
+                <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#3d6aff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                <!-- Badge Number -->
+                <div id="timeoutBadge" style="position: absolute; bottom: -5px; right: -5px; background: #3d6aff; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; border: 2px solid #fff;">
+                    5
+                </div>
+            </div>
+
+            <h3 style="font-size: 18px; color: #1e1e1e; margin-bottom: 10px; font-weight: 600;">You've been inactive for <span id="inactiveMinutesText">5</span> minutes</h3>
+            <p style="color: #666; font-size: 14px; margin-bottom: 25px;">Are you still there?</p>
+            
+            <button onclick="resetSessionTimer(); closeSessionWarning(); return false;" style="background-color: #3d6aff; color: white; border: none; padding: 12px 0; width: 100%; border-radius: 12px; cursor: pointer; font-size: 14px; font-weight: 600; transition: background 0.2s;">Continue</button>
         </div>
     </div>
 
@@ -178,10 +192,42 @@
         (function() {
             var time;
             var warningTimer;
-            // 5 minutes = 300,000 ms
-            var logoutDuration = 5 * 60 * 1000; 
-            // Warning at 4:30 = 270,000 ms
-            var warningDuration = 4.5 * 60 * 1000; 
+            
+            // CONFIGURATION: Set your timeout here (in minutes)
+            // This should match Web.config sessionState timeout
+            var sessionTimeoutMinutes = 5; 
+            
+            var logoutDuration = sessionTimeoutMinutes * 60 * 1000; 
+            
+            // Warning 1 minute before timeout
+            var warningDuration = (sessionTimeoutMinutes - 1) * 60 * 1000; 
+
+            // Debug Timer Variables
+            var lastActivityTime = Date.now();
+
+            function updateDebugTimer() {
+                var now = Date.now();
+                var inactivity = now - lastActivityTime;
+                
+                var el = document.getElementById('debugTimer');
+                if (el) {
+                    var inactivitySec = Math.floor(inactivity / 1000);
+                    
+                    // Format as MM:SS
+                    var minutes = Math.floor(inactivitySec / 60);
+                    var seconds = inactivitySec % 60;
+                    
+                    // Pad with leading zeros
+                    var formattedTime = 
+                        (minutes < 10 ? "0" + minutes : minutes) + ":" + 
+                        (seconds < 10 ? "0" + seconds : seconds);
+                        
+                    el.innerText = formattedTime;
+                }
+            }
+            
+            // Run debug timer every second
+            setInterval(updateDebugTimer, 1000);
 
             function logout() {
                 window.location.href = 'Logout.aspx';
@@ -189,6 +235,20 @@
 
             function showWarning() {
                 var modal = document.getElementById('sessionWarningModal');
+                
+                // Update dynamic text
+                var inactiveMins = sessionTimeoutMinutes - 1; // e.g. 5 - 1 = 4
+                
+                // If the user wants the text to say "5" when timeout is 6, logic holds.
+                // If user wants "5" when timeout is 5... that means warning is at 5 mins? But then session expires.
+                // User said: "number 5 ... is the inactivity time I set, minus one".
+                // So if I set 6 mins, number is 5.
+                // If I set 5 mins, number is 4.
+                
+                // Let's ensure the badge and text reflect this "minus one" value.
+                document.getElementById('inactiveMinutesText').innerText = inactiveMins;
+                document.getElementById('timeoutBadge').innerText = inactiveMins;
+
                 if (modal) modal.style.display = 'flex';
             }
 
@@ -196,8 +256,12 @@
                 clearTimeout(time);
                 clearTimeout(warningTimer);
 
+                lastActivityTime = Date.now(); // Update activity timestamp
+
                 // Start timers
                 warningTimer = setTimeout(showWarning, warningDuration);
+                time = setTimeout(logout, logoutDuration);
+            }
                 time = setTimeout(logout, logoutDuration);
             }
 

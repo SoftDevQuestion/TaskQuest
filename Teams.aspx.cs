@@ -149,14 +149,35 @@ namespace TaskQuest
                             txtEditTeamName.Text = reader["TeamName"].ToString();
                             txtEditTeamDescription.Text = reader["Description"] != DBNull.Value ? reader["Description"].ToString() : "";
                             string logo = reader["LogoPath"] as string;
-                            imgEditLogoPreview.ImageUrl = !string.IsNullOrEmpty(logo) ? logo : "assets/images/default-team.png";
+
+                            if (!string.IsNullOrEmpty(logo))
+                            {
+                                // Show real logo, hide preview icon and placeholder text
+                                imgEditLogoReal.ImageUrl = logo;
+                                imgEditLogoReal.Style["display"] = "block";
+                                imgEditLogoPreview.Style["display"] = "none";
+                                editLogoPlaceholderText.Style["display"] = "none";
+                            }
+                            else
+                            {
+                                // Show preview icon (plus) and placeholder text
+                                imgEditLogoPreview.ImageUrl = "assets/images/plus-icon.svg";
+                                imgEditLogoPreview.Style["display"] = "block";
+                                imgEditLogoReal.Style["display"] = "none";
+                                editLogoPlaceholderText.Style["display"] = "block";
+                            }
                         }
                         reader.Close();
                     }
 
-                    // Fetch Members
+                    // Fetch Members with Avatar
                     List<MemberDTO> members = new List<MemberDTO>();
-                    string memberQuery = "SELECT Username, Role FROM TeamMembers WHERE TeamId = @TeamId";
+                    string memberQuery = @"
+                        SELECT tm.Username, tm.Role, u.AvatarPath 
+                        FROM TeamMembers tm
+                        LEFT JOIN Users u ON tm.Username = u.Username
+                        WHERE tm.TeamId = @TeamId";
+                    
                     SqlCommand memberCmd = new SqlCommand(memberQuery, conn);
                     memberCmd.Parameters.AddWithValue("@TeamId", teamId);
                     using (SqlDataReader memberReader = memberCmd.ExecuteReader())
@@ -166,7 +187,8 @@ namespace TaskQuest
                             members.Add(new MemberDTO
                             {
                                 username = memberReader["Username"].ToString(),
-                                role = memberReader["Role"].ToString()
+                                role = memberReader["Role"].ToString(),
+                                avatar = memberReader["AvatarPath"] != DBNull.Value ? memberReader["AvatarPath"].ToString() : null
                             });
                         }
                     }
