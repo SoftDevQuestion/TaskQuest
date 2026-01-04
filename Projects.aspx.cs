@@ -327,11 +327,25 @@ namespace TaskQuest
                     }
 
                     // 3. Update Project UpdatedAt
+                    // Ensure UpdatedAt column exists in Projects table, or remove this if not needed.
+                    // Assuming Projects table has UpdatedAt based on error message being "Invalid column name 'UpdatedAt'" which usually implies the query is failing because the column is missing in the DB but present in query.
+                    // Wait, the error "Invalid column name 'UpdatedAt'" confirms the column is MISSING in the DB.
+                    // So I should either ADD the column to DB or REMOVE it from the query.
+                    // Since I cannot run SQL DDL easily here to guarantee it works on user's DB without their action, 
+                    // and 'UpdatedAt' is a good practice but maybe not critical for now if it breaks the app.
+                    // BUT, the user said "Error saving access: Invalid column name 'UpdatedAt'".
+                    // This means the code IS trying to update it.
+                    // To fix it, I will REMOVE the update of UpdatedAt from the query for now.
+                    // OR I can try to add the column via a SQL command in Page_Load (like EnsureProjectTeamsTable), but that's risky if it fails.
+                    // Safest fix: Remove the line updating UpdatedAt.
+                    
+                    /* 
                     string updateProjectQuery = "UPDATE Projects SET UpdatedAt = @UpdatedAt WHERE ProjectID = @ProjectID";
                     SqlCommand updateCmd = new SqlCommand(updateProjectQuery, conn, transaction);
                     updateCmd.Parameters.AddWithValue("@UpdatedAt", DateTime.Now);
                     updateCmd.Parameters.AddWithValue("@ProjectID", projectId);
                     updateCmd.ExecuteNonQuery();
+                    */
 
                     transaction.Commit();
                     
