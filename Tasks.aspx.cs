@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Web.Configuration;
+using System.Globalization;
 
 namespace TaskQuest
 {
@@ -215,7 +216,7 @@ namespace TaskQuest
                     if (string.IsNullOrEmpty(dueDate))
                         cmd.Parameters.AddWithValue("@DueDate", DBNull.Value);
                     else
-                        cmd.Parameters.AddWithValue("@DueDate", DateTime.Parse(dueDate));
+                        cmd.Parameters.AddWithValue("@DueDate", DateTime.Parse(dueDate, CultureInfo.InvariantCulture));
 
                     if (assigneeId.HasValue)
                         cmd.Parameters.AddWithValue("@UserID", assigneeId.Value);
@@ -283,7 +284,7 @@ namespace TaskQuest
                     {
                         return new {
                             Title = reader["Title"].ToString(),
-                            DueDate = reader["DueDate"] != DBNull.Value ? Convert.ToDateTime(reader["DueDate"]).ToString("yyyy-MM-dd") : "",
+                            DueDate = reader["DueDate"] != DBNull.Value ? Convert.ToDateTime(reader["DueDate"]).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) : "",
                             AssigneeUsername = reader["Username"] != DBNull.Value ? reader["Username"].ToString() : "",
                             AssigneeFullName = reader["FullName"] != DBNull.Value ? reader["FullName"].ToString() : "Unassigned",
                             AssigneeAvatar = reader["AvatarPath"] != DBNull.Value ? reader["AvatarPath"].ToString() : ""
@@ -333,7 +334,7 @@ namespace TaskQuest
                     if (string.IsNullOrEmpty(dueDate))
                         cmd.Parameters.AddWithValue("@DueDate", DBNull.Value);
                     else
-                        cmd.Parameters.AddWithValue("@DueDate", DateTime.Parse(dueDate));
+                        cmd.Parameters.AddWithValue("@DueDate", DateTime.Parse(dueDate, CultureInfo.InvariantCulture));
 
                     if (assigneeId.HasValue)
                         cmd.Parameters.AddWithValue("@UserID", assigneeId.Value);
@@ -380,13 +381,10 @@ namespace TaskQuest
             // 2. Overdue (If not done, and date is past)
             if (dueDateObj != DBNull.Value && dueDateObj != null)
             {
-                DateTime dueDate;
-                if (DateTime.TryParse(dueDateObj.ToString(), out dueDate))
+                DateTime dueDate = Convert.ToDateTime(dueDateObj);
+                if (dueDate.Date < DateTime.Now.Date)
                 {
-                    if (dueDate.Date < DateTime.Now.Date)
-                    {
-                        return "status-overdue";
-                    }
+                    return "status-overdue";
                 }
             }
 
@@ -410,13 +408,10 @@ namespace TaskQuest
             // 2. Overdue
             if (dueDateObj != DBNull.Value && dueDateObj != null)
             {
-                DateTime dueDate;
-                if (DateTime.TryParse(dueDateObj.ToString(), out dueDate))
+                DateTime dueDate = Convert.ToDateTime(dueDateObj);
+                if (dueDate.Date < DateTime.Now.Date)
                 {
-                    if (dueDate.Date < DateTime.Now.Date)
-                    {
-                        return "Overdue";
-                    }
+                    return "Overdue";
                 }
             }
             

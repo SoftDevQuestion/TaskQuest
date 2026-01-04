@@ -32,7 +32,6 @@
                                     <img src='<%# Eval("ProjectLogo") != DBNull.Value ? Eval("ProjectLogo") : "assets/images/projectTestAvatar.jpg" %>' class="project-icon" alt='<%# Eval("ProjectName") %>' />
                                     <span class="project-name"><%# Eval("ProjectName") %></span>
                                 </div>
-                                <i data-feather="more-vertical" class="more-options"></i>
                             </div>
                             <div class="progress-container">
                                 <div class="progress-track">
@@ -66,7 +65,7 @@
                                                      onerror="this.src='assets/images/default-avatar.svg'" />
                                             </div>
 
-                                            <span class="task-date"><%# Eval("DueDate") != DBNull.Value ? Convert.ToDateTime(Eval("DueDate")).ToString("MMM d, yyyy") : "" %></span>
+                                            <span class="task-date"><%# Eval("DueDate") != DBNull.Value ? Convert.ToDateTime(Eval("DueDate")).ToString("MMM d, yyyy", System.Globalization.CultureInfo.InvariantCulture) : "" %></span>
                                         </div>
                                     </div>
                                 </ItemTemplate>
@@ -79,7 +78,7 @@
                         </button>
                         <div class="project-footer">
                             <i data-feather="clock" style="width: 12px; height: 12px;"></i>
-                            Created: <%# Eval("CreatedAt", "{0:MMM d, yyyy}") %>
+                            Created: <%# Eval("CreatedAt") != DBNull.Value ? Convert.ToDateTime(Eval("CreatedAt")).ToString("MMM d, yyyy", System.Globalization.CultureInfo.InvariantCulture) : "" %>
                         </div>
                     </div>
                 </ItemTemplate>
