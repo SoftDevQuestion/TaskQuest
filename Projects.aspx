@@ -113,21 +113,58 @@
 
     <!-- Access Modal -->
     <div id="accessModal" class="modal-overlay" style="display:none;">
-        <div class="modal-content">
+        <div class="modal-content" style="width: 500px;">
             <div class="modal-header">
-                <h3>Manage Project Access</h3>
+                <h3>Team Access</h3>
                 <span class="close-modal" onclick="closeAccessModal()">×</span>
             </div>
             <div class="form-container">
-                <p>Select teams that can access this project:</p>
-                <div style="max-height: 300px; overflow-y: auto;">
-                    <asp:CheckBoxList ID="cblTeams" runat="server" CssClass="team-checkbox-list" DataTextField="TeamName" DataValueField="TeamId"></asp:CheckBoxList>
+                <div class="form-group" style="position: relative;">
+                    <label>Teams</label>
+                    <div class="search-wrapper">
+                        <asp:TextBox ID="txtSearchTeam" runat="server" CssClass="form-control search-input" placeholder="Search Teams" AutoPostBack="true" OnTextChanged="txtSearchTeam_TextChanged" autocomplete="off"></asp:TextBox>
+                        <i class="search-icon">🔍</i>
+                    </div>
+
+                    <!-- Search Results Dropdown -->
+                    <asp:Panel ID="pnlSearchResults" runat="server" CssClass="search-results-dropdown" Visible="false">
+                        <asp:Repeater ID="rptSearchResults" runat="server" OnItemCommand="rptSearchResults_ItemCommand">
+                            <ItemTemplate>
+                                <asp:LinkButton ID="btnAddTeam" runat="server" CommandName="Add" CommandArgument='<%# Eval("TeamId") %>' CssClass="search-result-item">
+                                    <img src='<%# !string.IsNullOrEmpty(Eval("LogoPath") as string) ? Eval("LogoPath") : "assets/images/teamwork.png" %>' class="team-mini-logo" />
+                                    <div class="team-info">
+                                        <span class="team-name"><%# Eval("TeamName") %></span>
+                                        <span class="team-desc"><%# Eval("Description") %></span>
+                                    </div>
+                                </asp:LinkButton>
+                            </ItemTemplate>
+                        </asp:Repeater>
+                    </asp:Panel>
                 </div>
+
+                <!-- Selected Teams List -->
+                <div class="selected-teams-list">
+                    <asp:Repeater ID="rptAssignedTeams" runat="server" OnItemCommand="rptAssignedTeams_ItemCommand">
+                        <ItemTemplate>
+                            <div class="assigned-team-item">
+                                <div class="team-visual">
+                                    <img src='<%# !string.IsNullOrEmpty(Eval("LogoPath") as string) ? Eval("LogoPath") : "assets/images/teamwork.png" %>' class="team-avatar" />
+                                    <div class="team-details">
+                                        <span class="team-title"><%# Eval("TeamName") %></span>
+                                        <span class="team-subtitle"><%# Eval("Description") %></span>
+                                    </div>
+                                </div>
+                                <asp:LinkButton ID="btnRemoveTeam" runat="server" CommandName="Remove" CommandArgument='<%# Eval("TeamId") %>' CssClass="btn-remove-team">×</asp:LinkButton>
+                            </div>
+                        </ItemTemplate>
+                    </asp:Repeater>
+                </div>
+                
                 <asp:Label ID="lblAccessError" runat="server" CssClass="error-message"></asp:Label>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn-cancel" onclick="closeAccessModal()">Cancel</button>
-                <asp:Button ID="btnSaveAccess" runat="server" Text="Save Access" OnClick="btnSaveAccess_Click" CssClass="btn-save" />
+                <asp:Button ID="btnSaveAccess" runat="server" Text="invite" OnClick="btnSaveAccess_Click" CssClass="btn-create" style="background-color: #3b82f6;" />
             </div>
         </div>
     </div>

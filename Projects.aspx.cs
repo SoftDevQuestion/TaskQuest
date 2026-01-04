@@ -5,6 +5,7 @@ using System.Web.Configuration;
 using System.Collections.Generic;
 using System.IO;
 using System.Web.UI;
+using System.Linq;
 
 namespace TaskQuest
 {
@@ -12,6 +13,37 @@ namespace TaskQuest
     {
         string connectionString = ConnectionHelper.GetConnectionString();
         protected int CurrentUserId { get; set; }
+
+        [Serializable]
+        public class TeamDto
+        {
+            public int TeamId { get; set; }
+            public string TeamName { get; set; }
+            public string Description { get; set; }
+            public string LogoPath { get; set; }
+        }
+
+        protected List<TeamDto> AvailableTeams
+        {
+            get
+            {
+                if (ViewState["AvailableTeams"] == null)
+                    return new List<TeamDto>();
+                return (List<TeamDto>)ViewState["AvailableTeams"];
+            }
+            set { ViewState["AvailableTeams"] = value; }
+        }
+
+        protected List<TeamDto> AssignedTeams
+        {
+            get
+            {
+                if (ViewState["AssignedTeams"] == null)
+                    return new List<TeamDto>();
+                return (List<TeamDto>)ViewState["AssignedTeams"];
+            }
+            set { ViewState["AssignedTeams"] = value; }
+        }
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -91,15 +123,18 @@ namespace TaskQuest
             if (Session["User"] == null) return;
             string username = Session["User"].ToString();
 
+            AvailableTeams = new List<TeamDto>();
+            AssignedTeams = new List<TeamDto>();
+
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
                 try 
                 {
                     conn.Open();
 
-                    // Get Teams User is member of
+                    // 1. Get All Teams User is Member of (Candidates for adding)
                     string teamQuery = @"
-                        SELECT t.TeamId, t.TeamName 
+                        SELECT t.TeamId, t.TeamName, t.Description, t.LogoPath
                         FROM Team t
                         JOIN TeamMembers tm ON t.TeamId = tm.TeamId
                         WHERE tm.Username = @Username";
@@ -107,34 +142,51 @@ namespace TaskQuest
                     SqlCommand cmd = new SqlCommand(teamQuery, conn);
                     cmd.Parameters.AddWithValue("@Username", username);
                     
-                    SqlDataAdapter da = new SqlDataAdapter(cmd);
-                    DataTable dtTeams = new DataTable();
-                    da.Fill(dtTeams);
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        var list = new List<TeamDto>();
+                        while (reader.Read())
+                        {
+                            list.Add(new TeamDto {
+                                TeamId = reader.GetInt32(0),
+                                TeamName = reader.GetString(1),
+                                Description = reader.IsDBNull(2) ? "" : reader.GetString(2),
+                                LogoPath = reader.IsDBNull(3) ? null : reader.GetString(3)
+                            });
+                        }
+                        AvailableTeams = list;
+                    }
 
-                    cblTeams.DataSource = dtTeams;
-                    cblTeams.DataBind();
-
-                    // Mark teams that already have access
-                    string accessQuery = "SELECT TeamID FROM ProjectTeams WHERE ProjectID = @ProjectID";
+                    // 2. Get Currently Assigned Teams for this Project (All of them)
+                    string accessQuery = @"
+                        SELECT t.TeamId, t.TeamName, t.Description, t.LogoPath
+                        FROM ProjectTeams pt
+                        JOIN Team t ON pt.TeamID = t.TeamId
+                        WHERE pt.ProjectID = @ProjectID";
+                        
                     SqlCommand accessCmd = new SqlCommand(accessQuery, conn);
                     accessCmd.Parameters.AddWithValue("@ProjectID", projectId);
                     
-                    List<int> existingTeamIds = new List<int>();
                     using (SqlDataReader reader = accessCmd.ExecuteReader())
                     {
+                        var list = new List<TeamDto>();
                         while (reader.Read())
                         {
-                            existingTeamIds.Add(reader.GetInt32(0));
+                             list.Add(new TeamDto {
+                                TeamId = reader.GetInt32(0),
+                                TeamName = reader.GetString(1),
+                                Description = reader.IsDBNull(2) ? "" : reader.GetString(2),
+                                LogoPath = reader.IsDBNull(3) ? null : reader.GetString(3)
+                            });
                         }
+                        AssignedTeams = list;
                     }
-
-                    foreach (System.Web.UI.WebControls.ListItem item in cblTeams.Items)
-                    {
-                        if (existingTeamIds.Contains(int.Parse(item.Value)))
-                        {
-                            item.Selected = true;
-                        }
-                    }
+                    
+                    BindAssignedTeams();
+                    
+                    // Reset Search
+                    txtSearchTeam.Text = "";
+                    pnlSearchResults.Visible = false;
                 }
                 catch (Exception ex)
                 {
@@ -143,13 +195,86 @@ namespace TaskQuest
             }
         }
 
+        private void BindAssignedTeams()
+        {
+            rptAssignedTeams.DataSource = AssignedTeams;
+            rptAssignedTeams.DataBind();
+        }
+
+        protected void txtSearchTeam_TextChanged(object sender, EventArgs e)
+        {
+            string term = txtSearchTeam.Text.Trim().ToLower();
+            if (string.IsNullOrEmpty(term))
+            {
+                pnlSearchResults.Visible = false;
+                ScriptManager.RegisterStartupScript(this, this.GetType(), "OpenAccessModal", "openAccessModal();", true);
+                return;
+            }
+
+            // Filter AvailableTeams that match term AND are not in AssignedTeams
+            var matches = AvailableTeams
+                .Where(t => t.TeamName.ToLower().Contains(term) && !AssignedTeams.Any(at => at.TeamId == t.TeamId))
+                .ToList();
+
+            if (matches.Count > 0)
+            {
+                rptSearchResults.DataSource = matches;
+                rptSearchResults.DataBind();
+                pnlSearchResults.Visible = true;
+            }
+            else
+            {
+                pnlSearchResults.Visible = false;
+            }
+            
+            ScriptManager.RegisterStartupScript(this, this.GetType(), "OpenAccessModal", "openAccessModal();", true);
+        }
+
+        protected void rptSearchResults_ItemCommand(object source, System.Web.UI.WebControls.RepeaterCommandEventArgs e)
+        {
+            if (e.CommandName == "Add")
+            {
+                int teamId = int.Parse(e.CommandArgument.ToString());
+                var teamToAdd = AvailableTeams.FirstOrDefault(t => t.TeamId == teamId);
+                
+                if (teamToAdd != null && !AssignedTeams.Any(t => t.TeamId == teamId))
+                {
+                    var list = AssignedTeams;
+                    list.Add(teamToAdd);
+                    AssignedTeams = list; // Update ViewState
+                    
+                    BindAssignedTeams();
+                    
+                    // Clear search
+                    txtSearchTeam.Text = "";
+                    pnlSearchResults.Visible = false;
+                }
+            }
+            ScriptManager.RegisterStartupScript(this, this.GetType(), "OpenAccessModal", "openAccessModal();", true);
+        }
+
+        protected void rptAssignedTeams_ItemCommand(object source, System.Web.UI.WebControls.RepeaterCommandEventArgs e)
+        {
+            if (e.CommandName == "Remove")
+            {
+                int teamId = int.Parse(e.CommandArgument.ToString());
+                var list = AssignedTeams;
+                var itemToRemove = list.FirstOrDefault(t => t.TeamId == teamId);
+                if (itemToRemove != null)
+                {
+                    list.Remove(itemToRemove);
+                    AssignedTeams = list; // Update ViewState
+                    BindAssignedTeams();
+                }
+            }
+            ScriptManager.RegisterStartupScript(this, this.GetType(), "OpenAccessModal", "openAccessModal();", true);
+        }
+
         protected void btnSaveAccess_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(hfAccessProjectId.Value)) return;
             int projectId = int.Parse(hfAccessProjectId.Value);
-            if (Session["User"] == null) return;
-            string username = Session["User"].ToString();
-
+            
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
                 conn.Open();
@@ -157,42 +282,34 @@ namespace TaskQuest
                 
                 try
                 {
-                    // Delete existing access for visible teams
-                    string deleteQuery = @"
-                        DELETE FROM ProjectTeams 
-                        WHERE ProjectID = @ProjectID 
-                        AND TeamID IN (SELECT TeamId FROM TeamMembers WHERE Username = @Username)";
-                    
+                    // 1. Delete ALL existing access for this project
+                    string deleteQuery = "DELETE FROM ProjectTeams WHERE ProjectID = @ProjectID";
                     SqlCommand deleteCmd = new SqlCommand(deleteQuery, conn, transaction);
                     deleteCmd.Parameters.AddWithValue("@ProjectID", projectId);
-                    deleteCmd.Parameters.AddWithValue("@Username", username);
                     deleteCmd.ExecuteNonQuery();
 
-                    // Insert selected teams
+                    // 2. Insert current list
                     string insertQuery = "INSERT INTO ProjectTeams (ProjectID, TeamID) VALUES (@ProjectID, @TeamID)";
                     
-                    foreach (System.Web.UI.WebControls.ListItem item in cblTeams.Items)
+                    foreach (var team in AssignedTeams)
                     {
-                        if (item.Selected)
-                        {
-                            SqlCommand insertCmd = new SqlCommand(insertQuery, conn, transaction);
-                            insertCmd.Parameters.AddWithValue("@ProjectID", projectId);
-                            insertCmd.Parameters.AddWithValue("@TeamID", int.Parse(item.Value));
-                            insertCmd.ExecuteNonQuery();
-                        }
+                        SqlCommand insertCmd = new SqlCommand(insertQuery, conn, transaction);
+                        insertCmd.Parameters.AddWithValue("@ProjectID", projectId);
+                        insertCmd.Parameters.AddWithValue("@TeamID", team.TeamId);
+                        insertCmd.ExecuteNonQuery();
                     }
 
                     transaction.Commit();
                     
                     LoadProjects();
                     
-                    ClientScript.RegisterStartupScript(this.GetType(), "CloseAccessModal", "closeAccessModal();", true);
+                    ScriptManager.RegisterStartupScript(this, this.GetType(), "CloseAccessModal", "closeAccessModal();", true);
                 }
                 catch (Exception ex)
                 {
                     transaction.Rollback();
                     lblAccessError.Text = "Error saving access: " + ex.Message;
-                    ClientScript.RegisterStartupScript(this.GetType(), "OpenAccessModal", "openAccessModal();", true);
+                    ScriptManager.RegisterStartupScript(this, this.GetType(), "OpenAccessModal", "openAccessModal();", true);
                 }
             }
         }

@@ -135,8 +135,12 @@
         </div>
         <div style="display: flex; gap: 8px; align-items: center;">
             <img src="https://cdn.jsdelivr.net/npm/feather-icons/dist/icons/settings.svg" class="settings-icon" onclick="openProfileModal();" style="cursor: pointer;" title="Settings">
-            <a href="Logout.aspx" title="Logout (Exit)" style="display: flex; align-items: center;">
-                <img src="https://cdn.jsdelivr.net/npm/feather-icons/dist/icons/log-out.svg" class="settings-icon" style="color: #dc3545; filter: invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%);" title="Logout">
+            <a href="Logout.aspx" title="Logout (Exit)" style="display: flex; align-items: center; position: relative; z-index: 10;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="settings-icon" title="Logout">
+                    <path d="M10 21h-2a9 9 0 1 1 0-18h2"></path>
+                    <path d="M15 12h6"></path>
+                    <path d="M18 9l3 3-3 3"></path>
+                </svg>
             </a>
         </div>
     </div>

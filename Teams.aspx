@@ -65,7 +65,7 @@
                         </div>
 
                         <div class="team-card-footer">
-                            <button class="add-member-btn" type="button" onclick="showAddMemberModal('<%# Eval("TeamId") %>')">
+                            <button class="add-member-btn" type="button" onclick="showAddMemberModal('<%# Eval("TeamId") %>')" style='<%# (bool)Eval("IsAdmin") ? "" : "display:none" %>'>
                                 + Add member
                             </button>
                         </div>
