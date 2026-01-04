@@ -6,14 +6,28 @@ BEGIN
         ProjectTeamID INT IDENTITY(1,1) PRIMARY KEY,
         ProjectID INT NOT NULL,
         TeamID INT NOT NULL,
-        FOREIGN KEY (ProjectID) REFERENCES Projects(ProjectID),
-        FOREIGN KEY (TeamID) REFERENCES Team(TeamId)
+        FOREIGN KEY (ProjectID) REFERENCES Projects(ProjectID) ON DELETE CASCADE,
+        FOREIGN KEY (TeamID) REFERENCES Team(TeamId) ON DELETE CASCADE
     );
     PRINT 'Created missing table: ProjectTeams';
 END
 GO
 
--- 2. Create the Trigger to handle Cascade Delete safely
+-- 2. Ensure TeamMembers table exists (Missing table caused error 208)
+IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'TeamMembers')
+BEGIN
+    CREATE TABLE TeamMembers (
+        Id INT IDENTITY(1,1) PRIMARY KEY,
+        TeamId INT NOT NULL,
+        Username NVARCHAR(50) NOT NULL,
+        Role NVARCHAR(50) DEFAULT 'member',
+        FOREIGN KEY (TeamId) REFERENCES Team(TeamId) ON DELETE CASCADE
+    );
+    PRINT 'Created missing table: TeamMembers';
+END
+GO
+
+-- 3. Create the Trigger to handle Cascade Delete safely
 IF OBJECT_ID('trg_Users_Cascade_Delete_Seamless', 'TR') IS NOT NULL
     DROP TRIGGER trg_Users_Cascade_Delete_Seamless;
 GO
