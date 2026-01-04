@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Default.aspx.cs" Inherits="TaskQuest.Default" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Default.aspx.cs" Inherits="TaskQuest.Default" %>
 
 <!DOCTYPE html>
 
@@ -104,7 +104,7 @@
               <div class="hero-content-wrapper">
                 <h2 class="mb-30 wow fadeInUp" data-wow-delay=".2s">Stay Organized .</br> Get Things Done.</h2>
                 <p class="mb-30 wow fadeInUp" data-wow-delay=".4s">TaskQuest helps you manage your tasks clarity and focus . Plan smarter , track pregress , and achieve more - effortlessly .</p>
-                <a href="Login.aspx" class="button button-lg radius-50 wow fadeInUp" data-wow-delay=".6s">Get Started Now <i class="lni lni-chevron-right"></i> </a>
+                <a id="lnkGetStarted" runat="server" href="Login.aspx" class="button button-lg radius-50 wow fadeInUp" data-wow-delay=".6s">Get Started Now <i class="lni lni-chevron-right"></i> </a>
               </div>
             </div>
             <div class="col-lg-6 align-self-end">
