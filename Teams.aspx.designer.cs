@@ -87,6 +87,24 @@ namespace TaskQuest
         protected global::System.Web.UI.WebControls.Image imgEditLogoPreview;
 
         /// <summary>
+        /// imgEditLogoReal control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Image imgEditLogoReal;
+
+        /// <summary>
+        /// editLogoPlaceholderText control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl editLogoPlaceholderText;
+
+        /// <summary>
         /// fuEditTeamLogo control.
         /// </summary>
         /// <remarks>

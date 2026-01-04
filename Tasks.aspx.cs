@@ -215,23 +215,5 @@ namespace TaskQuest
         // Helper to get status class for Overdue logic (optional/advanced)
         // Currently relying on basic status mapping. 
         // Overdue logic would require checking DueDate vs DateTime.Now and Status != Done.
-        
-        private int GetUserId(string username)
-        {
-            using (SqlConnection conn = new SqlConnection(connectionString))
-            {
-                try
-                {
-                    conn.Open();
-                    string query = "SELECT UserId FROM Users WHERE Username = @Username";
-                    SqlCommand cmd = new SqlCommand(query, conn);
-                    cmd.Parameters.AddWithValue("@Username", username);
-                    object result = cmd.ExecuteScalar();
-                    if (result != null) return Convert.ToInt32(result);
-                }
-                catch { }
-                return -1;
-            }
-        }
     }
 }
