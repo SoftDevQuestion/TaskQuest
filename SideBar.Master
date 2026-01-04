@@ -192,7 +192,7 @@
 
     <!-- Session Timeout Warning Modal -->
     <div id="sessionWarningModal" class="modal-overlay" style="display:none; z-index: 10001;">
-        <div class="modal-content" style="text-align:left; max-width:450px; padding: 15px 20px; border-radius: 12px; background: #fff; box-shadow: 0 10px 40px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: space-between; gap: 15px;">
+        <div class="modal-content" style="height: 10vh; text-align:left; max-width:450px; padding: 15px 20px; border-radius: 12px; background: #fff; box-shadow: 0 10px 40px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: space-between; gap: 15px;">
             
             <div style="display: flex; align-items: center; gap: 15px;">
                 <!-- Icon -->
