@@ -194,9 +194,7 @@ namespace TaskQuest
                     int count = (int)checkCmd.ExecuteScalar();
                     if (count > 0)
                     {
-                        lblError.Text = "Team name already exists. Please choose another name.";
-                        lblError.Visible = true;
-                        ClientScript.RegisterStartupScript(this.GetType(), "Pop", "showEditTeamModal();", true);
+                        ClientScript.RegisterStartupScript(this.GetType(), "Pop", "showEditTeamModal(); document.getElementById('lblEditTeamError').innerText = 'Team name already exists. Please choose another name.'; document.getElementById('lblEditTeamError').style.display = 'block';", true);
                         return;
                     }
 
@@ -564,10 +562,8 @@ namespace TaskQuest
                 int count = (int)checkCmd.ExecuteScalar();
                 if (count > 0)
                 {
-                    lblError.Text = "Team name already exists. Please choose another name.";
-                    lblError.Visible = true;
-                    // Re-open modal logic if needed, or just show error on page
-                    ClientScript.RegisterStartupScript(this.GetType(), "Pop", "showCreateTeamModal();", true);
+                    // Show error in modal
+                    ClientScript.RegisterStartupScript(this.GetType(), "Pop", "showCreateTeamModal(); document.getElementById('lblCreateTeamError').innerText = 'Team name already exists. Please choose another name.'; document.getElementById('lblCreateTeamError').style.display = 'block';", true);
                     return;
                 }
             }

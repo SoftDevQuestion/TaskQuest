@@ -35,7 +35,7 @@
                                 </div>
                             </div>
                             <div class="team-menu-container" style='<%# (bool)Eval("IsAdmin") ? "" : "display:none" %>'>
-                                <button class="team-menu-btn" type="button" onclick="toggleMenu(this)">
+                                <button class="team-menu-btn" type="button" onclick="toggleMenu(this); return false;">
                                     <span></span>
                                     <span></span>
                                     <span></span>
@@ -98,6 +98,7 @@
                     <div class="form-group team-name-group">
                         <label for="txtNewTeamName">Team Name</label>
                         <input type="text" id="txtNewTeamName" class="form-control" placeholder="e.g. Marketing Team" />
+                        <span id="lblCreateTeamError" class="error-message" style="display:none; color:red; font-size:12px; margin-top:4px;"></span>
                     </div>
                 </div>
 
@@ -157,6 +158,7 @@
                     <div class="form-group team-name-group">
                         <label for="txtEditTeamName">Team Name</label>
                         <asp:TextBox ID="txtEditTeamName" runat="server" CssClass="form-control" placeholder="Enter team name..." ClientIDMode="Static"></asp:TextBox>
+                        <span id="lblEditTeamError" class="error-message" style="display:none; color:red; font-size:12px; margin-top:4px;"></span>
                     </div>
                 </div>
 
@@ -248,6 +250,7 @@
             document.getElementById('txtTeamDescription').value = '';
             document.getElementById('txtNewTeamMemberSearch').value = '';
             document.getElementById('newTeamMembersList').innerHTML = '';
+            document.getElementById('lblCreateTeamError').style.display = 'none'; // Reset error
             
             // Reset Logo
             document.getElementById('imgLogoReal').style.display = 'none';
@@ -544,6 +547,7 @@
 
         function showEditTeamModal() {
             document.getElementById('editTeamModal').style.display = 'flex';
+            document.getElementById('lblEditTeamError').style.display = 'none'; // Reset error
             populateEditMembers();
         }
 
