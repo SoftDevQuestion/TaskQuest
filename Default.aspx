@@ -80,7 +80,7 @@
                   </div>
                   
                   <div class="header-action d-flex">
-                    <a href="Login.aspx"> <i class="lni lni-user"></i> </a>
+                    <a id="lnkLoginIcon" runat="server" href="Login.aspx"> <i class="lni lni-user"></i> </a>
                     
                   </div>
                   <!-- navbar collapse -->
