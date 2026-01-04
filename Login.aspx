@@ -100,7 +100,8 @@
                      data-theme="outline"
                      data-text="sign_in_with"
                      data-shape="rectangular"
-                     data-logo_alignment="left">
+                     data-logo_alignment="left"
+                     data-width="310">
                 </div>
                 
                 <button type="button" class="social-btn google-material" id="googleSignInBtn" style="display:none;">
