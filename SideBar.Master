@@ -262,8 +262,6 @@
                 warningTimer = setTimeout(showWarning, warningDuration);
                 time = setTimeout(logout, logoutDuration);
             }
-                time = setTimeout(logout, logoutDuration);
-            }
 
             // Expose globally
             window.resetSessionTimer = resetTimer;
