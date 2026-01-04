@@ -83,6 +83,7 @@ namespace TaskQuest
                             TeamName = firstRow["TeamName"].ToString(),
                             Description = firstRow["Description"] != DBNull.Value ? firstRow["Description"].ToString() : "",
                             LogoPath = firstRow["LogoPath"] != DBNull.Value ? firstRow["LogoPath"].ToString() : null,
+                            CreatorUsername = firstRow["CreatorUsername"] != DBNull.Value ? firstRow["CreatorUsername"].ToString() : "",
                             Members = new List<MemberViewModel>()
                         };
 
