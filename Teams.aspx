@@ -136,59 +136,95 @@
 
     <!-- Edit Team Modal Structure -->
     <div id="editTeamModal" class="modal-overlay" style="display: none;" runat="server" clientidmode="Static">
-        <div class="modal-content">
-            <!-- Logo Circle Placeholder -->
-            <div class="modal-logo-section">
-                <div class="logo-circle" onclick="triggerEditFileUpload()">
-                    <asp:Image ID="imgEditLogoPreview" runat="server" CssClass="logo-preview" Style="width:100%; height:100%; border-radius:50%; object-fit:cover;" ImageUrl="assets/images/default-team.png" ClientIDMode="Static" />
-                    <span id="editLogoPlaceholderText" style="display:none;">Change Logo</span>
-                </div>
-                <asp:FileUpload ID="fuEditTeamLogo" runat="server" Style="display: none;" onchange="previewEditLogo(this)" ClientIDMode="Static" />
+        <div class="modal-content create-team-modal-content">
+            <div class="modal-header">
+                <h3>Edit Team</h3>
+                <span class="modal-close-icon" onclick="closeEditTeamModal(); return false;">&times;</span>
             </div>
 
-            <!-- Team Name Input -->
-            <div class="form-group">
-                <label for="txtEditTeamName">Team Name</label>
-                <asp:TextBox ID="txtEditTeamName" runat="server" CssClass="form-control" placeholder="Enter team name..." ClientIDMode="Static"></asp:TextBox>
-            </div>
+            <div class="create-team-body">
+                <!-- Top Section: Logo & Name -->
+                <div class="create-team-top-section">
+                    <div class="modal-logo-section">
+                        <div class="logo-circle" onclick="triggerEditFileUpload()">
+                            <asp:Image ID="imgEditLogoPreview" runat="server" CssClass="logo-preview-icon" Style="width:32px; height:32px; border-radius:0; object-fit:contain; filter: invert(53%) sepia(93%) saturate(3025%) hue-rotate(180deg) brightness(101%) contrast(98%);" ImageUrl="assets/images/plus-icon.svg" ClientIDMode="Static" />
+                            <asp:Image ID="imgEditLogoReal" runat="server" CssClass="logo-real" Style="display:none;" ClientIDMode="Static" />
+                            <span id="editLogoPlaceholderText" class="logo-text"></span>
+                        </div>
+                        <asp:FileUpload ID="fuEditTeamLogo" runat="server" Style="display: none;" onchange="previewEditLogo(this)" ClientIDMode="Static" />
+                    </div>
 
-            <!-- Edit Member Section -->
-            <div class="members-section">
-                <label>Members</label>
-                <div id="editMembersList" class="members-list">
-                    <!-- Dynamic rows will be added here -->
+                    <div class="form-group team-name-group">
+                        <label for="txtEditTeamName">Team Name</label>
+                        <asp:TextBox ID="txtEditTeamName" runat="server" CssClass="form-control" placeholder="Enter team name..." ClientIDMode="Static"></asp:TextBox>
+                    </div>
                 </div>
-                <button type="button" class="add-member-link" onclick="addEditMemberRow()">+ Add Member</button>
+
+                <!-- Members Section (Using same style as Create, but with logic to show existing) -->
+                <div class="members-section">
+                    <label>Members</label>
+                    <div class="member-search-wrapper" style="display: flex; gap: 8px;">
+                        <input type="text" id="txtEditTeamMemberSearch" class="form-control search-input" placeholder="Search members" onkeyup="searchEditTeamMembers(this)" style="flex: 1;" />
+                        <select id="ddlEditMemberRole" class="form-control" style="width: auto; background-color: #f3f4f6; color: #374151; border: none; font-weight: 500;">
+                            <option value="member">Member</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                        <div id="editTeamMemberSearchResults" class="search-results" style="display:none;"></div>
+                    </div>
+                    <p class="helper-text">Start typing to add new members</p>
+                    
+                    <div id="editMembersList" class="members-grid">
+                        <!-- Dynamic cards will be added here -->
+                    </div>
+                </div>
             </div>
 
             <!-- Footer Buttons -->
             <div class="modal-footer">
-                <button type="button" class="btn-give-up" onclick="closeEditTeamModal(); return false;">Cancel</button>
-                <asp:Button ID="btnSaveEdit" runat="server" Text="Team up" CssClass="btn-team-up" OnClick="btnSaveEdit_Click" OnClientClick="return prepareEditTeamData();" />
+                <button type="button" class="btn-cancel" onclick="closeEditTeamModal(); return false;">Cancel</button>
+                <asp:Button ID="btnSaveEdit" runat="server" Text="Save Changes" CssClass="btn-team-up" OnClick="btnSaveEdit_Click" OnClientClick="return prepareEditTeamData();" />
             </div>
         </div>
     </div>
     
     <!-- Add Member Modal Structure -->
-     <div id="addMemberModal" class="modal-overlay" style="display: none;">
-         <div class="modal-content" style="max-width: 320px;">
-             <h3 style="margin: 0; font-size: 16px;">Add New Member</h3>
-             <div class="form-group" style="margin-top: 12px;">
-                 <label>Search User</label>
-                 <div class="input-wrapper" style="position: relative; display: flex; gap: 8px;">
-                     <input type="text" id="txtSearchAddMember" class="form-control" placeholder="Enter username or email..." onkeyup="searchMemberForExistingTeam(this)" style="flex: 1;" />
-                     <select id="ddlAddMemberRole" class="form-control" style="width: auto;">
-                        <option value="member">Member</option>
-                        <option value="admin">Admin</option>
-                     </select>
-                     <div id="addMemberSearchResults" class="search-results" style="display:none; top: 100%; left: 0; width: 100%;"></div>
-                 </div>
-             </div>
-             <div class="modal-footer" style="margin-top: 12px;">
-                 <button type="button" class="btn-give-up" onclick="closeAddMemberModal()">Cancel</button>
-             </div>
-         </div>
-     </div>
+    <div id="addMemberModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content add-member-modal-content">
+            <div class="modal-header">
+                <h3>Add Team Member</h3>
+                <span class="modal-close-icon" onclick="closeAddMemberModal()">&times;</span>
+            </div>
+            
+            <div class="add-member-body">
+                <label class="section-label">Add Members</label>
+                
+                <div class="search-role-group">
+                    <div class="search-input-wrapper">
+                        <img src="https://cdn.jsdelivr.net/npm/feather-icons/dist/icons/search.svg" class="search-icon-small" />
+                        <input type="text" id="txtSearchAddMember" class="search-input-clean" placeholder="Search members" onkeyup="searchMemberForExistingTeam(this)" />
+                        <div id="addMemberSearchResults" class="search-results" style="display:none;"></div>
+                    </div>
+                    <div class="role-selector-badge badge-role-member" id="roleBadge" onclick="toggleRoleDropdown()">
+                        <span id="selectedRoleText">Member</span>
+                        <div id="roleDropdown" class="role-dropdown" style="display:none;">
+                            <div onclick="selectRole('member')">Member</div>
+                            <div onclick="selectRole('admin')">Admin</div>
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" id="hfSelectedRole" value="member" />
+
+                <div id="selectedMembersContainer" class="selected-members-list">
+                    <!-- Dynamic Items -->
+                </div>
+            </div>
+
+            <div class="modal-footer-custom">
+                <button type="button" class="btn-cancel-outline" onclick="closeAddMemberModal()">Cancel</button>
+                <button type="button" class="btn-invite-solid" onclick="inviteMembers()">invite</button>
+            </div>
+        </div>
+    </div>
     
     <asp:HiddenField ID="hfEditTeamId" runat="server" />
     <asp:HiddenField ID="hfEditTeamMembers" runat="server" />
@@ -360,9 +396,23 @@
             }
         }
 
-        function showEditTeamModal() {
-            document.getElementById('editTeamModal').style.display = 'flex';
-            populateEditMembers();
+        function triggerEditFileUpload() {
+            var fileUpload = document.getElementById('fuEditTeamLogo');
+            if (fileUpload) fileUpload.click();
+        }
+
+        function previewEditLogo(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('imgEditLogoPreview').style.display = 'none';
+                    document.getElementById('editLogoPlaceholderText').style.display = 'none';
+                    var img = document.getElementById('imgEditLogoReal');
+                    img.src = e.target.result;
+                    img.style.display = 'block';
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
         }
 
         function populateEditMembers() {
@@ -377,99 +427,60 @@
             
             if (members && members.length > 0) {
                 members.forEach(member => {
-                    addEditMemberRow(member.username, member.role);
+                    addMemberCardToEdit(member.username, member.role, member.avatar || 'assets/images/default-avatar.svg');
                 });
             }
         }
 
-        function addEditMemberRow(username = '', role = 'member') {
-            const container = document.getElementById('editMembersList');
-            const rowId = 'edit_row_' + new Date().getTime() + Math.random().toString(36).substr(2, 5);
-            
-            // Get current user to prevent removal
-            const currentUser = document.getElementById('<%= hfCurrentUser.ClientID %>').value;
-            const isCurrentUser = (username === currentUser);
-            
-            // If it is the current user, we can disable input or just hide the remove button
-            // Also, ensure input wrapper has flex: 1
-            
-            const removeBtnHtml = isCurrentUser 
-                ? `<div style="width: 24px;"></div>` // Placeholder to keep layout alignment if needed, or just nothing
-                : `<button type="button" class="remove-row-btn" onclick="removeRow('${rowId}')">×</button>`;
+        function addMemberCardToEdit(username, role, avatarPath = 'assets/images/default-avatar.svg') {
+             const container = document.getElementById('editMembersList');
+             const rowId = 'edit_card_' + username.replace(/\s+/g, '_'); // Safe ID
+             
+             // Check if already exists
+             if (document.getElementById(rowId)) return;
 
-            const inputDisabled = isCurrentUser ? 'disabled' : '';
-            
-            const rowHtml = `
-                <div class="member-input-row" id="${rowId}">
-                    <div class="input-wrapper" style="flex: 1; position: relative; min-width: 0;">
-                        <input type="text" class="member-search-input" placeholder="Username or Email" value="${username}" ${inputDisabled} onkeyup="searchUsers(this, '${rowId}')" onkeydown="handleEnterKey(event, this)" />
-                        <div class="search-results" style="display:none;"></div>
+             const badgeClass = role === 'admin' ? 'member-badge-admin' : 'member-badge-pink';
+             const badgeText = role === 'admin' ? 'Admin' : 'Member';
+             const currentUser = document.getElementById('<%= hfCurrentUser.ClientID %>').value;
+             const isCurrentUser = (username === currentUser);
+             
+             const removeBtn = isCurrentUser ? '' : `<button type="button" class="remove-member-btn" onclick="removeEditMember('${rowId}')">×</button>`;
+
+             const cardHtml = `
+                <div class="member-card-item" id="${rowId}">
+                    <div class="member-card-info">
+                         <img src="${avatarPath}" class="member-avatar-small" onerror="this.src='assets/images/default-avatar.svg'" />
+                         <div class="member-details">
+                             <span class="member-username">${username}</span>
+                             <span class="member-role-text">${role}</span>
+                         </div>
                     </div>
-                    <select class="member-role-select form-control" style="width: auto; margin-left: 8px;">
-                        <option value="member" ${role === 'member' ? 'selected' : ''}>Member</option>
-                        <option value="admin" ${role === 'admin' ? 'selected' : ''}>Admin</option>
-                    </select>
-                    ${removeBtnHtml}
+                    <span class="${badgeClass}">${badgeText}</span>
+                    <input type="hidden" class="edit-member-username" value="${username}" />
+                    <input type="hidden" class="edit-member-role" value="${role}" />
+                    ${removeBtn}
                 </div>
             `;
-            
-            container.insertAdjacentHTML('beforeend', rowHtml);
+            container.insertAdjacentHTML('beforeend', cardHtml);
         }
 
-        function prepareEditTeamData() {
-            const memberRows = document.querySelectorAll('#editMembersList .member-input-row');
-            const members = [];
-            memberRows.forEach(row => {
-                const input = row.querySelector('.member-search-input');
-                const roleSelect = row.querySelector('.member-role-select');
-                if (input.value.trim()) {
-                    members.push({
-                        username: input.value.trim(),
-                        role: roleSelect ? roleSelect.value : 'member'
-                    });
-                }
-            });
-
-            document.getElementById('<%= hfEditTeamMembers.ClientID %>').value = JSON.stringify(members);
-            return true;
-        }
-
-        function closeEditTeamModal() {
-            document.getElementById('editTeamModal').style.display = 'none';
-        }
-
-        function triggerEditFileUpload() {
-             var fileUpload = document.getElementById('fuEditTeamLogo');
-             if (fileUpload) fileUpload.click();
-        }
-
-        function previewEditLogo(input) {
-            if (input.files && input.files[0]) {
-                var reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('imgEditLogoPreview').src = e.target.result;
-                }
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-
-        function removeRow(rowId) {
+        function removeEditMember(rowId) {
             document.getElementById(rowId).remove();
         }
 
-        let searchTimeout;
-        function searchUsers(input, rowId) {
+        // New Search Logic for Edit Modal
+        let searchEditMemberTimeout;
+        function searchEditTeamMembers(input) {
             const term = input.value;
-            const resultsDiv = input.parentElement.querySelector('.search-results');
+            const resultsDiv = document.getElementById('editTeamMemberSearchResults');
             
             if (term.length < 2) {
                 resultsDiv.style.display = 'none';
                 return;
             }
 
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                // Call WebMethod
+            clearTimeout(searchEditMemberTimeout);
+            searchEditMemberTimeout = setTimeout(() => {
                 $.ajax({
                     type: "POST",
                     url: "Teams.aspx/SearchUsers",
@@ -483,8 +494,13 @@
                             users.forEach(user => {
                                 const div = document.createElement('div');
                                 div.className = 'search-result-item';
-                                div.innerText = `${user.Username} (${user.Email})`;
-                                div.onclick = () => selectUser(input, user.Username);
+                                div.innerHTML = `
+                                    <div style="display:flex; align-items:center; gap:8px;">
+                                        <img src="${user.AvatarPath}" style="width:24px; height:24px; border-radius:50%; object-fit: cover;" onerror="this.src='assets/images/default-avatar.svg'" />
+                                        <span>${user.Username}</span>
+                                    </div>
+                                `;
+                                div.onclick = () => selectEditTeamMember(user);
                                 resultsDiv.appendChild(div);
                             });
                             resultsDiv.style.display = 'block';
@@ -492,12 +508,43 @@
                             resultsDiv.style.display = 'none';
                         }
                     },
-                    error: function (err) {
-                        console.error('Error searching users', err);
-                    }
+                    error: function (err) { console.error('Error searching users', err); }
                 });
             }, 300);
         }
+
+        function selectEditTeamMember(user) {
+            const role = document.getElementById('ddlEditMemberRole').value;
+            addMemberCardToEdit(user.Username, role, user.AvatarPath);
+            document.getElementById('editTeamMemberSearchResults').style.display = 'none';
+            document.getElementById('txtEditTeamMemberSearch').value = '';
+        }
+
+        function prepareEditTeamData() {
+            const memberCards = document.querySelectorAll('#editMembersList .member-card-item');
+            const members = [];
+            memberCards.forEach(card => {
+                const username = card.querySelector('.edit-member-username').value;
+                const role = card.querySelector('.edit-member-role').value;
+                members.push({
+                    username: username,
+                    role: role
+                });
+            });
+
+            document.getElementById('<%= hfEditTeamMembers.ClientID %>').value = JSON.stringify(members);
+            return true;
+        }
+
+        function showEditTeamModal() {
+            document.getElementById('editTeamModal').style.display = 'flex';
+            populateEditMembers();
+        }
+
+        function closeEditTeamModal() {
+            document.getElementById('editTeamModal').style.display = 'none';
+        }
+
 
         function selectUser(input, username) {
             input.value = username;
@@ -531,6 +578,11 @@
             if (!e.target.closest('.input-wrapper')) {
                 document.querySelectorAll('.search-results').forEach(el => el.style.display = 'none');
             }
+
+            if (!e.target.closest('.role-selector-badge')) {
+                const dd = document.getElementById('roleDropdown');
+                if (dd) dd.style.display = 'none';
+            }
             
             // Close team menus when clicking outside
             if (!e.target.matches('.team-menu-btn') && !e.target.closest('.team-menu-btn')) {
@@ -550,18 +602,60 @@
         }
 
         let currentAddMemberTeamId = null;
+        let selectedMembers = [];
 
         function showAddMemberModal(teamId) {
             currentAddMemberTeamId = teamId;
+            selectedMembers = []; // Reset
+            renderSelectedMembers();
             document.getElementById('addMemberModal').style.display = 'flex';
             document.getElementById('txtSearchAddMember').value = '';
             document.getElementById('addMemberSearchResults').style.display = 'none';
             document.getElementById('txtSearchAddMember').focus();
+            selectRole('member'); // Reset role
         }
 
         function closeAddMemberModal() {
             document.getElementById('addMemberModal').style.display = 'none';
             currentAddMemberTeamId = null;
+            selectedMembers = [];
+        }
+
+        function toggleRoleDropdown() {
+            const dd = document.getElementById('roleDropdown');
+            dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function selectRole(role) {
+            document.getElementById('hfSelectedRole').value = role;
+            const badge = document.getElementById('roleBadge');
+            const text = document.getElementById('selectedRoleText');
+            
+            if (role === 'admin') {
+                text.innerText = 'Admin';
+                badge.classList.remove('badge-role-member');
+                badge.classList.add('badge-role-admin');
+            } else {
+                text.innerText = 'Member';
+                badge.classList.remove('badge-role-admin');
+                badge.classList.add('badge-role-member');
+            }
+            
+            // Close dropdown (needs slight delay if called from onclick inside dropdown to avoid bubble issues, but here it's fine)
+            // Actually, event bubbling might reopen it if not handled. 
+            // I'll rely on the document click listener to close it, or just force close here.
+            // But since the dropdown is INSIDE the badge, clicking an item clicks the badge too?
+            // Yes. So we need stopPropagation on items.
+            // OR just set display none here.
+            // Let's handle it in the onclick in HTML.
+            // Wait, I can't easily change onclick in HTML without re-writing HTML.
+            // I'll just use a timeout or verify event target.
+        }
+        
+        // Prevent badge click when clicking dropdown item
+        document.getElementById('roleDropdown').onclick = function(e) {
+             e.stopPropagation();
+             document.getElementById('roleDropdown').style.display = 'none';
         }
 
         let searchAddMemberTimeout;
@@ -589,8 +683,13 @@
                             users.forEach(user => {
                                 const div = document.createElement('div');
                                 div.className = 'search-result-item';
-                                div.innerText = `${user.Username} (${user.Email})`;
-                                div.onclick = () => addMemberToTeam(user.Username);
+                                div.innerHTML = `
+                                    <div style="display:flex; align-items:center; gap:8px;">
+                                        <img src="${user.AvatarPath}" style="width:24px; height:24px; border-radius:50%; object-fit: cover;" onerror="this.src='assets/images/default-avatar.svg'" />
+                                        <span>${user.Username}</span>
+                                    </div>
+                                `;
+                                div.onclick = () => addMemberToSelection(user);
                                 resultsDiv.appendChild(div);
                             });
                             resultsDiv.style.display = 'block';
@@ -605,32 +704,92 @@
             }, 300);
         }
 
-        function addMemberToTeam(username) {
-            if (!currentAddMemberTeamId) return;
-            
-            const role = document.getElementById('ddlAddMemberRole').value;
+        function addMemberToSelection(user) {
+            // Check if already selected
+            if (selectedMembers.some(m => m.username === user.Username)) {
+                alert('User already selected.');
+                return;
+            }
 
-            // Just add without confirmation
+            const role = document.getElementById('hfSelectedRole').value;
+            
+            selectedMembers.push({
+                username: user.Username,
+                email: user.Email,
+                avatar: user.AvatarPath,
+                role: role
+            });
+
+            renderSelectedMembers();
+            
+            // Clear search
+            document.getElementById('txtSearchAddMember').value = '';
+            document.getElementById('addMemberSearchResults').style.display = 'none';
+        }
+
+        function removeSelectedMember(username) {
+            selectedMembers = selectedMembers.filter(m => m.username !== username);
+            renderSelectedMembers();
+        }
+
+        function renderSelectedMembers() {
+            const container = document.getElementById('selectedMembersContainer');
+            container.innerHTML = '';
+
+            selectedMembers.forEach(m => {
+                const roleBadgeClass = m.role === 'admin' ? 'member-badge-admin' : 'member-badge-member';
+                const roleText = m.role === 'admin' ? 'Admin' : 'Member';
+                
+                const html = `
+                    <div class="selected-member-card">
+                        <div class="selected-member-info">
+                            <img src="${m.avatar}" class="selected-member-avatar" onerror="this.src='assets/images/default-avatar.svg'" />
+                            <div class="selected-member-texts">
+                                <span class="selected-member-name">${m.username}</span>
+                                <span class="selected-member-sub">${m.email || 'No Email'}</span>
+                            </div>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span class="member-badge ${roleBadgeClass}">${roleText}</span>
+                            <button type="button" class="remove-member-btn" style="position:static; opacity:1;" onclick="removeSelectedMember('${m.username}')">×</button>
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', html);
+            });
+        }
+
+        function inviteMembers() {
+            if (!currentAddMemberTeamId) return;
+            if (selectedMembers.length === 0) {
+                alert('Please select at least one member.');
+                return;
+            }
+
+            // Prepare list for backend
+            // MemberDTO has lowercase fields: username, role
+            const membersDto = selectedMembers.map(m => ({
+                username: m.username,
+                role: m.role
+            }));
+
             $.ajax({
                 type: "POST",
-                url: "Teams.aspx/AddMemberToTeam",
-                data: JSON.stringify({ teamId: currentAddMemberTeamId, username: username, role: role }),
+                url: "Teams.aspx/AddMembersToTeam",
+                data: JSON.stringify({ teamId: currentAddMemberTeamId, members: membersDto }),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function (response) {
                     if (response.d === "Success") {
-                        // No alert, just reload or close
                         closeAddMemberModal();
                         window.location.reload(); 
                     } else {
-                        // Keep error alert if something goes wrong? 
-                        // User said "don't give a message", but errors are different. 
-                        // I will suppress success message as requested.
                         alert(response.d);
                     }
                 },
                 error: function (err) {
-                    console.error('Error adding member', err);
+                    console.error('Error adding members', err);
+                    alert('Error adding members.');
                 }
             });
         }
