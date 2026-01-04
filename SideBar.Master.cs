@@ -21,6 +21,7 @@ namespace TaskQuest
             // Toggle visibility of project list based on current page
             projectSection.Visible = (activePage == "projects.aspx");
             teamSection.Visible = (activePage == "teams.aspx");
+            taskSection.Visible = (activePage == "tasks.aspx");
 
             if (!IsPostBack)
             {
