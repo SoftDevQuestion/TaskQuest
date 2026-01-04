@@ -124,6 +124,9 @@
         </ul>
     </div>
 
+    <!-- Debug Timer (Inactivity) -->
+    <div id="debugTimer" style="color: #888; font-size: 11px; text-align: center; padding-bottom: 5px; font-family: monospace;">00:00</div>
+
     <!-- Profile -->
     <div class="profile" style="cursor: default;">
         <div onclick="openProfileModal();" style="display: flex; align-items: center; gap: 10px; cursor: pointer; flex-grow: 1;">
@@ -195,7 +198,7 @@
             
             // CONFIGURATION: Set your timeout here (in minutes)
             // This should match Web.config sessionState timeout
-            var sessionTimeoutMinutes = 5; 
+            var sessionTimeoutMinutes = 2; 
             
             var logoutDuration = sessionTimeoutMinutes * 60 * 1000; 
             
