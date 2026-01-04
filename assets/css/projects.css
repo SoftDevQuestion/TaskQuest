@@ -4,36 +4,53 @@
     box-sizing: border-box;
 }
 
+/* Header */
+.projects-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    padding: 0 5px;
+}
+
+.create-project-btn {
+    background-color: #4f46e5;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    font-size: 14px;
+}
+
+.create-project-btn:hover {
+    background-color: #4338ca;
+}
+
+.no-projects-msg {
+    text-align: center;
+    color: #6b7280;
+    margin-top: 40px;
+    font-size: 16px;
+    display: block;
+}
+
 .projects-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 20px;
 }
 
 /* Card */
 .project-card {
     background: #ffffff;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    border-radius: 16px;
+    box-shadow: 0 0 0 1px #e0e0e0;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     position: relative;
-}
-
-/* Card Menu Styles */
-.card-menu-container {
-    /* Removed absolute positioning */
-    position: relative;
-    margin-left: 10px;
-}
-
-.three-dots {
-    cursor: pointer;
-    font-size: 24px;
-    color: black; /* Changed to black */
-    font-weight: bold;
-    user-select: none;
-    line-height: 0.5; /* Adjust vertical alignment for horizontal dots */
+    padding: 12px;
 }
 
 .project-card:hover {
@@ -44,61 +61,507 @@
 /* Image */
 .project-image {
     width: 100%;
-    height: 160px;
+    height: 180px;
     overflow: hidden;
+    border-radius: 12px;
 }
 
 .project-image img {
     width: 100%;
     height: 100%;
-    object-fit: cover; /* جلوگیری از بدریخت شدن */
+    object-fit: cover; 
 }
 
-/* Content */
-.project-content {
-    padding: 15px;
+/* Footer Row (Logo + Text + Menu) */
+.project-footer-row {
+    display: flex;
+    align-items: center;
+    margin-top: 12px;
+    gap: 12px;
+}
+
+.project-avatar-container {
+    flex-shrink: 0;
+}
+
+.project-avatar-small {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.project-text-info {
+    flex-grow: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .project-title {
     font-size: 16px;
     font-weight: 600;
-    margin: 0 0 6px;
+    margin: 0;
+    color: #000;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-/* Description clamp */
-.project-description {
+.project-subtitle {
     font-size: 13px;
     color: #666;
-    line-height: 1.4;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
+    margin: 2px 0 0 0;
+    white-space: nowrap;
     overflow: hidden;
-    min-height: 36px;
+    text-overflow: ellipsis;
 }
 
-/* Access Modal Styles */
-.search-wrapper {
+/* Card Menu Styles */
+.card-menu-container {
+    position: relative;
+    flex-shrink: 0;
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+}
+
+.three-dots {
+    cursor: pointer;
+    font-size: 24px;
+    color: #000; 
+    font-weight: bold;
+    user-select: none;
+    line-height: 1;
+    display: block;
+    margin-bottom: 8px; /* Adjust vertical center */
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    display: none;
+    flex-direction: column;
+    min-width: 120px;
+    z-index: 10;
+    overflow: hidden;
+}
+
+.dropdown-menu.show {
+    display: flex;
+}
+
+.dropdown-menu a {
+    padding: 8px 16px;
+    text-decoration: none;
+    color: #374151;
+    font-size: 13px;
+    display: block;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.dropdown-menu a:hover {
+    background-color: #f3f4f6;
+}
+
+/* Modals (Generic) */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none; /* JS toggles flex */
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: white;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 500px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.modal-header {
+    padding: 24px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.modal-close-icon {
+    cursor: pointer;
+    font-size: 24px;
+    color: #9ca3af;
+    line-height: 1;
+}
+
+.modal-close-icon:hover {
+    color: #111827;
+}
+
+/* Create Project Modal Specifics */
+.visuals-container {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 20px;
+    padding: 24px 24px 0 24px;
+}
+
+.cover-upload {
+    flex: 2;
+    height: 120px;
+    background-color: #f3f4f6;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+    border: 2px dashed #e5e7eb;
+}
+
+.logo-upload {
+    flex: 1;
+    height: 120px;
+    background-color: #f3f4f6;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+    border: 2px dashed #e5e7eb;
+}
+
+.cover-upload img, .logo-upload img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.upload-overlay, .logo-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.cover-upload:hover .upload-overlay,
+.logo-upload:hover .logo-overlay {
+    opacity: 1;
+}
+
+.upload-overlay span, .logo-overlay span {
+    color: white;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.form-container {
+    padding: 0 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 16px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-group label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+}
+
+.form-control {
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    width: 100%;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.error-message {
+    color: #ef4444;
+    font-size: 13px;
+}
+
+.modal-footer {
+    padding: 24px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    border-top: 1px solid #f3f4f6;
+    margin-top: 24px;
+}
+
+.btn-give-up {
+    background: white;
+    border: 1px solid #d1d5db;
+    color: #374151;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.btn-create {
+    background: #4f46e5;
+    border: none;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+/* Access Modal Specifics (Redesign to match Team Modal) */
+#accessModal .modal-content {
+    max-width: 600px !important;
+    width: 100%;
+    padding: 0 !important;
+    border-radius: 20px !important;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    max-height: 450px; /* Reduced height as requested */
+}
+
+#accessModal .modal-header {
+    border-bottom: 1px solid #e5e7eb;
+    padding: 24px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #fff;
+    flex-shrink: 0;
+}
+
+#accessModal .modal-header h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: #111827;
+}
+
+#accessModal .form-container {
+    padding: 0 32px;
+    flex: 1;
+    overflow-y: auto; /* Allow scrolling in middle section */
+    margin-top: 24px;
+    margin-bottom: 24px;
+}
+
+#accessModal .input-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 8px;
+    margin-top: 0;
+    padding-left: 2px;
+}
+
+#accessModal .search-wrapper {
     position: relative;
     width: 100%;
+    margin-bottom: 24px;
 }
 
-.search-input {
-    padding-left: 35px !important;
+#accessModal .search-wrapper .search-input {
+    width: 100%;
+    height: 48px;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    padding: 0 40px 0 36px !important;
+    font-size: 14px;
+    background-color: #ffffff;
+    color: #1f2937;
+    box-shadow: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.search-icon {
+#accessModal .search-wrapper .search-input::placeholder {
+    color: #9ca3af;
+}
+
+#accessModal .search-wrapper .search-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+#accessModal .search-wrapper .search-icon {
     position: absolute;
-    left: 10px;
+    left: 12px;
     top: 50%;
     transform: translateY(-50%);
-    color: #999;
-    font-style: normal;
+    color: #9ca3af;
+    font-size: 18px;
+    pointer-events: none;
 }
 
+#accessModal .search-wrapper .dropdown-arrow {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+    font-size: 18px;
+    pointer-events: none;
+}
+
+/* Assigned Team Card */
+#accessModal .assigned-team-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    background: #ffffff;
+    margin-bottom: 12px;
+    transition: border-color 0.2s;
+}
+
+#accessModal .assigned-team-item:hover {
+    border-color: #d1d5db;
+}
+
+#accessModal .team-visual {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-grow: 1;
+}
+
+#accessModal .team-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    object-fit: cover;
+}
+
+#accessModal .team-details {
+    display: flex;
+    flex-direction: column;
+}
+
+#accessModal .team-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #111827;
+}
+
+#accessModal .team-subtitle {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+#accessModal .btn-remove-team {
+    color: #9ca3af;
+    font-size: 20px;
+    text-decoration: none;
+    cursor: pointer;
+    line-height: 1;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s;
+}
+
+#accessModal .btn-remove-team:hover {
+    color: #ef4444;
+}
+
+/* Modal Footer Buttons */
+#accessModal .modal-footer {
+    display: flex;
+    gap: 16px;
+    padding: 24px 32px;
+    border-top: 1px solid #e5e7eb;
+    margin-top: 0;
+    background-color: #fff;
+    flex-shrink: 0;
+}
+
+#accessModal .btn-cancel {
+    flex: 1;
+    padding: 10px 24px;
+    border-radius: 24px;
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    color: #374151;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+#accessModal .btn-cancel:hover {
+    background: #f9fafb;
+}
+
+#accessModal .btn-invite {
+    flex: 1;
+    padding: 10px 24px;
+    border-radius: 24px;
+    border: none;
+    background: #3b82f6;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+#accessModal .btn-invite:hover {
+    background: #2563eb;
+}
+
+/* Search Results Dropdown (Shared/Global for modal) */
 .search-results-dropdown {
     position: absolute;
     top: 100%;
@@ -152,87 +615,17 @@
 
 .team-desc {
     font-size: 12px;
-    color: #777;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 250px;
 }
 
 .selected-teams-list {
-    margin-top: 20px;
-    max-height: 300px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.assigned-team-item {
-    position: relative;
-    display: flex;
-    align-items: center;
-    padding: 12px;
-    padding-right: 35px; /* Space for the X button */
-    border: 1px solid #e0e0e0;
-    border-radius: 12px;
-    background: #fff;
-    transition: box-shadow 0.2s;
-}
-
-.assigned-team-item:hover {
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-}
-
-.team-visual {
-    display: flex;
-    align-items: center;
+    margin-top: 12px; /* Reduced from 20px */
+    /* max-height removed to let parent container scroll */
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
     gap: 12px;
-    width: 100%;
 }
 
-.team-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 8px;
-    object-fit: cover;
-}
-
-.team-details {
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-}
-
-.team-title {
-    font-weight: 600;
-    font-size: 15px;
-    color: #1f2937; /* Darker gray/black */
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.team-subtitle {
-    font-size: 13px;
-    color: #6b7280; /* Muted gray */
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.btn-remove-team {
-    position: absolute;
-    top: 10px;
-    right: 12px;
-    color: #9ca3af;
-    font-size: 18px;
-    text-decoration: none;
-    font-family: Arial, sans-serif;
-    line-height: 1;
-    transition: color 0.2s;
-}
-
-.btn-remove-team:hover {
-    color: #6b7280;
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
 }

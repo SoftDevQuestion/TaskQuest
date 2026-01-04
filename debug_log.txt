@@ -36,3 +36,12 @@
 14/10/1404 03:28:59 ب.ظ: btnCreateProject_Click started.
 14/10/1404 03:45:20 ب.ظ: btnCreateProject_Click started.
 14/10/1404 08:35:42 ب.ظ: btnCreateProject_Click started.
+14/10/1404 10:53:33 ب.ظ: btnCreateProject_Click started.
+14/10/1404 10:53:37 ب.ظ: btnCreateProject_Click started.
+14/10/1404 11:02:21 ب.ظ: btnCreateProject_Click started.
+14/10/1404 11:02:28 ب.ظ: btnCreateProject_Click started.
+14/10/1404 11:03:32 ب.ظ: btnCreateProject_Click started.
+15/10/1404 01:00:56 ق.ظ: btnCreateProject_Click started.
+15/10/1404 01:00:56 ق.ظ: Error in btnCreateProject_Click: Must declare the scalar variable "@UpdatedAt".
+15/10/1404 01:01:03 ق.ظ: btnCreateProject_Click started.
+15/10/1404 01:01:03 ق.ظ: Error in btnCreateProject_Click: Must declare the scalar variable "@UpdatedAt".

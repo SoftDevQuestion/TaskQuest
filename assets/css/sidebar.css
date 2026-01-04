@@ -227,6 +227,23 @@ body {
     cursor: pointer;
 }
 
+.profile-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.logout-link {
+    display: flex;
+    align-items: center;
+}
+
+.logout-icon {
+    width: 20px;
+    height: 20px;
+    opacity: 0.8;
+}
+
 /* ---------------------  سرچ بار */
 .search-bar {
     display: flex;

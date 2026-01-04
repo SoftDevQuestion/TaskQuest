@@ -544,6 +544,15 @@
     border-radius: 999px;
 }
 
+.member-badge-blue {
+    background-color: #e0e7ff;
+    color: #4338ca;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 999px;
+}
+
 .remove-member-btn {
     position: absolute;
     top: -6px;

@@ -52,13 +52,13 @@ namespace TaskQuest
                     conn.Open();
                     // Fetch top 3 recent projects
                     string query = @"
-                        SELECT DISTINCT TOP 3 p.ProjectName, p.ProjectLogo, p.CreatedAt
+                        SELECT DISTINCT TOP 3 p.ProjectName, p.ProjectLogo, ISNULL(p.UpdatedAt, p.CreatedAt) as LastActivity
                         FROM Projects p
                         LEFT JOIN ProjectTeams pt ON p.ProjectId = pt.ProjectID
                         LEFT JOIN Team t1 ON pt.TeamID = t1.TeamId
                         LEFT JOIN Team t2 ON p.TeamAccessId = t2.TeamId
-                        WHERE t1.CreatorUsername = @Username OR t2.CreatorUsername = @Username
-                        ORDER BY p.CreatedAt DESC";
+                        WHERE t1.CreatorUsername = @Username OR t2.CreatorUsername = @Username OR p.CreatorUserId = (SELECT UserID FROM Users WHERE Username = @Username)
+                        ORDER BY LastActivity DESC";
                     
                     SqlCommand cmd = new SqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@Username", Session["User"].ToString());

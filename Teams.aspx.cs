@@ -575,6 +575,7 @@ namespace TaskQuest
         {
             public string username { get; set; }
             public string role { get; set; }
+            public string avatar { get; set; }
         }
 
         protected void btnTeamUp_Click(object sender, EventArgs e)

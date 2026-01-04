@@ -448,7 +448,7 @@
              // Check if already exists
              if (document.getElementById(rowId)) return;
 
-             const badgeClass = role === 'admin' ? 'member-badge-admin' : 'member-badge-pink';
+             const badgeClass = role === 'admin' ? 'member-badge-blue' : 'member-badge-pink';
              const badgeText = role === 'admin' ? 'Admin' : 'Member';
              const currentUser = document.getElementById('<%= hfCurrentUser.ClientID %>').value;
              const isCurrentUser = (username === currentUser);
@@ -747,7 +747,7 @@
             container.innerHTML = '';
 
             selectedMembers.forEach(m => {
-                const roleBadgeClass = m.role === 'admin' ? 'member-badge-admin' : 'member-badge-member';
+                const roleBadgeClass = m.role === 'admin' ? 'member-badge-blue' : 'member-badge-pink';
                 const roleText = m.role === 'admin' ? 'Admin' : 'Member';
                 
                 const html = `

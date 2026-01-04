@@ -133,11 +133,12 @@ namespace TaskQuest
                     conn.Open();
 
                     // 1. Get All Teams User is Member of (Candidates for adding)
+                    // Only show teams where user is Admin (explicit request)
                     string teamQuery = @"
                         SELECT t.TeamId, t.TeamName, t.Description, t.LogoPath
                         FROM Team t
                         JOIN TeamMembers tm ON t.TeamId = tm.TeamId
-                        WHERE tm.Username = @Username";
+                        WHERE tm.Username = @Username AND tm.Role = 'admin'";
                     
                     SqlCommand cmd = new SqlCommand(teamQuery, conn);
                     cmd.Parameters.AddWithValue("@Username", username);
@@ -186,7 +187,17 @@ namespace TaskQuest
                     
                     // Reset Search
                     txtSearchTeam.Text = "";
-                    pnlSearchResults.Visible = false;
+                    
+                    // Bind Available Teams initially (hidden) so client-side click works immediately
+                    var availableForSelection = AvailableTeams
+                        .Where(t => !AssignedTeams.Any(at => at.TeamId == t.TeamId))
+                        .ToList();
+                        
+                    rptSearchResults.DataSource = availableForSelection;
+                    rptSearchResults.DataBind();
+                    
+                    pnlSearchResults.Visible = true; // Always render
+                    pnlSearchResults.Style["display"] = "none"; // Hide via CSS
                 }
                 catch (Exception ex)
                 {
@@ -247,7 +258,16 @@ namespace TaskQuest
                     
                     // Clear search
                     txtSearchTeam.Text = "";
-                    pnlSearchResults.Visible = false;
+                    
+                    // Re-bind remaining available teams
+                    var availableForSelection = AvailableTeams
+                        .Where(t => !AssignedTeams.Any(at => at.TeamId == t.TeamId))
+                        .ToList();
+                    rptSearchResults.DataSource = availableForSelection;
+                    rptSearchResults.DataBind();
+                    
+                    pnlSearchResults.Visible = true;
+                    pnlSearchResults.Style["display"] = "none";
                 }
             }
             ScriptManager.RegisterStartupScript(this, this.GetType(), "OpenAccessModal", "openAccessModal();", true);
@@ -265,6 +285,13 @@ namespace TaskQuest
                     list.Remove(itemToRemove);
                     AssignedTeams = list; // Update ViewState
                     BindAssignedTeams();
+
+                    // Re-bind Available Teams (removed team becomes available again)
+                    var availableForSelection = AvailableTeams.Where(t => !AssignedTeams.Any(at => at.TeamId == t.TeamId)).ToList();
+                    rptSearchResults.DataSource = availableForSelection;
+                    rptSearchResults.DataBind();
+                    pnlSearchResults.Visible = true;
+                    pnlSearchResults.Attributes["style"] = "display:none;";
                 }
             }
             ScriptManager.RegisterStartupScript(this, this.GetType(), "OpenAccessModal", "openAccessModal();", true);
@@ -299,9 +326,22 @@ namespace TaskQuest
                         insertCmd.ExecuteNonQuery();
                     }
 
+                    // 3. Update Project UpdatedAt
+                    string updateProjectQuery = "UPDATE Projects SET UpdatedAt = @UpdatedAt WHERE ProjectID = @ProjectID";
+                    SqlCommand updateCmd = new SqlCommand(updateProjectQuery, conn, transaction);
+                    updateCmd.Parameters.AddWithValue("@UpdatedAt", DateTime.Now);
+                    updateCmd.Parameters.AddWithValue("@ProjectID", projectId);
+                    updateCmd.ExecuteNonQuery();
+
                     transaction.Commit();
                     
                     LoadProjects();
+
+                    // Update Sidebar
+                    if (Master is SideBar sideBar)
+                    {
+                        sideBar.UpdateProjectList();
+                    }
                     
                     ScriptManager.RegisterStartupScript(this, this.GetType(), "CloseAccessModal", "closeAccessModal();", true);
                 }
@@ -504,12 +544,13 @@ namespace TaskQuest
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
                 conn.Open();
-                string query = @"UPDATE Projects SET ProjectName=@Name, Description=@Description, ProjectLogo=@Logo, ProjectCover=@Cover WHERE ProjectID=@ID";
+                string query = @"UPDATE Projects SET ProjectName=@Name, Description=@Description, ProjectLogo=@Logo, ProjectCover=@Cover, UpdatedAt=@UpdatedAt WHERE ProjectID=@ID";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@Name", name);
                 cmd.Parameters.AddWithValue("@Description", description);
                 cmd.Parameters.AddWithValue("@Logo", logo);
                 cmd.Parameters.AddWithValue("@Cover", cover);
+                cmd.Parameters.AddWithValue("@UpdatedAt", DateTime.Now);
                 cmd.Parameters.AddWithValue("@ID", projectId);
                 cmd.ExecuteNonQuery();
             }
@@ -573,14 +614,15 @@ namespace TaskQuest
             {
                 // No try-catch here, let it bubble up to btnCreateProject_Click which logs it
                 conn.Open();
-                string query = @"INSERT INTO Projects (CreatorUserId, ProjectName, Description, CreatedAt, ProjectLogo, ProjectCover) 
-                                 VALUES (@UserId, @ProjectName, @Description, @CreatedAt, @ProjectLogo, @ProjectCover)";
+                string query = @"INSERT INTO Projects (CreatorUserId, ProjectName, Description, CreatedAt, UpdatedAt, ProjectLogo, ProjectCover) 
+                                 VALUES (@UserId, @ProjectName, @Description, @CreatedAt, @UpdatedAt, @ProjectLogo, @ProjectCover)";
                 
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@UserId", userId);
                 cmd.Parameters.AddWithValue("@ProjectName", projectName);
                 cmd.Parameters.AddWithValue("@Description", description);
                 cmd.Parameters.AddWithValue("@CreatedAt", DateTime.Now);
+                cmd.Parameters.AddWithValue("@UpdatedAt", DateTime.Now);
                 cmd.Parameters.AddWithValue("@ProjectLogo", logo ?? (object)DBNull.Value);
                 cmd.Parameters.AddWithValue("@ProjectCover", cover ?? (object)DBNull.Value);
 

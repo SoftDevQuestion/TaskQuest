@@ -35,19 +35,24 @@
                             <img src='<%# Eval("ProjectCover") %>' />
                         </div>
 
-                        <div class="project-content">
-                            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div class="project-footer-row">
+                            <div class="project-avatar-container">
+                                <img src='<%# Eval("ProjectLogo") != DBNull.Value ? Eval("ProjectLogo") : "assets/images/projectTestAvatar.jpg" %>' class="project-avatar-small" onerror="this.src='assets/images/projectTestAvatar.jpg'" />
+                            </div>
+                            
+                            <div class="project-text-info">
                                 <h3 class="project-title"><%# Eval("ProjectName") %></h3>
-                                <div class="card-menu-container" onclick="event.stopPropagation();">
-                                    <span class="three-dots" onclick="toggleMenu(this)">&#8230;</span>
-                                    <div class="dropdown-menu">
-                                        <asp:LinkButton ID="btnEdit" runat="server" CommandName="Edit" CommandArgument='<%# Eval("ProjectID") %>' Visible='<%# IsProjectAdmin(Eval("CanEdit")) %>'>Edit</asp:LinkButton>
-                                        <a href="#" onclick="openDeleteModal('<%# Eval("ProjectID") %>'); return false;" style='<%# IsProjectAdmin(Eval("CanEdit")) ? "" : "display:none" %>'>Delete</a>
-                                        <asp:LinkButton ID="btnAccess" runat="server" CommandName="Access" CommandArgument='<%# Eval("ProjectID") %>' Visible='<%# IsProjectAdmin(Eval("CanEdit")) %>'>Access</asp:LinkButton>
-                                    </div>
+                                <p class="project-subtitle"><%# Eval("Description") %></p>
+                            </div>
+
+                            <div class="card-menu-container" onclick="event.stopPropagation();">
+                                <span class="three-dots" onclick="toggleMenu(this)">&#8230;</span>
+                                <div class="dropdown-menu">
+                                    <asp:LinkButton ID="btnEdit" runat="server" CommandName="Edit" CommandArgument='<%# Eval("ProjectID") %>' Visible='<%# IsProjectAdmin(Eval("CanEdit")) %>'>Edit</asp:LinkButton>
+                                    <a href="#" onclick="openDeleteModal('<%# Eval("ProjectID") %>'); return false;" style='<%# IsProjectAdmin(Eval("CanEdit")) ? "" : "display:none" %>'>Delete</a>
+                                    <asp:LinkButton ID="btnAccess" runat="server" CommandName="Access" CommandArgument='<%# Eval("ProjectID") %>' Visible='<%# IsProjectAdmin(Eval("CanEdit")) %>'>Access</asp:LinkButton>
                                 </div>
                             </div>
-                            <p class="project-description"><%# Eval("Description") %></p>
                         </div>
                     </div>
                 </ItemTemplate>
@@ -115,58 +120,63 @@
 
     <!-- Access Modal -->
     <div id="accessModal" class="modal-overlay" style="display:none;">
-        <div class="modal-content" style="width: 500px;">
+        <div class="modal-content">
             <div class="modal-header">
                 <h3>Team Access</h3>
-                <span class="close-modal" onclick="closeAccessModal()">×</span>
+                <span class="modal-close-icon" onclick="closeAccessModal()">&times;</span>
             </div>
             <div class="form-container">
-                <div class="form-group" style="position: relative;">
-                    <label>Teams</label>
-                    <div class="search-wrapper">
-                        <asp:TextBox ID="txtSearchTeam" runat="server" CssClass="form-control search-input" placeholder="Search Teams" AutoPostBack="true" OnTextChanged="txtSearchTeam_TextChanged" autocomplete="off"></asp:TextBox>
-                        <i class="search-icon">🔍</i>
-                    </div>
-
-                    <!-- Search Results Dropdown -->
-                    <asp:Panel ID="pnlSearchResults" runat="server" CssClass="search-results-dropdown" Visible="false">
-                        <asp:Repeater ID="rptSearchResults" runat="server" OnItemCommand="rptSearchResults_ItemCommand">
-                            <ItemTemplate>
-                                <asp:LinkButton ID="btnAddTeam" runat="server" CommandName="Add" CommandArgument='<%# Eval("TeamId") %>' CssClass="search-result-item">
-                                    <img src='<%# !string.IsNullOrEmpty(Eval("LogoPath") as string) ? Eval("LogoPath") : "assets/images/teamwork.png" %>' class="team-mini-logo" />
-                                    <div class="team-info">
-                                        <span class="team-name"><%# Eval("TeamName") %></span>
-                                        <span class="team-desc"><%# Eval("Description") %></span>
-                                    </div>
-                                </asp:LinkButton>
-                            </ItemTemplate>
-                        </asp:Repeater>
-                    </asp:Panel>
-                </div>
-
-                <!-- Selected Teams List -->
-                <div class="selected-teams-list">
-                    <asp:Repeater ID="rptAssignedTeams" runat="server" OnItemCommand="rptAssignedTeams_ItemCommand">
-                        <ItemTemplate>
-                            <div class="assigned-team-item">
-                                <div class="team-visual">
-                                    <img src='<%# !string.IsNullOrEmpty(Eval("LogoPath") as string) ? Eval("LogoPath") : "assets/images/teamwork.png" %>' class="team-avatar" />
-                                    <div class="team-details">
-                                        <span class="team-title"><%# Eval("TeamName") %></span>
-                                        <span class="team-subtitle"><%# Eval("Description") %></span>
-                                    </div>
-                                </div>
-                                <asp:LinkButton ID="btnRemoveTeam" runat="server" CommandName="Remove" CommandArgument='<%# Eval("TeamId") %>' CssClass="btn-remove-team">×</asp:LinkButton>
+                <asp:UpdatePanel ID="upAccessModal" runat="server" UpdateMode="Conditional" ChildrenAsTriggers="true">
+                    <ContentTemplate>
+                        <div class="form-group" style="position: relative;">
+                            <label class="input-label">Teams</label>
+                            <div class="search-wrapper">
+                                <asp:TextBox ID="txtSearchTeam" runat="server" CssClass="form-control search-input" placeholder="Search Teams" autocomplete="off" onfocus="showTeamDropdown()" onclick="showTeamDropdown()" oninput="filterTeamDropdown(this)"></asp:TextBox>
+                                <img src="https://cdn.jsdelivr.net/npm/feather-icons/dist/icons/search.svg" class="search-icon" style="width: 20px; height: 20px; opacity: 0.5;" />
+                                <span class="dropdown-arrow" style="display:none;">⌄</span>
                             </div>
-                        </ItemTemplate>
-                    </asp:Repeater>
-                </div>
-                
-                <asp:Label ID="lblAccessError" runat="server" CssClass="error-message"></asp:Label>
+
+                            <!-- Search Results Dropdown -->
+                            <asp:Panel ID="pnlSearchResults" runat="server" CssClass="search-results-dropdown" style="display:none;">
+                                <asp:Repeater ID="rptSearchResults" runat="server" OnItemCommand="rptSearchResults_ItemCommand">
+                                    <ItemTemplate>
+                                        <asp:LinkButton ID="btnAddTeam" runat="server" CommandName="Add" CommandArgument='<%# Eval("TeamId") %>' CssClass="search-result-item">
+                                            <img src='<%# !string.IsNullOrEmpty(Eval("LogoPath") as string) ? Eval("LogoPath") : "assets/images/teamwork.png" %>' class="team-mini-logo" />
+                                            <div class="team-info">
+                                                <span class="team-name"><%# Eval("TeamName") %></span>
+                                                <span class="team-desc"><%# Eval("Description") %></span>
+                                            </div>
+                                        </asp:LinkButton>
+                                    </ItemTemplate>
+                                </asp:Repeater>
+                            </asp:Panel>
+                        </div>
+
+                        <!-- Selected Teams List -->
+                        <div class="selected-teams-list">
+                            <asp:Repeater ID="rptAssignedTeams" runat="server" OnItemCommand="rptAssignedTeams_ItemCommand">
+                                <ItemTemplate>
+                                    <div class="assigned-team-item">
+                                        <div class="team-visual">
+                                            <img src='<%# !string.IsNullOrEmpty(Eval("LogoPath") as string) ? Eval("LogoPath") : "assets/images/teamwork.png" %>' class="team-avatar" />
+                                            <div class="team-details">
+                                                <span class="team-title"><%# Eval("TeamName") %></span>
+                                                <span class="team-subtitle"><%# Eval("Description") %></span>
+                                            </div>
+                                        </div>
+                                        <asp:LinkButton ID="btnRemoveTeam" runat="server" CommandName="Remove" CommandArgument='<%# Eval("TeamId") %>' CssClass="btn-remove-team">×</asp:LinkButton>
+                                    </div>
+                                </ItemTemplate>
+                            </asp:Repeater>
+                        </div>
+                        
+                        <asp:Label ID="lblAccessError" runat="server" CssClass="error-message"></asp:Label>
+                    </ContentTemplate>
+                </asp:UpdatePanel>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn-cancel" onclick="closeAccessModal()">Cancel</button>
-                <asp:Button ID="btnSaveAccess" runat="server" Text="invite" OnClick="btnSaveAccess_Click" CssClass="btn-create" style="background-color: #3b82f6;" />
+                <asp:Button ID="btnSaveAccess" runat="server" Text="invite" OnClick="btnSaveAccess_Click" CssClass="btn-invite" />
             </div>
         </div>
     </div>
@@ -178,6 +188,58 @@
         function closeAccessModal() {
             document.getElementById('accessModal').style.display = 'none';
         }
+
+        function showTeamDropdown() {
+            var dropdown = document.querySelector('#accessModal .search-results-dropdown');
+            if (dropdown) {
+                dropdown.style.display = 'block';
+                var input = document.querySelector('#accessModal .search-input');
+                if (input) filterTeamDropdown(input);
+            }
+        }
+
+        function filterTeamDropdown(input) {
+            var filter = input.value.toLowerCase();
+            var dropdown = document.querySelector('#accessModal .search-results-dropdown');
+            if (!dropdown) return;
+
+            var items = dropdown.getElementsByClassName('search-result-item');
+            var hasVisible = false;
+
+            for (var i = 0; i < items.length; i++) {
+                var item = items[i];
+                var name = item.querySelector('.team-name').innerText.toLowerCase();
+                if (name.indexOf(filter) > -1) {
+                    item.style.display = "flex"; // Changed to flex for alignment
+                    hasVisible = true;
+                } else {
+                    item.style.display = "none";
+                }
+            }
+            
+            if (hasVisible) {
+                dropdown.style.display = 'block';
+            } else {
+                dropdown.style.display = 'none';
+            }
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            var modal = document.getElementById('accessModal');
+            if (modal && modal.style.display !== 'none') {
+                var searchWrapper = modal.querySelector('.search-wrapper');
+                var dropdown = modal.querySelector('.search-results-dropdown');
+                
+                // Check if click is inside search wrapper or dropdown
+                var isClickInside = (searchWrapper && searchWrapper.contains(event.target)) || 
+                                    (dropdown && dropdown.contains(event.target));
+                
+                if (!isClickInside && dropdown) {
+                    dropdown.style.display = 'none';
+                }
+            }
+        });
     </script>
 
     <!-- Delete Confirmation Modal -->
@@ -233,27 +295,6 @@
             color: #666;
             font-size: 18px;
             margin-top: 50px;
-        }
-
-        /* Card Menu Styles */
-        .project-card {
-            position: relative;
-        }
-
-        .card-menu-container {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            z-index: 10;
-        }
-
-        .three-dots {
-            cursor: pointer;
-            font-size: 24px;
-            color: white;
-            text-shadow: 0 0 3px rgba(0,0,0,0.5);
-            font-weight: bold;
-            user-select: none;
         }
 
         .dropdown-menu {
