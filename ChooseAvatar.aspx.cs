@@ -29,14 +29,14 @@ namespace TaskQuest
             string username = Session["User"].ToString();
             
             // Set Persian text with proper encoding
-            SetControlText(lblHeader, "تکمیل پروفایل");
-            SetControlText(lblSubHeader, "لطفاً عکس پروفایل خود را انتخاب کنید");
-            SetControlText(lblDefaultAvatars, "عکس‌های پیش‌فرض");
-            SetControlText(lblUploadTitle, "یا عکس خود را آپلود کنید");
+            SetControlText(lblHeader, "Complete Your Profile");
+            SetControlText(lblSubHeader, "Please select a profile picture");
+            SetControlText(lblDefaultAvatars, "Preset Avatars");
+            SetControlText(lblUploadTitle, "Or upload your own photo");
             
             // Set button texts
-            skipButton.Text = SafeEncodePersianText("فعلاً از این مرحله بگذر");
-            completeButton.Text = SafeEncodePersianText("انجام شد");
+            skipButton.Text = SafeEncodePersianText("Skip for now");
+            completeButton.Text = SafeEncodePersianText("Confirm");
         }
 
         private void ShowError(string message)
@@ -95,7 +95,7 @@ namespace TaskQuest
                     if (string.IsNullOrEmpty(avatarPath))
                     {
                         // If no avatar selected, use default
-                        avatarPath = "assets/images/default-avatar.svg";
+                        avatarPath = "assets/images/avatar1.png";
                     }
 
                     // Save avatar path to database
