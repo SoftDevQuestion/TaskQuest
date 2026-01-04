@@ -639,7 +639,7 @@ namespace TaskQuest
                 try
                 {
                     conn.Open();
-                    // Fetch projects where user is creator OR project belongs to a team created by user
+                    // Fetch projects where user is creator OR project belongs to a team created by user or user is team admin
                     string query = @"
                         SELECT DISTINCT 
                             p.*,
@@ -649,16 +649,19 @@ namespace TaskQuest
                                     SELECT 1 
                                     FROM ProjectTeams pt 
                                     JOIN Team t ON pt.TeamID = t.TeamId
+                                    LEFT JOIN TeamMembers tm ON t.TeamId = tm.TeamId
                                     WHERE pt.ProjectID = p.ProjectID 
-                                    AND t.CreatorUsername = @CurrentUser
+                                    AND (t.CreatorUsername = @CurrentUser OR (tm.Username = @CurrentUser AND tm.Role = 'admin'))
                                 ) THEN 1
                                 ELSE 0 
                             END as CanEdit
                         FROM Projects p
                         LEFT JOIN ProjectTeams pt ON p.ProjectID = pt.ProjectID
                         LEFT JOIN Team t ON pt.TeamID = t.TeamId
+                        LEFT JOIN TeamMembers tm ON t.TeamId = tm.TeamId
                         WHERE (t.CreatorUsername = @CurrentUser) 
                            OR (p.CreatorUserId = @CurrentUserId)
+                           OR (tm.Username = @CurrentUser)
                         ORDER BY p.CreatedAt DESC";
 
                     SqlCommand cmd = new SqlCommand(query, conn);
@@ -687,6 +690,59 @@ namespace TaskQuest
                     // Log error
                     lblNoProjects.Text = "Error loading projects: " + ex.Message;
                     lblNoProjects.Visible = true;
+                }
+            }
+        }
+
+        protected void txtProjectSearch_TextChanged(object sender, EventArgs e)
+        {
+            string term = txtProjectSearch.Text.Trim();
+            if (string.IsNullOrEmpty(term))
+            {
+                pnlProjectSearch.Visible = false;
+                return;
+            }
+
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                try 
+                {
+                    conn.Open();
+                    // Search projects user has access to
+                    string query = @"
+                        SELECT DISTINCT p.ProjectID, p.ProjectName, p.ProjectCover
+                        FROM Projects p
+                        LEFT JOIN ProjectTeams pt ON p.ProjectID = pt.ProjectID
+                        LEFT JOIN Team t ON pt.TeamID = t.TeamId
+                        LEFT JOIN TeamMembers tm ON t.TeamId = tm.TeamId
+                        WHERE (p.ProjectName LIKE @Term) AND
+                              ((t.CreatorUsername = @CurrentUser) 
+                               OR (p.CreatorUserId = @CurrentUserId)
+                               OR (tm.Username = @CurrentUser))";
+
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@Term", "%" + term + "%");
+                    cmd.Parameters.AddWithValue("@CurrentUser", Session["User"].ToString());
+                    cmd.Parameters.AddWithValue("@CurrentUserId", CurrentUserId);
+
+                    SqlDataAdapter da = new SqlDataAdapter(cmd);
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
+
+                    if (dt.Rows.Count > 0)
+                    {
+                        rptProjectSearch.DataSource = dt;
+                        rptProjectSearch.DataBind();
+                        pnlProjectSearch.Visible = true;
+                    }
+                    else
+                    {
+                        pnlProjectSearch.Visible = false;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log("Error searching projects: " + ex.Message);
                 }
             }
         }

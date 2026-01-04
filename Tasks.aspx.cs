@@ -59,6 +59,8 @@ namespace TaskQuest
             if (Session["User"] == null) return;
             string currentUser = Session["User"].ToString();
             int currentUserId = GetUserId(currentUser);
+            
+            string projectIdFilter = Request.QueryString["ProjectId"];
 
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
@@ -74,13 +76,24 @@ namespace TaskQuest
                         FROM Projects p
                         LEFT JOIN ProjectTeams pt ON p.ProjectID = pt.ProjectID
                         LEFT JOIN TeamMembers tm ON pt.TeamID = tm.TeamId
-                        WHERE tm.Username = @CurrentUser 
-                           OR p.CreatorUserId = @CurrentUserId
-                        ORDER BY p.CreatedAt DESC";
+                        WHERE (tm.Username = @CurrentUser 
+                           OR p.CreatorUserId = @CurrentUserId)";
+
+                    if (!string.IsNullOrEmpty(projectIdFilter) && int.TryParse(projectIdFilter, out int pId))
+                    {
+                        query += " AND p.ProjectID = @FilterProjectID";
+                    }
+
+                    query += " ORDER BY p.CreatedAt DESC";
                     
                     SqlCommand cmd = new SqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@CurrentUser", currentUser);
                     cmd.Parameters.AddWithValue("@CurrentUserId", currentUserId);
+                    
+                    if (!string.IsNullOrEmpty(projectIdFilter) && int.TryParse(projectIdFilter, out int pIdVal))
+                    {
+                        cmd.Parameters.AddWithValue("@FilterProjectID", pIdVal);
+                    }
 
                     SqlDataAdapter da = new SqlDataAdapter(cmd);
                     DataTable dt = new DataTable();
