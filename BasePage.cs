@@ -2,11 +2,30 @@ using System;
 using System.Web;
 using System.Web.UI;
 using System.Text;
+using System.Data.SqlClient;
 
 namespace TaskQuest
 {
     public class BasePage : Page
     {
+        protected int GetUserId(string username)
+        {
+            using (SqlConnection conn = new SqlConnection(ConnectionHelper.GetConnectionString()))
+            {
+                try
+                {
+                    conn.Open();
+                    string query = "SELECT UserId FROM Users WHERE Username = @Username";
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@Username", username);
+                    object result = cmd.ExecuteScalar();
+                    if (result != null) return Convert.ToInt32(result);
+                }
+                catch { }
+                return -1;
+            }
+        }
+
         protected override void OnInit(EventArgs e)
         {
             base.OnInit(e);
