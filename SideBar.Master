@@ -125,16 +125,21 @@
     </div>
 
     <!-- Profile -->
-    <a href="#" onclick="openProfileModal(); return false;" style="text-decoration: none; color: inherit;">
-        <div class="profile">
+    <div class="profile" style="cursor: default;">
+        <div onclick="openProfileModal();" style="display: flex; align-items: center; gap: 10px; cursor: pointer; flex-grow: 1;">
             <asp:Image ID="imgProfileAvatar" runat="server" CssClass="avatar" ImageUrl="assets/images/default-avatar.png" />
             <div class="profile-info">
                 <asp:Label ID="lblProfileName" runat="server" CssClass="name" Text="Guest User"></asp:Label>
                 <span class="role">User</span>
             </div>
-            <img src="https://cdn.jsdelivr.net/npm/feather-icons/dist/icons/settings.svg" class="settings-icon">
         </div>
-    </a>
+        <div style="display: flex; gap: 8px; align-items: center;">
+            <img src="https://cdn.jsdelivr.net/npm/feather-icons/dist/icons/settings.svg" class="settings-icon" onclick="openProfileModal();" style="cursor: pointer;" title="Settings">
+            <a href="Logout.aspx" title="Logout (Exit)" style="display: flex; align-items: center;">
+                <img src="https://cdn.jsdelivr.net/npm/feather-icons/dist/icons/log-out.svg" class="settings-icon" style="color: #dc3545; filter: invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%);" title="Logout">
+            </a>
+        </div>
+    </div>
 
 </div>
       </div>
