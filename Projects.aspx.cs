@@ -57,10 +57,34 @@ namespace TaskQuest
 
             CurrentUserId = GetUserId(Session["User"].ToString());
 
+            EnsureProjectsSchema();
+
             if (!IsPostBack)
             {
                 EnsureProjectTeamsTable();
                 LoadProjects();
+            }
+        }
+
+        private void EnsureProjectsSchema()
+        {
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    conn.Open();
+                    string query = @"
+                        IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'Projects' AND COLUMN_NAME = 'UpdatedAt')
+                        BEGIN
+                            ALTER TABLE Projects ADD UpdatedAt DATETIME NULL;
+                        END";
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    Log($"Error ensuring Projects schema: {ex.Message}");
+                }
             }
         }
 
