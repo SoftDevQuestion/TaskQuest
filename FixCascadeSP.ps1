@@ -1,25 +1,7 @@
--- Migration Script for Cascade Delete and Team Ownership
--- Generated: 2026-01-04
+$remoteConnStr = "Data Source=SQL5106.site4now.net;Initial Catalog=db_ac2fe4_todo;User Id=db_ac2fe4_todo_admin;Password=taskquest2025;Connect Timeout=30"
 
--- 1. Add CreatorUsername to Team Table
-IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'Team' AND COLUMN_NAME = 'CreatorUsername')
-BEGIN
-    ALTER TABLE Team ADD CreatorUsername NVARCHAR(50) NULL;
-    PRINT 'Added CreatorUsername column to Team table.';
-END
-GO
-
--- 2. Backfill Existing Teams (Default to 'admin')
-UPDATE Team SET CreatorUsername = 'admin' WHERE CreatorUsername IS NULL;
-PRINT 'Backfilled CreatorUsername with default value.';
-GO
-
--- 3. Create/Update Stored Procedure sp_DeleteUserCascade
-IF OBJECT_ID('sp_DeleteUserCascade', 'P') IS NOT NULL
-    DROP PROCEDURE sp_DeleteUserCascade;
-GO
-
-CREATE PROCEDURE sp_DeleteUserCascade
+$spQuery = @"
+ALTER PROCEDURE sp_DeleteUserCascade
     @Username NVARCHAR(50)
 AS
 BEGIN
@@ -57,7 +39,7 @@ BEGIN
         -- 9. Clean up User membership in OTHER teams
         DELETE FROM TeamMembers WHERE Username = @Username;
 
-        -- 10. Delete Projects created by user (orphaned)
+        -- 10. Delete Projects created by user (orphaned) AND UserProfile
         DECLARE @UserId INT;
         SELECT @UserId = UserID FROM Users WHERE Username = @Username;
 
@@ -85,6 +67,12 @@ BEGIN
         RAISERROR (@ErrorMessage, 16, 1);
     END CATCH
 END
-GO
+"@
 
-PRINT 'Stored Procedure sp_DeleteUserCascade created/updated successfully.';
+try {
+    Write-Host "Updating sp_DeleteUserCascade on Remote DB..."
+    Invoke-Sqlcmd -ConnectionString $remoteConnStr -Query $spQuery
+    Write-Host "Successfully updated stored procedure." -ForegroundColor Green
+} catch {
+    Write-Host "Error updating SP: $($_.Exception.Message)" -ForegroundColor Red
+}
