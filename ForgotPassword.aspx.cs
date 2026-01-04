@@ -99,7 +99,7 @@ namespace TaskQuest
 
         private bool UpdatePassword(string identifier, string newPassword)
         {
-            string connectionString = WebConfigurationManager.ConnectionStrings["TodoAppDB"].ConnectionString;
+            string connectionString = ConnectionHelper.GetConnectionString();
             string hashedPassword = HashPassword(newPassword);
 
             using (SqlConnection conn = new SqlConnection(connectionString))

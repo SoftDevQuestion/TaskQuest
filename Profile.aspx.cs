@@ -15,7 +15,7 @@ namespace TaskQuest
 {
     public partial class Profile : BasePage
     {
-        string connectionString = WebConfigurationManager.ConnectionStrings["TodoAppDB"].ConnectionString;
+        string connectionString = ConnectionHelper.GetConnectionString();
 
         protected void Page_Load(object sender, EventArgs e)
         {

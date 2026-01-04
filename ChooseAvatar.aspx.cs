@@ -99,7 +99,7 @@ namespace TaskQuest
                     }
 
                     // Save avatar path to database
-                    string connectionString = WebConfigurationManager.ConnectionStrings["TodoAppDB"].ConnectionString;
+                    string connectionString = ConnectionHelper.GetConnectionString();
 
                     using (SqlConnection conn = new SqlConnection(connectionString))
                     {

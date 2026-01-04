@@ -10,7 +10,7 @@ namespace TaskQuest
 {
     public partial class Projects : System.Web.UI.Page
     {
-        string connectionString = WebConfigurationManager.ConnectionStrings["TodoAppDB"].ConnectionString;
+        string connectionString = ConnectionHelper.GetConnectionString();
         protected int CurrentUserId { get; set; }
 
         protected void Page_Load(object sender, EventArgs e)

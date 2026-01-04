@@ -12,7 +12,7 @@ namespace TaskQuest
 {
     public partial class SideBar : System.Web.UI.MasterPage
     {
-        string connectionString = WebConfigurationManager.ConnectionStrings["TodoAppDB"].ConnectionString;
+        string connectionString = ConnectionHelper.GetConnectionString();
 
         protected void Page_Load(object sender, EventArgs e)
         {

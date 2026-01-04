@@ -12,7 +12,7 @@ namespace TaskQuest
 {
     public partial class Teams : System.Web.UI.Page
     {
-        private string connectionString = WebConfigurationManager.ConnectionStrings["TodoAppDB"].ConnectionString;
+        private string connectionString = ConnectionHelper.GetConnectionString();
 
         protected void Page_Load(object sender, EventArgs e)
         {

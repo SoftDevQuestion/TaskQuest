@@ -31,7 +31,7 @@ namespace TaskQuest
 
         private void RegisterUser(string username, string email, string password)
         {
-            string connectionString = WebConfigurationManager.ConnectionStrings["TodoAppDB"].ConnectionString;
+            string connectionString = ConnectionHelper.GetConnectionString();
             Log($"Attempting registration for {username} ({email}). Connection string: {connectionString}");
 
             using (SqlConnection conn = new SqlConnection(connectionString))

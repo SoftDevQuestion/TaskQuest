@@ -33,7 +33,7 @@ namespace TaskQuest
 
         private void LoginUser(string input, string password)
         {
-            string connectionString = WebConfigurationManager.ConnectionStrings["TodoAppDB"].ConnectionString;
+            string connectionString = ConnectionHelper.GetConnectionString();
             Log($"Attempting login for {input}. Connection string: {connectionString}");
 
             using (SqlConnection conn = new SqlConnection(connectionString))

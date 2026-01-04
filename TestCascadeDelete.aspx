@@ -19,7 +19,7 @@
         <asp:Label ID="lblResult" runat="server" Text="Ready..."></asp:Label>
     </form>
     <script runat="server">
-        string connStr = WebConfigurationManager.ConnectionStrings["TodoAppDB"].ConnectionString;
+        string connStr = TaskQuest.ConnectionHelper.GetConnectionString();
 
         protected void btnRunTest_Click(object sender, EventArgs e)
         {
