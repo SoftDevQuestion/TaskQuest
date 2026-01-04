@@ -634,6 +634,10 @@ namespace TaskQuest
 
         private void LoadProjects()
         {
+            if (Session["User"] == null) return;
+            string username = Session["User"].ToString();
+            string searchTerm = Request.QueryString["Search"];
+
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
                 try
@@ -659,14 +663,25 @@ namespace TaskQuest
                         LEFT JOIN ProjectTeams pt ON p.ProjectID = pt.ProjectID
                         LEFT JOIN Team t ON pt.TeamID = t.TeamId
                         LEFT JOIN TeamMembers tm ON t.TeamId = tm.TeamId
-                        WHERE (t.CreatorUsername = @CurrentUser) 
+                        WHERE ((t.CreatorUsername = @CurrentUser) 
                            OR (p.CreatorUserId = @CurrentUserId)
-                           OR (tm.Username = @CurrentUser)
-                        ORDER BY p.CreatedAt DESC";
+                           OR (tm.Username = @CurrentUser))";
+
+                    if (!string.IsNullOrEmpty(searchTerm))
+                    {
+                        query += " AND p.ProjectName LIKE @SearchTerm";
+                    }
+
+                    query += " ORDER BY p.CreatedAt DESC";
 
                     SqlCommand cmd = new SqlCommand(query, conn);
-                    cmd.Parameters.AddWithValue("@CurrentUser", Session["User"].ToString());
+                    cmd.Parameters.AddWithValue("@CurrentUser", username);
                     cmd.Parameters.AddWithValue("@CurrentUserId", CurrentUserId);
+
+                    if (!string.IsNullOrEmpty(searchTerm))
+                    {
+                        cmd.Parameters.AddWithValue("@SearchTerm", "%" + searchTerm + "%");
+                    }
                     
                     SqlDataAdapter da = new SqlDataAdapter(cmd);
                     DataTable dt = new DataTable();
@@ -682,6 +697,7 @@ namespace TaskQuest
                     {
                         rptProjects.DataSource = null;
                         rptProjects.DataBind();
+                        lblNoProjects.Text = string.IsNullOrEmpty(searchTerm) ? "No projects found." : "No projects found matching your search.";
                         lblNoProjects.Visible = true;
                     }
                 }

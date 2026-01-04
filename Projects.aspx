@@ -16,21 +16,6 @@
     <div class="projects-header-row">
         <h2 style="padding:5px 20px;">Projects</h2>
         
-        <div class="project-search-wrapper" style="position: relative; margin-right: 20px;">
-            <asp:TextBox ID="txtProjectSearch" runat="server" CssClass="form-control" placeholder="Search Projects..." AutoPostBack="true" OnTextChanged="txtProjectSearch_TextChanged" autocomplete="off" style="width: 250px; border-radius: 20px; padding-left: 15px;"></asp:TextBox>
-            
-            <asp:Panel ID="pnlProjectSearch" runat="server" CssClass="search-results-dropdown" Visible="false" style="top: 45px; width: 100%; max-height: 300px; overflow-y: auto; z-index: 1000;">
-                <asp:Repeater ID="rptProjectSearch" runat="server">
-                    <ItemTemplate>
-                        <a href='Tasks.aspx?ProjectId=<%# Eval("ProjectID") %>' class="search-result-item" style="display: flex; align-items: center; padding: 10px; text-decoration: none; color: inherit; border-bottom: 1px solid #eee;">
-                            <img src='<%# Eval("ProjectCover") %>' style="width: 30px; height: 30px; border-radius: 5px; margin-right: 10px; object-fit: cover;" />
-                            <span><%# Eval("ProjectName") %></span>
-                        </a>
-                    </ItemTemplate>
-                </asp:Repeater>
-            </asp:Panel>
-        </div>
-
         <button class="create-project-btn" onclick="openProjectModal(); return false;">+ Create New Project</button>
     </div>
 
@@ -46,21 +31,22 @@
             <asp:Repeater ID="rptProjects" runat="server" OnItemCommand="rptProjects_ItemCommand">
                 <ItemTemplate>
                     <div class="project-card" onclick="window.location.href='Tasks.aspx?ProjectId=<%# Eval("ProjectID") %>'" style="cursor: pointer;">
-                        <div class="card-menu-container" onclick="event.stopPropagation();">
-                            <span class="three-dots" onclick="toggleMenu(this)">&#8942;</span>
-                            <div class="dropdown-menu">
-                                <asp:LinkButton ID="btnEdit" runat="server" CommandName="Edit" CommandArgument='<%# Eval("ProjectID") %>' Visible='<%# IsProjectAdmin(Eval("CanEdit")) %>'>Edit</asp:LinkButton>
-                                <a href="#" onclick="openDeleteModal('<%# Eval("ProjectID") %>'); return false;" style='<%# IsProjectAdmin(Eval("CanEdit")) ? "" : "display:none" %>'>Delete</a>
-                                <asp:LinkButton ID="btnAccess" runat="server" CommandName="Access" CommandArgument='<%# Eval("ProjectID") %>' Visible='<%# IsProjectAdmin(Eval("CanEdit")) %>'>Access</asp:LinkButton>
-                            </div>
-                        </div>
-
                         <div class="project-image">
                             <img src='<%# Eval("ProjectCover") %>' />
                         </div>
 
                         <div class="project-content">
-                            <h3 class="project-title"><%# Eval("ProjectName") %></h3>
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                <h3 class="project-title"><%# Eval("ProjectName") %></h3>
+                                <div class="card-menu-container" onclick="event.stopPropagation();">
+                                    <span class="three-dots" onclick="toggleMenu(this)">&#8230;</span>
+                                    <div class="dropdown-menu">
+                                        <asp:LinkButton ID="btnEdit" runat="server" CommandName="Edit" CommandArgument='<%# Eval("ProjectID") %>' Visible='<%# IsProjectAdmin(Eval("CanEdit")) %>'>Edit</asp:LinkButton>
+                                        <a href="#" onclick="openDeleteModal('<%# Eval("ProjectID") %>'); return false;" style='<%# IsProjectAdmin(Eval("CanEdit")) ? "" : "display:none" %>'>Delete</a>
+                                        <asp:LinkButton ID="btnAccess" runat="server" CommandName="Access" CommandArgument='<%# Eval("ProjectID") %>' Visible='<%# IsProjectAdmin(Eval("CanEdit")) %>'>Access</asp:LinkButton>
+                                    </div>
+                                </div>
+                            </div>
                             <p class="project-description"><%# Eval("Description") %></p>
                         </div>
                     </div>

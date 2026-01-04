@@ -13,10 +13,6 @@
         <!-- Page Header -->
         <div class="tasks-header-controls">
             <h1 class="tasks-title">Tasks</h1>
-            <button class="sort-btn">
-                <i data-feather="filter" style="width: 16px; height: 16px;"></i>
-                Sort By : All
-            </button>
         </div>
 
         <!-- Projects Columns Wrapper -->

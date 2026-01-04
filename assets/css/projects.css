@@ -17,6 +17,23 @@
     overflow: hidden;
     box-shadow: 0 8px 20px rgba(0,0,0,0.08);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+}
+
+/* Card Menu Styles */
+.card-menu-container {
+    /* Removed absolute positioning */
+    position: relative;
+    margin-left: 10px;
+}
+
+.three-dots {
+    cursor: pointer;
+    font-size: 24px;
+    color: black; /* Changed to black */
+    font-weight: bold;
+    user-select: none;
+    line-height: 0.5; /* Adjust vertical alignment for horizontal dots */
 }
 
 .project-card:hover {
