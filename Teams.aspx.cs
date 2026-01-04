@@ -55,9 +55,7 @@ namespace TaskQuest
                         FROM Team t 
                         LEFT JOIN TeamMembers tm ON t.TeamId = tm.TeamId 
                         LEFT JOIN Users u ON tm.Username = u.Username
-                        WHERE t.TeamId IN (
-                            SELECT TeamId FROM TeamMembers WHERE Username = @CurrentUser
-                        )
+                        WHERE t.CreatorUsername = @CurrentUser
                         ORDER BY t.TeamId";
 
                     SqlCommand cmd = new SqlCommand(query, conn);
@@ -539,10 +537,11 @@ namespace TaskQuest
                 try
                 {
                     // 1. Create Team
-                    string insertTeamQuery = "INSERT INTO Team (TeamName, LogoPath, UpdatedAt) VALUES (@Name, @LogoPath, GETDATE()); SELECT SCOPE_IDENTITY();";
+                    string insertTeamQuery = "INSERT INTO Team (TeamName, LogoPath, UpdatedAt, CreatorUsername) VALUES (@Name, @LogoPath, GETDATE(), @Creator); SELECT SCOPE_IDENTITY();";
                     SqlCommand cmdTeam = new SqlCommand(insertTeamQuery, conn, transaction);
                     cmdTeam.Parameters.AddWithValue("@Name", teamName);
                     cmdTeam.Parameters.AddWithValue("@LogoPath", logoPath); // Always store a path (default or uploaded)
+                    cmdTeam.Parameters.AddWithValue("@Creator", Session["User"].ToString());
                     
                     object result = cmdTeam.ExecuteScalar();
                     if (result == null || result == DBNull.Value)

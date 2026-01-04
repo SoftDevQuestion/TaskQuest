@@ -522,8 +522,7 @@ namespace TaskQuest
                 try
                 {
                     conn.Open();
-                    // Fetch projects where user is creator OR member of assigned team
-                    // Also determine if user CanEdit (IsAdmin of project OR IsAdmin of assigned team)
+                    // Fetch projects where user is creator OR project belongs to a team created by user
                     string query = @"
                         SELECT DISTINCT 
                             p.*,
@@ -532,18 +531,17 @@ namespace TaskQuest
                                 WHEN EXISTS (
                                     SELECT 1 
                                     FROM ProjectTeams pt 
-                                    JOIN TeamMembers tm ON pt.TeamID = tm.TeamId 
+                                    JOIN Team t ON pt.TeamID = t.TeamId
                                     WHERE pt.ProjectID = p.ProjectID 
-                                    AND tm.Username = @CurrentUser 
-                                    AND tm.Role = 'admin'
+                                    AND t.CreatorUsername = @CurrentUser
                                 ) THEN 1
                                 ELSE 0 
                             END as CanEdit
                         FROM Projects p
                         LEFT JOIN ProjectTeams pt ON p.ProjectID = pt.ProjectID
-                        LEFT JOIN TeamMembers tm ON pt.TeamID = tm.TeamId
-                        WHERE tm.Username = @CurrentUser 
-                           OR p.CreatorUserId = @CurrentUserId
+                        LEFT JOIN Team t ON pt.TeamID = t.TeamId
+                        WHERE (t.CreatorUsername = @CurrentUser) 
+                           OR (p.CreatorUserId = @CurrentUserId)
                         ORDER BY p.CreatedAt DESC";
 
                     SqlCommand cmd = new SqlCommand(query, conn);
