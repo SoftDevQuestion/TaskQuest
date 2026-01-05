@@ -295,6 +295,58 @@
 
         function openCreateTaskModal(projectId) {
             document.getElementById('hfCurrentProjectId').value = projectId;
+            
+            // Clear current assignee list and show loading or default
+            const wrapper = document.querySelector('#createTaskModal .custom-options');
+            wrapper.innerHTML = '';
+            
+            // Add Unassigned option first
+            const unassignedOption = document.createElement('span');
+            unassignedOption.className = 'custom-option selected';
+            unassignedOption.onclick = function() { selectUser(this, '', 'Unassigned', ''); };
+            unassignedOption.innerHTML = `
+                <img src="assets/images/default-avatar.svg" class="option-avatar">
+                <span class="option-name">Unassigned</span>
+            `;
+            wrapper.appendChild(unassignedOption);
+            
+            // Reset selected user display
+            document.getElementById('selectedUserName').innerText = 'Unassigned';
+            document.getElementById('selectedUserAvatar').style.display = 'none';
+            document.getElementById('hfSelectedAssignee').value = '';
+
+            // Fetch eligible assignees
+            PageMethods.GetProjectAssignees(projectId, function(users) {
+                if (users && users.length > 0) {
+                    users.forEach(user => {
+                        const option = document.createElement('span');
+                        option.className = 'custom-option';
+                        const avatar = user.AvatarPath || 'assets/images/default-avatar.svg';
+                        
+                        // We need to escape single quotes in arguments if necessary, but username/fullname are usually safe enough or should be sanitized.
+                        // Ideally use addEventListener or careful string construction.
+                        // Here constructing innerHTML for consistency with existing style.
+                        
+                        option.innerHTML = `
+                            <img src="${avatar}" class="option-avatar" onerror="this.src='assets/images/default-avatar.svg'">
+                            <div class="option-info">
+                                <span class="option-name">${user.FullName}</span>
+                                <span class="option-role">${user.Username}</span>
+                            </div>
+                        `;
+                        
+                        // Attach click event programmatically to avoid quoting hell
+                        option.onclick = function() {
+                            selectUser(this, user.Username, user.FullName, avatar);
+                        };
+                        
+                        wrapper.appendChild(option);
+                    });
+                }
+            }, function(err) {
+                console.error(err);
+            });
+
             const modal = document.getElementById('createTaskModal');
             modal.classList.add('show');
             feather.replace(); // Refresh icons inside modal

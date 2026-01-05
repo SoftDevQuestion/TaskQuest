@@ -197,6 +197,56 @@ namespace TaskQuest
             }
         }
 
+        public class AssigneeUser
+        {
+            public string Username { get; set; }
+            public string FullName { get; set; }
+            public string AvatarPath { get; set; }
+        }
+
+        [System.Web.Services.WebMethod]
+        public static System.Collections.Generic.List<AssigneeUser> GetProjectAssignees(int projectId)
+        {
+            System.Collections.Generic.List<AssigneeUser> users = new System.Collections.Generic.List<AssigneeUser>();
+            string connectionString = ConnectionHelper.GetConnectionString();
+
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    conn.Open();
+                    // Get users who are members of teams assigned to the project
+                    string query = @"
+                        SELECT DISTINCT u.Username, u.FullName, u.AvatarPath
+                        FROM Users u
+                        INNER JOIN TeamMembers tm ON u.Username = tm.Username
+                        INNER JOIN ProjectTeams pt ON tm.TeamId = pt.TeamID
+                        WHERE pt.ProjectID = @ProjectID";
+
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@ProjectID", projectId);
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            users.Add(new AssigneeUser
+                            {
+                                Username = reader["Username"].ToString(),
+                                FullName = reader["FullName"].ToString(),
+                                AvatarPath = reader["AvatarPath"] != DBNull.Value ? reader["AvatarPath"].ToString() : "assets/images/default-avatar.svg"
+                            });
+                        }
+                    }
+                }
+                catch
+                {
+                    // Handle error
+                }
+            }
+            return users;
+        }
+
         [System.Web.Services.WebMethod]
         public static string CreateNewTask(string projectId, string title, string dueDate, string assigneeUsername)
         {
