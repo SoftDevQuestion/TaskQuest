@@ -28,7 +28,7 @@
                     <ItemTemplate>
                         <div class="card project-card">
                             <div class="project-header" style="display: flex; flex-direction: column; align-items: flex-start; gap: 2px;">
-                                <span class="project-date"><%# GetDateString(Eval("UpdatedAt")) %></span>
+                                <span class="project-date"><%# GetDateString(Eval("CreatedAt")) %></span>
                                 <h3 class="project-title" style="margin-bottom: 0;"><%# Eval("ProjectName") %></h3>
                                 <p class="project-category" style="margin-top: 0;"><%# Eval("Description") %></p>
                             </div>
