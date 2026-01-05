@@ -220,8 +220,8 @@ namespace TaskQuest
                     }
 
                     string query = @"
-                        INSERT INTO Tasks (ProjectID, Title, StatusId, DueDate, UserID, CreatedAt) 
-                        VALUES (@ProjectID, @Title, 1, @DueDate, @UserID, GETDATE());
+                        INSERT INTO Tasks (ProjectID, Title, StatusId, DueDate, UserID, CreatedAt, UpdatedAt) 
+                        VALUES (@ProjectID, @Title, 1, @DueDate, @UserID, GETDATE(), GETDATE());
                         
                         UPDATE Projects SET UpdatedAt = GETDATE() WHERE ProjectID = @ProjectID;
                     ";
@@ -345,7 +345,8 @@ namespace TaskQuest
                                      UPDATE Tasks 
                                      SET Title = @Title, 
                                          DueDate = @DueDate, 
-                                         UserID = @UserID 
+                                         UserID = @UserID,
+                                         UpdatedAt = GETDATE()
                                      WHERE TaskID = @TaskID;
 
                                      UPDATE Projects SET UpdatedAt = GETDATE() WHERE ProjectID = (SELECT ProjectID FROM Tasks WHERE TaskID = @TaskID);
