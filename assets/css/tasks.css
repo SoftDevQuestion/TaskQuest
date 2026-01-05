@@ -54,6 +54,7 @@
     flex-direction: column;
     padding: 20px;
     height: 100%;
+    max-width : 350px;
 }
 
 /* Project Header */

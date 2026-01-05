@@ -6,6 +6,7 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Web.Script.Serialization;
+using System.Globalization;
 
 namespace TaskQuest
 {
@@ -144,16 +145,20 @@ namespace TaskQuest
             string username = Session["User"].ToString();
             int userId = GetUserId(username);
 
+            // Calculate start of the current week (Monday)
+            DateTime today = DateTime.Today;
+            int diff = (7 + (today.DayOfWeek - DayOfWeek.Monday)) % 7;
+            DateTime startOfWeek = today.AddDays(-1 * diff).Date;
+
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
                 try
                 {
                     conn.Open();
-                    // Get completed tasks count for last 7 days
-                    // Note: Assuming we want tasks the user has access to or created
+                    // Get completed tasks count for current week (starting Monday)
                     string query = @"
                         SELECT 
-                            FORMAT(t.CreatedAt, 'yyyy-MM-dd') as DateStr, -- Using CreatedAt as proxy if CompletedAt is missing, or update schema to have CompletedAt
+                            FORMAT(t.CreatedAt, 'yyyy-MM-dd') as DateStr, -- Using CreatedAt as proxy
                             COUNT(DISTINCT t.TaskID) as TaskCount
                         FROM Tasks t
                         JOIN Projects p ON t.ProjectID = p.ProjectID
@@ -161,22 +166,15 @@ namespace TaskQuest
                         LEFT JOIN Team tm_team ON pt.TeamID = tm_team.TeamId
                         LEFT JOIN TeamMembers tm ON tm_team.TeamId = tm.TeamId
                         WHERE t.StatusId = 3 -- Done
-                        AND t.CreatedAt >= DATEADD(DAY, -6, GETDATE()) -- Last 7 days including today
+                        AND t.CreatedAt >= @StartDate
                         AND (p.CreatorUserId = @UserId OR tm.Username = @Username)
                         GROUP BY FORMAT(t.CreatedAt, 'yyyy-MM-dd')
                         ORDER BY DateStr";
 
-                    // Note: If 'CompletedAt' exists, replace 'CreatedAt' with 'CompletedAt' in WHERE and GROUP BY
-                    // For now using CreatedAt because we verified Schema earlier but didn't see CompletedAt column in InspectSchema output explicitly for Tasks table, 
-                    // and Tasks.aspx doesn't show CompletedAt. 
-                    // Ideally we should use a 'CompletedAt' column. 
-                    // Let's assume for this mock that we count tasks *created* in last 7 days that are *done*.
-                    // Or better, just count tasks created in last 7 days to show activity. 
-                    // The user prompt says "Tasks Completed", so let's stick to StatusId=3.
-
                     SqlCommand cmd = new SqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@UserId", userId);
                     cmd.Parameters.AddWithValue("@Username", username);
+                    cmd.Parameters.AddWithValue("@StartDate", startOfWeek);
 
                     SqlDataAdapter da = new SqlDataAdapter(cmd);
                     DataTable dt = new DataTable();
@@ -186,14 +184,12 @@ namespace TaskQuest
                     List<string> labels = new List<string>();
                     List<int> data = new List<int>();
                     
-                    DateTime startDate = DateTime.Today.AddDays(-6);
-                    
-                    // Fill gaps with 0
+                    // Fill gaps with 0 for the whole week (Mon-Sun)
                     for (int i = 0; i < 7; i++)
                     {
-                        DateTime date = startDate.AddDays(i);
+                        DateTime date = startOfWeek.AddDays(i);
                         string dateStr = date.ToString("yyyy-MM-dd");
-                        string displayDate = date.ToString("ddd"); // Mon, Tue...
+                        string displayDate = date.ToString("ddd", CultureInfo.InvariantCulture); // Mon, Tue...
 
                         DataRow[] foundRows = dt.Select($"DateStr = '{dateStr}'");
                         int count = foundRows.Length > 0 ? Convert.ToInt32(foundRows[0]["TaskCount"]) : 0;
@@ -218,7 +214,7 @@ namespace TaskQuest
         private void LoadCalendar()
         {
             DateTime now = DateTime.Now;
-            lblCalendarMonth.Text = now.ToString("MMMM yyyy");
+            lblCalendarMonth.Text = now.ToString("MMMM yyyy", CultureInfo.InvariantCulture);
 
             int daysInMonth = DateTime.DaysInMonth(now.Year, now.Month);
             DateTime firstDay = new DateTime(now.Year, now.Month, 1);
@@ -239,10 +235,19 @@ namespace TaskQuest
             for (int day = 1; day <= daysInMonth; day++)
             {
                 string activeClass = (day == now.Day) ? "active" : "";
-                html += $"<div class='calendar-day {activeClass}'>{day:00}</div>";
+                html += $"<div class='calendar-day {activeClass}'>{day.ToString("00", CultureInfo.InvariantCulture)}</div>";
             }
 
             litCalendarDays.Text = html;
+        }
+
+        protected string GetDateString(object dateObj)
+        {
+            if (dateObj != null && dateObj != DBNull.Value)
+            {
+                return Convert.ToDateTime(dateObj).ToString("MMMM d, yyyy", CultureInfo.InvariantCulture);
+            }
+            return "";
         }
 
         protected string GetDaysLeft(object createdAtObj)

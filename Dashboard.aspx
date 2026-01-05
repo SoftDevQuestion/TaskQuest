@@ -17,7 +17,7 @@
                 <div class="header-content">
                     <h1 class="header-title">Time for Quest</h1>
                     <p class="header-subtitle">let's manage the teams and tasks</p>
-                    <a href="Teams.aspx" class="btn-primary">see your Team</a>
+                    <a href="Projects.aspx" class="btn-primary">Create Your Project</a>
                 </div>
                 <img src="assets/img/hero/hero-5/hero-img.svg" alt="Time for Quest" class="header-image" style="max-height: 200px;" />
             </div>
@@ -28,7 +28,7 @@
                     <ItemTemplate>
                         <div class="card project-card">
                             <div class="project-header">
-                                <span class="project-date"><%# Eval("UpdatedAt", "{0:MMMM d, yyyy}") %></span>
+                                <span class="project-date"><%# GetDateString(Eval("UpdatedAt")) %></span>
                                 <h3 class="project-title"><%# Eval("ProjectName") %></h3>
                                 <p class="project-category"><%# Eval("Description") %></p>
                             </div>
@@ -80,15 +80,15 @@
             
             <!-- Assistant Card -->
             <div class="card assistant-card">
-                <h4 class="assistant-title">Quest</h4>
-                <p class="assistant-subtitle">your Personal assistant</p>
+                <h4 class="assistant-title">Quin</h4>
+                <p class="assistant-subtitle">Your Professional Guide</p>
                 
                 <img src="assets/img/about/about-4/about-img.svg" alt="Quest Assistant" class="assistant-avatar" />
                 
-                <h5 class="assistant-desc">We are here at your service</h5>
-                <p class="assistant-text">Here is your personal chatbot, ask anything</p>
+                <h5 class="assistant-desc">Let's Get to know us better</h5>
+                <p class="assistant-text">Here is a full document for your guidance</p>
                 
-                <button class="btn-primary">Let's Chat</button>
+                <button class="btn-primary">Download</button>
             </div>
 
             <!-- Calendar Card -->
