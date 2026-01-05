@@ -43,9 +43,9 @@ namespace TaskQuest
                 try
                 {
                     conn.Open();
-                    // Get 3 most recently updated projects
+                    // Get 4 most recently updated projects
                     string query = @"
-                        SELECT DISTINCT TOP 3 
+                        SELECT DISTINCT TOP 4 
                             p.ProjectID, 
                             p.ProjectName, 
                             p.Description, 
