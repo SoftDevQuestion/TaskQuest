@@ -91,11 +91,11 @@
 }
 
 .project-card {
-    padding: 20px;
+    padding: 15px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    min-height: 180px;
+    min-height: 160px;
     position: relative;
 }
 
@@ -117,7 +117,12 @@
     font-size: 14px;
     color: #666;
     margin-bottom: 15px;
-    min-height: 21px; /* Ensures space is reserved even if empty */
+    min-height: 42px; /* Fixed height for 2 lines (approx 21px * 2) */
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Limit to 2 lines */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.5; /* Ensure consistent line height */
 }
 
 .progress-wrapper {

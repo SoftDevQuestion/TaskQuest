@@ -43,9 +43,9 @@ namespace TaskQuest
                 try
                 {
                     conn.Open();
-                    // Get 4 most recently updated projects
+                    // Get all projects user has access to
                     string query = @"
-                        SELECT DISTINCT TOP 4 
+                        SELECT DISTINCT 
                             p.ProjectID, 
                             p.ProjectName, 
                             p.Description, 
