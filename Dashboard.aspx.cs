@@ -197,7 +197,7 @@ namespace TaskQuest
                 try
                 {
                     conn.Open();
-                    // Fetch tasks relevant to the date range (either DueDate in range OR Completed in range)
+                    // Fetch tasks assigned specifically to the current user
                     string query = @"
                         SELECT 
                             t.TaskID,
@@ -205,11 +205,7 @@ namespace TaskQuest
                             t.DueDate,
                             t.UpdatedAt
                         FROM Tasks t
-                        JOIN Projects p ON t.ProjectID = p.ProjectID
-                        LEFT JOIN ProjectTeams pt ON p.ProjectID = pt.ProjectID
-                        LEFT JOIN Team tm_team ON pt.TeamID = tm_team.TeamId
-                        LEFT JOIN TeamMembers tm ON tm_team.TeamId = tm.TeamId
-                        WHERE (p.CreatorUserId = @UserId OR tm.Username = @Username)
+                        WHERE t.UserID = @UserId
                         AND (
                             (t.DueDate >= @StartDate AND t.DueDate <= @EndDate)
                             OR 
@@ -218,7 +214,6 @@ namespace TaskQuest
 
                     SqlCommand cmd = new SqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@UserId", userId);
-                    cmd.Parameters.AddWithValue("@Username", username);
                     cmd.Parameters.AddWithValue("@StartDate", startDate);
                     cmd.Parameters.AddWithValue("@EndDate", endDate.AddDays(1).AddSeconds(-1)); // End of the day
 
