@@ -187,37 +187,36 @@ namespace TaskQuest
             string username = Session["User"].ToString();
             int userId = GetUserId(username);
 
-            // Calculate start of the current week (Assuming Saturday start for Iran/User context, or standard Monday)
-            // User requested "English days" and image shows "Saturday, Sunday..."
+            // Calculate 7-day range: Today - 3 days to Today + 3 days
             DateTime today = DateTime.Today;
-            // Find the most recent Saturday
-            int diff = (7 + (today.DayOfWeek - DayOfWeek.Saturday)) % 7;
-            DateTime startOfWeek = today.AddDays(-1 * diff).Date;
+            DateTime startDate = today.AddDays(-3);
+            DateTime endDate = today.AddDays(3);
 
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
                 try
                 {
                     conn.Open();
-                    // Get completed tasks count for each day of the current week
+                    // Get total tasks and done tasks count for each day in the range based on DueDate
                     string query = @"
                         SELECT 
-                            FORMAT(t.UpdatedAt, 'yyyy-MM-dd') as DateStr,
-                            COUNT(DISTINCT t.TaskID) as DoneCount
+                            FORMAT(t.DueDate, 'yyyy-MM-dd') as DateStr,
+                            COUNT(t.TaskID) as TotalCount,
+                            SUM(CASE WHEN t.StatusId = 3 THEN 1 ELSE 0 END) as DoneCount
                         FROM Tasks t
                         JOIN Projects p ON t.ProjectID = p.ProjectID
                         LEFT JOIN ProjectTeams pt ON p.ProjectID = pt.ProjectID
                         LEFT JOIN Team tm_team ON pt.TeamID = tm_team.TeamId
                         LEFT JOIN TeamMembers tm ON tm_team.TeamId = tm.TeamId
-                        WHERE t.StatusId = 3 -- Done
-                        AND t.UpdatedAt >= @StartDate
+                        WHERE t.DueDate >= @StartDate AND t.DueDate <= @EndDate
                         AND (p.CreatorUserId = @UserId OR tm.Username = @Username)
-                        GROUP BY FORMAT(t.UpdatedAt, 'yyyy-MM-dd')";
+                        GROUP BY FORMAT(t.DueDate, 'yyyy-MM-dd')";
 
                     SqlCommand cmd = new SqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@UserId", userId);
                     cmd.Parameters.AddWithValue("@Username", username);
-                    cmd.Parameters.AddWithValue("@StartDate", startOfWeek);
+                    cmd.Parameters.AddWithValue("@StartDate", startDate);
+                    cmd.Parameters.AddWithValue("@EndDate", endDate);
 
                     SqlDataAdapter da = new SqlDataAdapter(cmd);
                     DataTable dt = new DataTable();
@@ -225,20 +224,30 @@ namespace TaskQuest
 
                     // Prepare data for Chart.js
                     List<string> labels = new List<string>();
-                    List<int> data = new List<int>();
+                    List<double> data = new List<double>();
                     
-                    // Fill 7 days starting from Saturday
-                    for (int i = 0; i < 7; i++)
+                    // Fill 7 days centered on Today
+                    for (int i = -3; i <= 3; i++)
                     {
-                        DateTime date = startOfWeek.AddDays(i);
+                        DateTime date = today.AddDays(i);
                         string dateStr = date.ToString("yyyy-MM-dd");
                         string displayDate = date.ToString("dddd", CultureInfo.InvariantCulture); // Full name: Saturday, Sunday...
 
                         DataRow[] foundRows = dt.Select($"DateStr = '{dateStr}'");
-                        int count = foundRows.Length > 0 ? Convert.ToInt32(foundRows[0]["DoneCount"]) : 0;
+                        double ratio = 0;
+
+                        if (foundRows.Length > 0)
+                        {
+                            int total = Convert.ToInt32(foundRows[0]["TotalCount"]);
+                            int done = Convert.ToInt32(foundRows[0]["DoneCount"]);
+                            if (total > 0)
+                            {
+                                ratio = (double)done / total * 100; // Percentage
+                            }
+                        }
 
                         labels.Add(displayDate);
-                        data.Add(count);
+                        data.Add(ratio); // Adding ratio as double
                     }
 
                     JavaScriptSerializer serializer = new JavaScriptSerializer();
@@ -248,7 +257,7 @@ namespace TaskQuest
                 catch 
                 {
                     // Fallback
-                    ChartLabelsJson = "['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']";
+                    ChartLabelsJson = "['Day 1', 'Day 2', 'Day 3', 'Today', 'Day 5', 'Day 6', 'Day 7']";
                     ChartDataJson = "[0, 0, 0, 0, 0, 0, 0]";
                 }
             }
