@@ -26,8 +26,36 @@ namespace TaskQuest
             if (!IsPostBack)
             {
                 EnsureProjectTeamsTable();
+                EnsureSchema();
                 LoadProjects();
                 LoadAllUsers();
+            }
+        }
+
+        private void EnsureSchema()
+        {
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    conn.Open();
+                    string query = @"
+                        IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'Projects' AND COLUMN_NAME = 'UpdatedAt')
+                        BEGIN
+                            ALTER TABLE Projects ADD UpdatedAt DATETIME DEFAULT GETDATE();
+                            EXEC('UPDATE Projects SET UpdatedAt = CreatedAt WHERE UpdatedAt IS NULL');
+                        END
+
+                        IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'Tasks' AND COLUMN_NAME = 'UpdatedAt')
+                        BEGIN
+                            ALTER TABLE Tasks ADD UpdatedAt DATETIME DEFAULT GETDATE();
+                            EXEC('UPDATE Tasks SET UpdatedAt = CreatedAt WHERE UpdatedAt IS NULL');
+                        END
+                    ";
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.ExecuteNonQuery();
+                }
+                catch { }
             }
         }
 
