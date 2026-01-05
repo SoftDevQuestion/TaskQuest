@@ -360,6 +360,33 @@ namespace TaskQuest
         }
 
         [System.Web.Services.WebMethod]
+        public static string DeleteTask(int taskId)
+        {
+            string connectionString = ConnectionHelper.GetConnectionString();
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    conn.Open();
+                    string query = @"
+                        DELETE FROM Tasks WHERE TaskID = @TaskID;
+                        -- Trigger will handle Project update, but if we want to be safe we can force it or rely on trigger.
+                        -- Assuming trigger exists and works as verified earlier.
+                    ";
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@TaskID", taskId);
+                    
+                    cmd.ExecuteNonQuery();
+                    return "Success";
+                }
+                catch (Exception ex)
+                {
+                    return "Error: " + ex.Message;
+                }
+            }
+        }
+
+        [System.Web.Services.WebMethod]
         public static object GetTaskDetails(int taskId)
         {
             string connectionString = ConnectionHelper.GetConnectionString();

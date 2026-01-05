@@ -47,7 +47,10 @@
                                                 <input type="checkbox" class="task-checkbox" onchange="toggleTaskStatus(this, <%# Eval("TaskID") %>)" <%# Convert.ToInt32(Eval("StatusId")) == 3 ? "checked" : "" %> />
                                                 <span class="task-title" style='<%# Convert.ToInt32(Eval("StatusId")) == 3 ? "text-decoration: line-through; color: #bdbdbd;" : "" %>'><%# Eval("Title") %></span>
                                             </div>
-                                            <i data-feather="edit-2" class="edit-task-icon" style="width: 16px; height: 16px;" onclick="openEditTaskModal(<%# Eval("TaskID") %>)"></i>
+                                            <div class="task-actions" style="display: flex; gap: 8px;">
+                                                <i data-feather="edit-2" class="edit-task-icon" style="width: 16px; height: 16px; cursor: pointer;" onclick="openEditTaskModal(<%# Eval("TaskID") %>)"></i>
+                                                <i data-feather="x" class="delete-task-icon" style="width: 16px; height: 16px; cursor: pointer; color: #ff4d4f;" onclick="deleteTask(<%# Eval("TaskID") %>)"></i>
+                                            </div>
                                         </div>
                                         <div class="task-meta">
                                             <span class='<%# "status-badge " + GetStatusClass(Eval("StatusId"), Eval("DueDate")) %>'><%# GetStatusText(Eval("StatusId"), Eval("DueDate")) %></span>
@@ -291,6 +294,21 @@
                 console.error(err);
                 alert("Error updating task.");
             });
+        }
+
+        function deleteTask(taskId) {
+            if (confirm("Are you sure you want to delete this task?")) {
+                PageMethods.DeleteTask(taskId, function(response) {
+                    if (response === "Success") {
+                        location.reload();
+                    } else {
+                        alert(response);
+                    }
+                }, function(err) {
+                    console.error(err);
+                    alert("Error deleting task.");
+                });
+            }
         }
 
         function openCreateTaskModal(projectId) {
