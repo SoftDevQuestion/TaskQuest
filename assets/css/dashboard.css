@@ -94,24 +94,36 @@
     padding: 15px;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start; /* Changed from space-between to rely on margin-top: auto */
-    min-height: 160px;
+    justify-content: flex-start;
+    min-height: 220px; /* Increased to ensure enough space */
     position: relative;
+}
+
+.project-header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    height: 100px; /* Fixed height for header area */
+    margin-bottom: 10px;
+    flex-shrink: 0; /* Prevent shrinking */
 }
 
 .project-date {
     font-size: 12px;
     color: #999;
-    margin-bottom: 8px;
+    margin-bottom: 5px;
     display: block;
     line-height: 1.2;
+    height: 15px; /* Fixed height */
+    overflow: hidden;
 }
 
 .project-title {
     font-size: 18px;
     font-weight: 700;
     color: #1e1e1e;
-    margin: 0 0 4px 0;
+    margin: 0 0 5px 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -123,16 +135,16 @@
 .project-category {
     font-size: 14px;
     color: #666;
-    margin-bottom: 15px;
+    margin: 0;
     height: 44px; /* Fixed height (22px * 2) */
     line-height: 22px;
     overflow: hidden;
-    display: block; /* Removed flex/webkit-box to ensure strict height compliance */
+    display: block;
 }
 
 .progress-wrapper {
     margin-bottom: 20px;
-    margin-top: auto; /* Pushes to bottom if header is short */
+    margin-top: auto; /* Pushes to bottom */
 }
 
 .progress-bar-bg {

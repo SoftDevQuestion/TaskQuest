@@ -27,10 +27,10 @@
                 <asp:Repeater ID="rptRecentProjects" runat="server" OnItemDataBound="rptRecentProjects_ItemDataBound">
                     <ItemTemplate>
                         <div class="card project-card">
-                            <div class="project-header" style="display: flex; flex-direction: column; align-items: flex-start; gap: 2px;">
+                            <div class="project-header">
                                 <span class="project-date"><%# GetDateString(Eval("CreatedAt")) %></span>
-                                <h3 class="project-title" style="margin-bottom: 0;"><%# Eval("ProjectName") %></h3>
-                                <p class="project-category" style="margin-top: 0;"><%# Eval("Description") %></p>
+                                <h3 class="project-title"><%# Eval("ProjectName") %></h3>
+                                <p class="project-category"><%# Eval("Description") %></p>
                             </div>
                             
                             <div class="progress-wrapper">
