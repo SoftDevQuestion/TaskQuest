@@ -107,6 +107,8 @@
     height: 100px; /* Fixed height for header area */
     margin-bottom: 10px;
     flex-shrink: 0; /* Prevent shrinking */
+    width: 100%; /* Ensure full width for text alignment */
+    text-align: left; /* Force left alignment */
 }
 
 .project-date {
@@ -117,6 +119,8 @@
     line-height: 1.2;
     height: 15px; /* Fixed height */
     overflow: hidden;
+    width: 100%;
+    text-align: left;
 }
 
 .project-title {
@@ -130,6 +134,8 @@
     max-width: 100%;
     height: 27px; /* Fixed height */
     line-height: 1.5;
+    width: 100%;
+    text-align: left;
 }
 
 .project-category {
@@ -140,11 +146,14 @@
     line-height: 22px;
     overflow: hidden;
     display: block;
+    width: 100%;
+    text-align: left;
 }
 
 .progress-wrapper {
     margin-bottom: 20px;
-    margin-top: auto; /* Pushes to bottom */
+    /* margin-top: auto; Removed to ensure consistent position from top */
+    width: 100%;
 }
 
 .progress-bar-bg {
