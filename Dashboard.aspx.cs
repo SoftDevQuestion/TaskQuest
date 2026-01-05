@@ -53,7 +53,8 @@ namespace TaskQuest
                             p.CreatedAt,
                             ISNULL(p.DoneStatusCount, 0) as Done,
                             ISNULL(p.InProgressStatusCount, 0) as InProgress,
-                            ISNULL(p.ToDoStatusCount, 0) as ToDo
+                            ISNULL(p.ToDoStatusCount, 0) as ToDo,
+                            (SELECT MIN(DueDate) FROM Tasks t WHERE t.ProjectID = p.ProjectID AND t.StatusId != 3 AND t.DueDate >= CAST(GETDATE() AS DATE)) as NearestDueDate
                         FROM Projects p
                         LEFT JOIN ProjectTeams pt ON p.ProjectID = pt.ProjectID
                         LEFT JOIN Team t ON pt.TeamID = t.TeamId
@@ -72,6 +73,9 @@ namespace TaskQuest
                     // Add custom columns for display
                     dt.Columns.Add("Progress", typeof(int));
                     dt.Columns.Add("Color", typeof(string));
+                    dt.Columns.Add("DaysLeftText", typeof(string));
+                    dt.Columns.Add("DaysLeftColor", typeof(string));
+                    dt.Columns.Add("DaysLeftTextColor", typeof(string));
 
                     string[] colors = { "#ff4d88", "#5577ff", "#00d084" }; // Colors from image: Pink, Blue, Green
                     int colorIndex = 0;
@@ -86,6 +90,44 @@ namespace TaskQuest
                         int progress = total > 0 ? (int)((double)done / total * 100) : 0;
                         row["Progress"] = progress;
                         row["Color"] = colors[colorIndex % colors.Length];
+
+                        // Days Left Logic (Nearest Task)
+                        object nearestDateObj = row["NearestDueDate"];
+                        if (nearestDateObj != DBNull.Value)
+                        {
+                            DateTime nearestDate = Convert.ToDateTime(nearestDateObj);
+                            TimeSpan diff = nearestDate - DateTime.Now;
+                            int daysLeft = diff.Days + 1; // +1 to include today
+
+                            if (daysLeft <= 0)
+                            {
+                                row["DaysLeftText"] = "Due today";
+                                row["DaysLeftColor"] = "#ffebf0"; // Light Pink
+                                row["DaysLeftTextColor"] = "#ff4d88"; // Pink
+                            }
+                            else
+                            {
+                                row["DaysLeftText"] = $"{daysLeft} days left";
+                                if (daysLeft <= 3)
+                                {
+                                    row["DaysLeftColor"] = "#ffebf0"; // Light Pink
+                                    row["DaysLeftTextColor"] = "#ff4d88"; // Pink
+                                }
+                                else
+                                {
+                                    row["DaysLeftColor"] = "#e6fcf5"; // Light Green
+                                    row["DaysLeftTextColor"] = "#00d084"; // Green
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // No upcoming tasks
+                            row["DaysLeftText"] = "No upcoming tasks";
+                            row["DaysLeftColor"] = "#f5f6fa"; // Grey
+                            row["DaysLeftTextColor"] = "#999999"; // Dark Grey
+                        }
+
                         colorIndex++;
                     }
 
@@ -145,9 +187,11 @@ namespace TaskQuest
             string username = Session["User"].ToString();
             int userId = GetUserId(username);
 
-            // Calculate start of the current week (Monday)
+            // Calculate start of the current week (Assuming Saturday start for Iran/User context, or standard Monday)
+            // User requested "English days" and image shows "Saturday, Sunday..."
             DateTime today = DateTime.Today;
-            int diff = (7 + (today.DayOfWeek - DayOfWeek.Monday)) % 7;
+            // Find the most recent Saturday
+            int diff = (7 + (today.DayOfWeek - DayOfWeek.Saturday)) % 7;
             DateTime startOfWeek = today.AddDays(-1 * diff).Date;
 
             using (SqlConnection conn = new SqlConnection(connectionString))
@@ -155,21 +199,20 @@ namespace TaskQuest
                 try
                 {
                     conn.Open();
-                    // Get completed tasks count for current week (starting Monday)
+                    // Get completed tasks count for each day of the current week
                     string query = @"
                         SELECT 
-                            FORMAT(t.CreatedAt, 'yyyy-MM-dd') as DateStr, -- Using CreatedAt as proxy
-                            COUNT(DISTINCT t.TaskID) as TaskCount
+                            FORMAT(t.UpdatedAt, 'yyyy-MM-dd') as DateStr,
+                            COUNT(DISTINCT t.TaskID) as DoneCount
                         FROM Tasks t
                         JOIN Projects p ON t.ProjectID = p.ProjectID
                         LEFT JOIN ProjectTeams pt ON p.ProjectID = pt.ProjectID
                         LEFT JOIN Team tm_team ON pt.TeamID = tm_team.TeamId
                         LEFT JOIN TeamMembers tm ON tm_team.TeamId = tm.TeamId
                         WHERE t.StatusId = 3 -- Done
-                        AND t.CreatedAt >= @StartDate
+                        AND t.UpdatedAt >= @StartDate
                         AND (p.CreatorUserId = @UserId OR tm.Username = @Username)
-                        GROUP BY FORMAT(t.CreatedAt, 'yyyy-MM-dd')
-                        ORDER BY DateStr";
+                        GROUP BY FORMAT(t.UpdatedAt, 'yyyy-MM-dd')";
 
                     SqlCommand cmd = new SqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@UserId", userId);
@@ -184,15 +227,15 @@ namespace TaskQuest
                     List<string> labels = new List<string>();
                     List<int> data = new List<int>();
                     
-                    // Fill gaps with 0 for the whole week (Mon-Sun)
+                    // Fill 7 days starting from Saturday
                     for (int i = 0; i < 7; i++)
                     {
                         DateTime date = startOfWeek.AddDays(i);
                         string dateStr = date.ToString("yyyy-MM-dd");
-                        string displayDate = date.ToString("ddd", CultureInfo.InvariantCulture); // Mon, Tue...
+                        string displayDate = date.ToString("dddd", CultureInfo.InvariantCulture); // Full name: Saturday, Sunday...
 
                         DataRow[] foundRows = dt.Select($"DateStr = '{dateStr}'");
-                        int count = foundRows.Length > 0 ? Convert.ToInt32(foundRows[0]["TaskCount"]) : 0;
+                        int count = foundRows.Length > 0 ? Convert.ToInt32(foundRows[0]["DoneCount"]) : 0;
 
                         labels.Add(displayDate);
                         data.Add(count);
@@ -204,8 +247,8 @@ namespace TaskQuest
                 }
                 catch 
                 {
-                    // Fallback empty data
-                    ChartLabelsJson = "['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']";
+                    // Fallback
+                    ChartLabelsJson = "['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']";
                     ChartDataJson = "[0, 0, 0, 0, 0, 0, 0]";
                 }
             }

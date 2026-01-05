@@ -44,17 +44,19 @@
                             </div>
 
                             <div class="project-footer">
-                                <div class="team-avatars">
-                                    <asp:Repeater ID="rptTeamMembers" runat="server">
-                                        <ItemTemplate>
-                                            <img src='<%# Eval("AvatarPath") %>' class="team-avatar" title='<%# Eval("Username") %>' />
-                                        </ItemTemplate>
-                                    </asp:Repeater>
-                                </div>
-                                <div style="display: flex; align-items: center;">
+                                <div class="left-section" style="display: flex; align-items: center;">
+                                    <div class="team-avatars">
+                                        <asp:Repeater ID="rptTeamMembers" runat="server">
+                                            <ItemTemplate>
+                                                <img src='<%# Eval("AvatarPath") %>' class="team-avatar" title='<%# Eval("Username") %>' />
+                                            </ItemTemplate>
+                                        </asp:Repeater>
+                                    </div>
                                     <button type="button" class="btn-add-mini" style='<%# "background-color: " + Eval("Color") %>'>+</button>
-                                    <span class="days-left" style="margin-left: 8px;">
-                                        <%# GetDaysLeft(Eval("CreatedAt")) %>
+                                </div>
+                                <div class="right-section">
+                                    <span class="days-left" style='<%# "background-color: " + Eval("DaysLeftColor") + "; color: " + Eval("DaysLeftTextColor") + "; padding: 4px 12px; border-radius: 12px; font-size: 12px;" %>'>
+                                        <%# Eval("DaysLeftText") %>
                                     </span>
                                 </div>
                             </div>
@@ -134,7 +136,7 @@
                         borderColor: '#3d6aff',
                         backgroundColor: gradient,
                         borderWidth: 2,
-                        tension: 0.4,
+                        tension: 0.4, // Smooth curve
                         fill: true,
                         pointBackgroundColor: '#fff',
                         pointBorderColor: '#3d6aff',
