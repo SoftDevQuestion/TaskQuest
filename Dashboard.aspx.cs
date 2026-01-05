@@ -197,26 +197,30 @@ namespace TaskQuest
                 try
                 {
                     conn.Open();
-                    // Get total tasks and done tasks count for each day in the range based on DueDate
+                    // Fetch tasks relevant to the date range (either DueDate in range OR Completed in range)
                     string query = @"
                         SELECT 
-                            FORMAT(t.DueDate, 'yyyy-MM-dd') as DateStr,
-                            COUNT(t.TaskID) as TotalCount,
-                            SUM(CASE WHEN t.StatusId = 3 THEN 1 ELSE 0 END) as DoneCount
+                            t.TaskID,
+                            t.StatusId,
+                            t.DueDate,
+                            t.UpdatedAt
                         FROM Tasks t
                         JOIN Projects p ON t.ProjectID = p.ProjectID
                         LEFT JOIN ProjectTeams pt ON p.ProjectID = pt.ProjectID
                         LEFT JOIN Team tm_team ON pt.TeamID = tm_team.TeamId
                         LEFT JOIN TeamMembers tm ON tm_team.TeamId = tm.TeamId
-                        WHERE t.DueDate >= @StartDate AND t.DueDate <= @EndDate
-                        AND (p.CreatorUserId = @UserId OR tm.Username = @Username)
-                        GROUP BY FORMAT(t.DueDate, 'yyyy-MM-dd')";
+                        WHERE (p.CreatorUserId = @UserId OR tm.Username = @Username)
+                        AND (
+                            (t.DueDate >= @StartDate AND t.DueDate <= @EndDate)
+                            OR 
+                            (t.StatusId = 3 AND t.UpdatedAt >= @StartDate AND t.UpdatedAt <= @EndDate)
+                        )";
 
                     SqlCommand cmd = new SqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@UserId", userId);
                     cmd.Parameters.AddWithValue("@Username", username);
                     cmd.Parameters.AddWithValue("@StartDate", startDate);
-                    cmd.Parameters.AddWithValue("@EndDate", endDate);
+                    cmd.Parameters.AddWithValue("@EndDate", endDate.AddDays(1).AddSeconds(-1)); // End of the day
 
                     SqlDataAdapter da = new SqlDataAdapter(cmd);
                     DataTable dt = new DataTable();
@@ -230,24 +234,47 @@ namespace TaskQuest
                     for (int i = -3; i <= 3; i++)
                     {
                         DateTime date = today.AddDays(i);
-                        string dateStr = date.ToString("yyyy-MM-dd");
-                        string displayDate = date.ToString("dddd", CultureInfo.InvariantCulture); // Full name: Saturday, Sunday...
+                        string displayDate = date.ToString("dddd MM/dd", CultureInfo.InvariantCulture); // e.g., Monday 01/05
 
-                        DataRow[] foundRows = dt.Select($"DateStr = '{dateStr}'");
-                        double ratio = 0;
+                        // Logic:
+                        // Total = Tasks Due this day OR Tasks Completed this day
+                        // Done = Tasks Completed this day
 
-                        if (foundRows.Length > 0)
+                        int totalCount = 0;
+                        int doneCount = 0;
+
+                        foreach (DataRow row in dt.Rows)
                         {
-                            int total = Convert.ToInt32(foundRows[0]["TotalCount"]);
-                            int done = Convert.ToInt32(foundRows[0]["DoneCount"]);
-                            if (total > 0)
+                            bool isDue = false;
+                            bool isCompletedToday = false;
+
+                            // Check Due Date
+                            if (row["DueDate"] != DBNull.Value)
                             {
-                                ratio = (double)done / total * 100; // Percentage
+                                DateTime due = Convert.ToDateTime(row["DueDate"]).Date;
+                                if (due == date) isDue = true;
                             }
+
+                            // Check Completion (Status 3 + UpdatedAt)
+                            int status = Convert.ToInt32(row["StatusId"]);
+                            if (status == 3 && row["UpdatedAt"] != DBNull.Value)
+                            {
+                                DateTime updated = Convert.ToDateTime(row["UpdatedAt"]).Date;
+                                if (updated == date) isCompletedToday = true;
+                            }
+
+                            if (isCompletedToday) doneCount++;
+                            if (isDue || isCompletedToday) totalCount++;
+                        }
+
+                        double ratio = 0;
+                        if (totalCount > 0)
+                        {
+                            ratio = (double)doneCount / totalCount * 100;
                         }
 
                         labels.Add(displayDate);
-                        data.Add(ratio); // Adding ratio as double
+                        data.Add(ratio);
                     }
 
                     JavaScriptSerializer serializer = new JavaScriptSerializer();
