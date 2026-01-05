@@ -78,7 +78,7 @@ namespace TaskQuest
                             LEFT JOIN ProjectTeams pt ON p.ProjectID = pt.ProjectID
                             LEFT JOIN Team t ON pt.TeamID = t.TeamId
                             LEFT JOIN TeamMembers tm ON t.TeamId = tm.TeamId
-                            WHERE p.CreatorID = @UserID OR tm.Username = @Username
+                            WHERE p.CreatorUserId = @UserID OR tm.Username = @Username
                         )";
 
                     SqlCommand cmd = new SqlCommand(query, conn);
