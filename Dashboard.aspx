@@ -27,7 +27,7 @@
                 <asp:Repeater ID="rptRecentProjects" runat="server" OnItemDataBound="rptRecentProjects_ItemDataBound">
                     <ItemTemplate>
                         <div class="card project-card">
-                            <div class="project-header">
+                            <div class="project-header" style="display: flex; flex-direction: column; align-items: flex-start; gap: 5px;">
                                 <span class="project-date"><%# GetDateString(Eval("UpdatedAt")) %></span>
                                 <h3 class="project-title"><%# Eval("ProjectName") %></h3>
                                 <p class="project-category"><%# Eval("Description") %></p>
@@ -52,7 +52,6 @@
                                             </ItemTemplate>
                                         </asp:Repeater>
                                     </div>
-                                    <button type="button" class="btn-add-mini" style='<%# "background-color: " + Eval("Color") %>'>+</button>
                                 </div>
                                 <div class="right-section">
                                     <span class="days-left" style='<%# "background-color: " + Eval("DaysLeftColor") + "; color: " + Eval("DaysLeftTextColor") + "; padding: 4px 12px; border-radius: 12px; font-size: 12px;" %>'>

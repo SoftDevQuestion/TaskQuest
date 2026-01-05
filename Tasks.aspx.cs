@@ -219,8 +219,12 @@ namespace TaskQuest
                         if (result != null) assigneeId = Convert.ToInt32(result);
                     }
 
-                    string query = @"INSERT INTO Tasks (ProjectID, Title, StatusId, DueDate, UserID, CreatedAt) 
-                                     VALUES (@ProjectID, @Title, 1, @DueDate, @UserID, GETDATE())";
+                    string query = @"
+                        INSERT INTO Tasks (ProjectID, Title, StatusId, DueDate, UserID, CreatedAt) 
+                        VALUES (@ProjectID, @Title, 1, @DueDate, @UserID, GETDATE());
+                        
+                        UPDATE Projects SET UpdatedAt = GETDATE() WHERE ProjectID = @ProjectID;
+                    ";
                     
                     SqlCommand cmd = new SqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@ProjectID", projectId);
@@ -258,7 +262,10 @@ namespace TaskQuest
                     // 3 = Done, 1 = To Do
                     int newStatus = isDone ? 3 : 1; 
                     
-                    string query = "UPDATE Tasks SET StatusId = @StatusId WHERE TaskID = @TaskID";
+                    string query = @"
+                        UPDATE Tasks SET StatusId = @StatusId WHERE TaskID = @TaskID;
+                        UPDATE Projects SET UpdatedAt = GETDATE() WHERE ProjectID = (SELECT ProjectID FROM Tasks WHERE TaskID = @TaskID);
+                    ";
                     SqlCommand cmd = new SqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@StatusId", newStatus);
                     cmd.Parameters.AddWithValue("@TaskID", taskId);
@@ -334,11 +341,15 @@ namespace TaskQuest
                         if (result != null) assigneeId = Convert.ToInt32(result);
                     }
 
-                    string query = @"UPDATE Tasks 
+                    string query = @"
+                                     UPDATE Tasks 
                                      SET Title = @Title, 
                                          DueDate = @DueDate, 
                                          UserID = @UserID 
-                                     WHERE TaskID = @TaskID";
+                                     WHERE TaskID = @TaskID;
+
+                                     UPDATE Projects SET UpdatedAt = GETDATE() WHERE ProjectID = (SELECT ProjectID FROM Tasks WHERE TaskID = @TaskID);
+                                    ";
 
                     SqlCommand cmd = new SqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@TaskID", taskId);
